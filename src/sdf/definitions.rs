@@ -1,0 +1,94 @@
+use std::collections::HashMap;
+use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
+
+#[skip_serializing_none]
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SDFModel {
+    info: Option<InfoBlock>,
+    namespace: Option<HashMap<String, String>>,
+    default_namespace: Option<String>,
+    sdf_thing: Option<HashMap<String, ThingQualities>>,
+    sdf_product: Option<HashMap<String, ProductQualities>>,
+    sdf_object: Option<HashMap<String, ObjectQualities>>,
+    sdf_property: Option<HashMap<String, PropertyQualities>>,
+    sdf_action: Option<HashMap<String, ActionQualities>>,
+    sdf_event: Option<HashMap<String, EventQualities>>,
+    sdf_data: Option<HashMap<String, DataQualities>>,
+}
+
+#[skip_serializing_none]
+#[derive(Debug, Deserialize, Serialize)]
+struct CommonQualities {
+    description: Option<String>, // long text (no constraints)
+    label: Option<String>, //short text (no constraints); default to key
+    comment: Option<String>, // source code comments only, no semantics
+    // sdfRef: sdf-pointer
+    // sdfRequired: pointer-list    ; applies to qualities of properties, of data
+}
+
+#[skip_serializing_none]
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct ThingQualities {
+    #[serde(flatten)]
+    common_qualities: CommonQualities,
+    sdf_object: Option<HashMap<String, ObjectQualities>>,
+    sdf_thing: Option<HashMap<String, ThingQualities>>,
+}
+
+use ThingQualities as ProductQualities;
+
+#[skip_serializing_none]
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct ObjectQualities {
+    #[serde(flatten)]
+    common_qualities: CommonQualities,
+    sdf_property: Option<HashMap<String, PropertyQualities>>,
+    sdf_action: Option<HashMap<String, ActionQualities>>,
+    sdf_event: Option<HashMap<String, EventQualities>>,
+    sdf_data: Option<HashMap<String, DataQualities>>,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct DataQualities {
+    #[serde(flatten)]
+    common_qualities: CommonQualities,
+    // TODO: Add more
+}
+use DataQualities as PropertyQualities;
+
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct ActionQualities {
+    #[serde(flatten)]
+    common_qualities: CommonQualities,
+    // TODO: Add more
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct EventQualities {
+    #[serde(flatten)]
+    common_qualities: CommonQualities,
+    // TODO: Add more
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+struct InfoBlock {
+    title: String,
+    version: String,
+    copyright: String,
+    license: String,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+struct Namespace {
+    namespaces: HashMap<String, String>,
+    default: String,
+    named_files: HashMap<String, String>,
+}
+
