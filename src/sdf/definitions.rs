@@ -25,7 +25,6 @@ struct CommonQualities {
     label: Option<String>, //short text (no constraints); default to key
     comment: Option<String>, // source code comments only, no semantics
     // sdfRef: sdf-pointer
-    // sdfRequired: pointer-list    ; applies to qualities of properties, of data
 }
 
 #[skip_serializing_none]
@@ -104,12 +103,14 @@ struct ActionQualities {
     // TODO: Add more
 }
 
+#[skip_serializing_none]
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 struct EventQualities {
     #[serde(flatten)]
     common_qualities: CommonQualities,
-    // TODO: Add more
+    sdf_output_data: Option<DataQualities>,
+    sdf_data: Option<HashMap<String, DataQualities>>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
