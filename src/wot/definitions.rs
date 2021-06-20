@@ -42,9 +42,9 @@ pub struct Thing {
     modified: Option<DateTime<Utc>>,
     support: Option<String>,
     base: Option<String>,
-    // events: Option<HashMap<String, EventAffordance>>,
     actions: Option<HashMap<String, ActionAffordance>>,
     properties: Option<HashMap<String, PropertyAffordance>>,
+    events: Option<HashMap<String, EventAffordance>>,
     // links: Option<Vec<Link>>,
     forms: Option<Vec<Form>>,
     // security: Vec<Security>,
@@ -129,6 +129,18 @@ struct ActionAffordance {
     output: Option<DataSchema>,
     safe: Option<bool>,
     idempotent: Option<bool>,
+}
+
+#[skip_serializing_none]
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct EventAffordance {
+    #[serde(flatten)]
+    interaction_affordance: InteractionAffordance,
+
+    subscription: Option<DataSchema>,
+    data: Option<DataSchema>,
+    cancellation: Option<DataSchema>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
