@@ -19,7 +19,8 @@ fn test_function() -> Result<String> {
                 "sdfProperty": {
                     "value": {
                         "description": "The state of the switch; false for off and true for on.",
-                        "type": "boolean"
+                        "type": "boolean",
+                        "sdfType": "byte-string"
                     }
                 },
                 "sdfAction": {

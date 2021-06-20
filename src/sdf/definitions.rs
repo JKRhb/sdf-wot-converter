@@ -69,6 +69,13 @@ struct JSONSchema {
     // TODO: Add more members
 }
 
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "kebab-case")]
+enum SDFType {
+    ByteString,
+    UnixTime,
+}
+
 #[skip_serializing_none]
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -84,7 +91,7 @@ struct DataQualities {
     readable: Option<bool>,
     writable: Option<bool>,
     nullable: Option<bool>,
-    // TODO: Add sdfType
+    sdf_type: Option<SDFType>,
     content_format: Option<String>,
 }
 use DataQualities as PropertyQualities;
