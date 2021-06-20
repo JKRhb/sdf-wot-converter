@@ -85,6 +85,12 @@ enum SecurityScheme {
         r#in: Option<SchemeIn>,
         name: Option<String>,
     },
+    Combo {
+        #[serde(flatten)]
+        common: SecuritySchemeCommon,
+        one_of: TypeOrTypeArray<String>,
+        all_of: TypeOrTypeArray<String>,
+    },
     Digest {
         #[serde(flatten)]
         common: SecuritySchemeCommon,
