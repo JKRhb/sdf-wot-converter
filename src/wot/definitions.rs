@@ -46,7 +46,7 @@ pub struct Thing {
     // properties: Option<HashMap<String, PropertyAffordance>>,
     // events: Option<HashMap<String, EventAffordance>>,
     // links: Option<Vec<Link>>,
-    // forms: Option<Vec<Form>>,
+    forms: Option<Vec<Form>>,
     // security: Vec<Security>,
     // security_definitions: HashMap<String, SecurityDefinition>,
     // profile: Option<Profile>,
@@ -106,4 +106,33 @@ struct InteractionAffordance {
     uri_variables: Option<HashMap<String, DataSchema>>,
 }
 
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+enum OperationType {
+    Readproperty,
+    Writeproperty,
+    Observeproperty,
+    Unobserveproperty,
+    Invokeaction,
+    Subscribeevent,
+    Unsubscribeevent,
+    Readallproperties,
+    Writeallproperties,
+    Readmultipleproperties,
+    Writemultipleproperties,
+}
+
+#[skip_serializing_none]
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct Form { // TODO: Define forms for different affordance types
+    op: Option<OperationType>, // TODO: Can be array
+    href: String,
+    content_type: Option<String>,
+    content_coding: Option<String>,
+    subprotocol: Option<String>,
+    security: Option<StringOrArrayOfString>,
+    scopes: Option<StringOrArrayOfString>,
+    // response: Option<ExpectedResponse>,
+}
 
