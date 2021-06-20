@@ -71,4 +71,25 @@ enum JSONSchemaTypes {
     Object,
 }
 
+#[skip_serializing_none]
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct DataSchema {
+    #[serde(rename = "@type")]
+    r#type: Option<StringOrArrayOfString>,
+    title: Option<HashMap<String, String>>,
+    titles: Option<HashMap<String, String>>, // TODO: Consider using a MultiLanguage struct instead
+    description: Option<String>,
+    descriptions: Option<HashMap<String, String>>,
+    #[serde(rename = "type")]
+    data_type: Option<JSONSchemaTypes>,
+    r#const: Option<serde_json::Value>,
+    unit: Option<String>,
+    one_of: Option<Vec<DataSchema>>,
+    r#enum: Option<Vec<serde_json::Value>>,
+    read_only: Option<bool>,
+    write_only: Option<bool>,
+    format: Option<String>,
+}
+
 
