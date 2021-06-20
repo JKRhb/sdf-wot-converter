@@ -1,27 +1,27 @@
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 use std::collections::HashMap;
-use chrono::{DateTime, Utc};
 
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(untagged)]
 enum Context {
-  String(String),
-  Array(Vec<ContextEntry>),
+    String(String),
+    Array(Vec<ContextEntry>),
 }
 
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(untagged)]
 enum ContextEntry {
-  String(String),
-  Map(HashMap<String, String>),
+    String(String),
+    Map(HashMap<String, String>),
 }
 
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(untagged)]
 enum StringOrArrayOfString {
-  String(String),
-  Array(Vec<String>),
+    String(String),
+    Array(Vec<String>),
 }
 
 #[skip_serializing_none]
@@ -50,7 +50,7 @@ pub struct Thing {
     security: StringOrArrayOfString,
     security_definitions: HashMap<String, SecurityScheme>,
     // profile: Option<Profile>,
-    schema_definitions: Option<HashMap<String, DataSchema>>
+    schema_definitions: Option<HashMap<String, DataSchema>>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
