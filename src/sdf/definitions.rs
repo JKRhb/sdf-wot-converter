@@ -68,6 +68,7 @@ struct JSONSchema {
     r#type: JSONSchemaTypes,
 }
 
+#[skip_serializing_none]
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 struct DataQualities {
@@ -77,6 +78,13 @@ struct DataQualities {
     #[serde(flatten)]
     jsonschema: JSONSchema,
     // TODO: Add more
+
+    unit: Option<String>,
+    observable: Option<bool>,
+    readable: Option<bool>,
+    writable: Option<bool>,
+    nullable: Option<bool>,
+    content_format: Option<String>,
 }
 use DataQualities as PropertyQualities;
 
