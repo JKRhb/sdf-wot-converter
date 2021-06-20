@@ -43,8 +43,8 @@ pub struct Thing {
     support: Option<String>,
     base: Option<String>,
     // actions: Option<HashMap<String, ActionAffordance>>,
-    // properties: Option<HashMap<String, PropertyAffordance>>,
     // events: Option<HashMap<String, EventAffordance>>,
+    properties: Option<HashMap<String, PropertyAffordance>>,
     // links: Option<Vec<Link>>,
     forms: Option<Vec<Form>>,
     // security: Vec<Security>,
@@ -104,6 +104,18 @@ struct InteractionAffordance {
     descriptions: Option<HashMap<String, String>>,
     forms: Vec<Form>,
     uri_variables: Option<HashMap<String, DataSchema>>,
+}
+
+#[skip_serializing_none]
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct PropertyAffordance {
+    #[serde(flatten)]
+    interaction_affordance: InteractionAffordance,
+
+    #[serde(flatten)]
+    data_schema: DataSchema,
+    observable: Option<bool>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
