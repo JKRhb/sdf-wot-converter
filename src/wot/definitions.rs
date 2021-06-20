@@ -19,9 +19,9 @@ enum ContextEntry {
 
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(untagged)]
-enum StringOrArrayOfString {
-    String(String),
-    Array(Vec<String>),
+enum TypeOrTypeArray<T> {
+    String(T),
+    Array(Vec<T>),
 }
 
 #[skip_serializing_none]
@@ -31,7 +31,7 @@ pub struct Thing {
     #[serde(rename = "@context")]
     context: Context,
     #[serde(rename = "@type")]
-    r#type: Option<StringOrArrayOfString>,
+    r#type: Option<TypeOrTypeArray<String>>,
     id: Option<String>,
     title: String,
     titles: Option<HashMap<String, String>>,
@@ -47,7 +47,7 @@ pub struct Thing {
     events: Option<HashMap<String, EventAffordance>>,
     links: Option<Vec<Link>>,
     forms: Option<Vec<Form>>,
-    security: StringOrArrayOfString,
+    security: TypeOrTypeArray<String>,
     security_definitions: HashMap<String, SecurityScheme>,
     // profile: Option<Profile>,
     schema_definitions: Option<HashMap<String, DataSchema>>,
@@ -112,7 +112,7 @@ enum SecurityScheme {
         authorization: Option<String>,
         token: Option<String>,
         refresh: Option<String>,
-        scrops: Option<StringOrArrayOfString>,
+        scrops: Option<TypeOrTypeArray<String>>,
         flow: String,
     },
     Apikey {
@@ -128,7 +128,7 @@ enum SecurityScheme {
 #[serde(rename_all = "camelCase")]
 struct SecuritySchemeCommon {
     #[serde(rename = "@type")]
-    r#type: Option<StringOrArrayOfString>,
+    r#type: Option<TypeOrTypeArray<String>>,
     description: Option<String>,
     descriptions: Option<HashMap<String, String>>,
     proxy: Option<String>,
@@ -164,7 +164,7 @@ enum JSONSchemaTypes {
 #[serde(rename_all = "camelCase")]
 struct DataSchema {
     #[serde(rename = "@type")]
-    r#type: Option<StringOrArrayOfString>,
+    r#type: Option<TypeOrTypeArray<String>>,
     title: Option<HashMap<String, String>>,
     titles: Option<HashMap<String, String>>, // TODO: Consider using a MultiLanguage struct instead
     description: Option<String>,
@@ -185,7 +185,7 @@ struct DataSchema {
 #[serde(rename_all = "camelCase")]
 struct InteractionAffordance {
     #[serde(rename = "@type")]
-    r#type: Option<StringOrArrayOfString>,
+    r#type: Option<TypeOrTypeArray<String>>,
     title: Option<String>,
     titles: Option<HashMap<String, String>>,
     description: Option<String>,
@@ -256,8 +256,8 @@ struct Form { // TODO: Define forms for different affordance types
     content_type: Option<String>,
     content_coding: Option<String>,
     subprotocol: Option<String>,
-    security: Option<StringOrArrayOfString>,
-    scopes: Option<StringOrArrayOfString>,
+    security: Option<TypeOrTypeArray<String>>,
+    scopes: Option<TypeOrTypeArray<String>>,
     response: Option<ExpectedResponse>,
 }
 
