@@ -112,10 +112,3 @@ struct InfoBlock {
     copyright: String,
     license: String,
 }
-
-#[derive(Debug, Deserialize, Serialize)]
-struct Namespace {
-    namespaces: HashMap<String, String>,
-    default: String,
-    named_files: HashMap<String, String>,
-}
