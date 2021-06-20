@@ -47,10 +47,98 @@ pub struct Thing {
     events: Option<HashMap<String, EventAffordance>>,
     // links: Option<Vec<Link>>,
     forms: Option<Vec<Form>>,
-    // security: Vec<Security>,
-    // security_definitions: HashMap<String, SecurityDefinition>,
+    security: StringOrArrayOfString,
+    security_definitions: HashMap<String, SecurityScheme>,
     // profile: Option<Profile>,
     schema_definitions: Option<HashMap<String, DataSchema>>
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+enum SchemeIn {
+    Header,
+    Query,
+    Body,
+    Cookie,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "kebab-case")]
+#[serde(untagged)]
+enum SchemaQoP {
+    Auth,
+    AuthInit,
+}
+
+#[skip_serializing_none]
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+#[serde(tag = "scheme")]
+enum SecurityScheme {
+    Nosec {
+        #[serde(flatten)]
+        common: SecuritySchemeCommon,
+    },
+    Basic {
+        #[serde(flatten)]
+        common: SecuritySchemeCommon,
+        r#in: Option<SchemeIn>,
+        name: Option<String>,
+    },
+    Digest {
+        #[serde(flatten)]
+        common: SecuritySchemeCommon,
+        qop: Option<SchemaQoP>,
+        r#in: Option<SchemeIn>,
+        name: Option<String>,
+    },
+    Bearer {
+        #[serde(flatten)]
+        common: SecuritySchemeCommon,
+        authorization: Option<String>,
+        alg: Option<String>,
+        format: Option<String>,
+        r#in: Option<SchemeIn>,
+        name: Option<String>,
+    },
+    PSK {
+        #[serde(flatten)]
+        common: SecuritySchemeCommon,
+        identity: Option<String>,
+    },
+    Oauth2 {
+        #[serde(flatten)]
+        common: SecuritySchemeCommon,
+        authorization: Option<String>,
+        token: Option<String>,
+        refresh: Option<String>,
+        scrops: Option<StringOrArrayOfString>,
+        flow: String,
+    },
+    Apikey {
+        #[serde(flatten)]
+        common: SecuritySchemeCommon,
+        r#in: Option<SchemeIn>,
+        name: Option<String>,
+    },
+}
+
+#[skip_serializing_none]
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct SecuritySchemeCommon {
+    #[serde(rename = "@type")]
+    r#type: Option<StringOrArrayOfString>,
+    description: Option<String>,
+    descriptions: Option<HashMap<String, String>>,
+    proxy: Option<String>,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(untagged)]
+enum SecurityDefinition {
+    NoSecurityScheme(String),
+    Array(Vec<ContextEntry>),
 }
 
 #[skip_serializing_none]
