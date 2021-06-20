@@ -95,12 +95,15 @@ struct DataQualities {
 }
 use DataQualities as PropertyQualities;
 
+#[skip_serializing_none]
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 struct ActionQualities {
     #[serde(flatten)]
     common_qualities: CommonQualities,
-    // TODO: Add more
+    sdf_input_data: Option<DataQualities>,
+    sdf_output_data: Option<DataQualities>,
+    sdf_data: Option<HashMap<String, DataQualities>>,
 }
 
 #[skip_serializing_none]
