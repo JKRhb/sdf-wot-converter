@@ -92,4 +92,18 @@ struct DataSchema {
     format: Option<String>,
 }
 
+#[skip_serializing_none]
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct InteractionAffordance {
+    #[serde(rename = "@type")]
+    r#type: Option<StringOrArrayOfString>,
+    title: Option<String>,
+    titles: Option<HashMap<String, String>>,
+    description: Option<String>,
+    descriptions: Option<HashMap<String, String>>,
+    forms: Vec<Form>,
+    uri_variables: Option<HashMap<String, DataSchema>>,
+}
+
 
