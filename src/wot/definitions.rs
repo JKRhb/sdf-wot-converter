@@ -49,7 +49,7 @@ pub struct Thing {
     forms: Option<Vec<Form>>,
     security: TypeOrTypeArray<String>,
     security_definitions: HashMap<String, SecurityScheme>,
-    // profile: Option<Profile>,
+    profile: Option<TypeOrTypeArray<String>>,
     schema_definitions: Option<HashMap<String, DataSchema>>,
 }
 
