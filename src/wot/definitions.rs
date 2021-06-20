@@ -50,7 +50,7 @@ pub struct Thing {
     // security: Vec<Security>,
     // security_definitions: HashMap<String, SecurityDefinition>,
     // profile: Option<Profile>,
-    // schema_definitions: Option<HashMap<String, DataSchema>>
+    schema_definitions: Option<HashMap<String, DataSchema>>
 }
 
 #[skip_serializing_none]
