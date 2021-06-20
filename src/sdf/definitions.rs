@@ -53,10 +53,29 @@ struct ObjectQualities {
 }
 
 #[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "lowercase")]
+enum JSONSchemaTypes {
+    Number,
+    String,
+    Boolean,
+    Integer,
+    Array,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct JSONSchema {
+    r#type: JSONSchemaTypes,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 struct DataQualities {
     #[serde(flatten)]
     common_qualities: CommonQualities,
+
+    #[serde(flatten)]
+    jsonschema: JSONSchema,
     // TODO: Add more
 }
 use DataQualities as PropertyQualities;
