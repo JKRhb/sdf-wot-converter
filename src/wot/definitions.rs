@@ -45,7 +45,7 @@ pub struct Thing {
     actions: Option<HashMap<String, ActionAffordance>>,
     properties: Option<HashMap<String, PropertyAffordance>>,
     events: Option<HashMap<String, EventAffordance>>,
-    // links: Option<Vec<Link>>,
+    links: Option<Vec<Link>>,
     forms: Option<Vec<Form>>,
     security: StringOrArrayOfString,
     security_definitions: HashMap<String, SecurityScheme>,
@@ -259,6 +259,16 @@ struct Form { // TODO: Define forms for different affordance types
     security: Option<StringOrArrayOfString>,
     scopes: Option<StringOrArrayOfString>,
     response: Option<ExpectedResponse>,
+}
+
+#[skip_serializing_none]
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct Link {
+    href: String,
+    r#type: Option<String>,
+    rel: Option<String>,
+    anchor: Option<String>,
 }
 
 #[skip_serializing_none]
