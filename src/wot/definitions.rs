@@ -60,4 +60,15 @@ struct VersionInfo {
     instance: String,
 }
 
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+enum JSONSchemaTypes {
+    Null,
+    Bool,
+    Number,
+    String,
+    Array,
+    Object,
+}
+
 
