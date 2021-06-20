@@ -19,7 +19,7 @@ enum ContextEntry {
 
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(untagged)]
-enum Type {
+enum StringOrArrayOfString {
   String(String),
   Array(Vec<String>),
 }
@@ -31,7 +31,7 @@ pub struct Thing {
     #[serde(rename = "@context")]
     context: Context,
     #[serde(rename = "@type")]
-    r#type: Option<Type>,
+    r#type: Option<StringOrArrayOfString>,
     id: Option<String>,
     title: String,
     titles: Option<HashMap<String, String>>,
