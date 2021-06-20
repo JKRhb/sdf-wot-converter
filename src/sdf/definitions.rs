@@ -53,7 +53,7 @@ struct ObjectQualities {
 }
 
 #[derive(Debug, Deserialize, Serialize)]
-#[serde(rename_all = "lowercase")]
+#[serde(rename_all = "camelCase")]
 enum JSONSchemaTypes {
     Number,
     String,
