@@ -1,5 +1,5 @@
-mod wot;
-use wot::definitions::SDFModel;
+mod sdf;
+use sdf::definitions::SDFModel;
 use serde_json::Result;
 
 fn test_function() -> Result<String> {
