@@ -15,7 +15,17 @@ fn read_json<T: serde::Serialize + serde::de::DeserializeOwned>(path: &str) -> R
   return Ok(j);
 }
 
-fn main() {}
+fn print_definition<T: serde::Serialize + serde::de::DeserializeOwned>(path: &str) -> () {
+  match read_json::<T>(path) {
+    Ok(result) => println!("{}", result),
+    Err(e) => println!("{}", e),
+  };
+}
+
+fn main() {
+  print_definition::<Thing>("examples/wot/example.td.json");
+  print_definition::<SDFModel>("examples/sdf/example.sdf.json");
+}
 
 #[cfg(test)]
 mod test {
