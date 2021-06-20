@@ -170,6 +170,12 @@ struct Form { // TODO: Define forms for different affordance types
     subprotocol: Option<String>,
     security: Option<StringOrArrayOfString>,
     scopes: Option<StringOrArrayOfString>,
-    // response: Option<ExpectedResponse>,
+    response: Option<ExpectedResponse>,
 }
 
+#[skip_serializing_none]
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct ExpectedResponse {
+    content_type: String,
+}
