@@ -34,7 +34,7 @@ mod test {
   fn test_function<T: serde::Serialize + serde::de::DeserializeOwned>(path: &str) -> () {
     match read_json::<T>(path) {
       Ok(result) => println!("{}", result),
-      Err(e) => panic!(e),
+      Err(error) => panic!("{}", error),
     };
   }
 
