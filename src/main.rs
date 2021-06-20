@@ -15,14 +15,28 @@ fn read_json<T: serde::Serialize + serde::de::DeserializeOwned>(path: &str) -> R
   return Ok(j);
 }
 
-fn test_function<T: serde::Serialize + serde::de::DeserializeOwned>(path: &str) -> () {
-  match read_json::<T>(path) {
-    Ok(result) => println!("{}", result),
-    Err(e) => println!("{}", e),
-  };
-}
+fn main() {}
 
-fn main() {
-  test_function::<SDFModel>("examples/sdf/example.sdf.json");
-  test_function::<Thing>("examples/wot/example.td.json");
+#[cfg(test)]
+mod test {
+  use super::*;
+
+  fn test_function<T: serde::Serialize + serde::de::DeserializeOwned>(path: &str) -> () {
+    match read_json::<T>(path) {
+      Ok(result) => println!("{}", result),
+      Err(e) => println!("{}", e),
+    };
+  }
+
+  #[test]
+  fn test_sdf() {
+    // TODO: Add assertions
+    test_function::<SDFModel>("examples/sdf/example.sdf.json");
+  }
+
+  #[test]
+  fn test_wot() {
+    // TODO: Add assertions
+    test_function::<Thing>("examples/wot/example.td.json");
+  }
 }
