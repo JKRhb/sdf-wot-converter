@@ -21,10 +21,10 @@ pub struct SDFModel {
 #[skip_serializing_none]
 #[derive(Debug, Deserialize, Serialize)]
 struct CommonQualities {
-    description: Option<String>, // long text (no constraints)
-    label: Option<String>, //short text (no constraints); default to key
-    comment: Option<String>, // source code comments only, no semantics
-    // sdfRef: sdf-pointer
+    description: Option<String>,
+    label: Option<String>,
+    comment: Option<String>,
+    // TODO: Add sdfRef and sdfRequired
 }
 
 #[skip_serializing_none]
