@@ -280,6 +280,7 @@ struct Link {
     r#type: Option<String>,
     rel: Option<String>,
     anchor: Option<String>,
+    sizes: Option<String>,
 }
 
 #[skip_serializing_none]
