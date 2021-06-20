@@ -37,7 +37,7 @@ pub struct Thing {
     titles: Option<HashMap<String, String>>,
     description: Option<String>,
     descriptions: Option<HashMap<String, String>>,
-    version: Option<String>,
+    version: Option<VersionInfo>,
     created: Option<DateTime<Utc>>,
     modified: Option<DateTime<Utc>>,
     support: Option<String>,
@@ -51,6 +51,13 @@ pub struct Thing {
     // security_definitions: HashMap<String, SecurityDefinition>,
     // profile: Option<Profile>,
     // schema_definitions: Option<HashMap<String, DataSchema>>
+}
+
+#[skip_serializing_none]
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct VersionInfo {
+    instance: String,
 }
 
 
