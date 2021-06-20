@@ -66,6 +66,7 @@ enum JSONSchemaTypes {
 #[serde(rename_all = "camelCase")]
 struct JSONSchema {
     r#type: JSONSchemaTypes,
+    // TODO: Add more members
 }
 
 #[skip_serializing_none]
@@ -77,13 +78,13 @@ struct DataQualities {
 
     #[serde(flatten)]
     jsonschema: JSONSchema,
-    // TODO: Add more
 
     unit: Option<String>,
     observable: Option<bool>,
     readable: Option<bool>,
     writable: Option<bool>,
     nullable: Option<bool>,
+    // TODO: Add sdfType
     content_format: Option<String>,
 }
 use DataQualities as PropertyQualities;
