@@ -259,7 +259,18 @@ struct Form { // TODO: Define forms for different affordance types
     security: Option<TypeOrTypeArray<String>>,
     scopes: Option<TypeOrTypeArray<String>>,
     response: Option<ExpectedResponse>,
+    additional_responses: TypeOrTypeArray<AdditionalExpectedResponse>,
 }
+
+#[skip_serializing_none]
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct AdditionalExpectedResponse {
+    success: Option<bool>,
+    schema: Option<String>,
+    content_type: Option<String>,
+}
+
 
 #[skip_serializing_none]
 #[derive(Debug, Deserialize, Serialize)]
