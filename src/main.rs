@@ -8,9 +8,9 @@ use wot::definitions::Thing;
 fn test_function<T: serde::Serialize + serde::de::DeserializeOwned>(path: &str) -> Result<String> {
   let example = fs::read_to_string(&path).expect("Something went wrong reading the file");
 
-  let sdf_model: T = serde_json::from_str(&example)?;
+  let definition: T = serde_json::from_str(&example)?;
 
-  let j = serde_json::to_string_pretty(&sdf_model)?;
+  let j = serde_json::to_string_pretty(&definition)?;
 
   return Ok(j);
 }
