@@ -257,7 +257,7 @@ enum OperationType {
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 struct Form { // TODO: Define forms for different affordance types
-    op: Option<OperationType>, // TODO: Can be array
+    op: Option<TypeOrTypeArray<OperationType>>,
     href: String,
     content_type: Option<String>,
     content_coding: Option<String>,
