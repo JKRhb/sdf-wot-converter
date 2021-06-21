@@ -51,21 +51,95 @@ struct ObjectQualities {
     sdf_data: Option<HashMap<String, DataQualities>>,
 }
 
+#[skip_serializing_none]
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
-enum JSONSchemaTypes {
-    Number,
-    String,
-    Boolean,
-    Integer,
-    Array,
+struct NumberTypeQualities<T> {
+    minimum: Option<T>,
+    maximum: Option<T>,
+    exclusive_minimum: Option<T>,
+    exclusive_maximum: Option<T>,
+    multiple_of: Option<T>,
+}
+
+#[skip_serializing_none]
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "kebab-case")]
+enum FormatQualities {
+    DateTime,
+    Date,
+    Time,
+    Uri,
+    UriReference,
+    Uuid,
+}
+
+#[skip_serializing_none]
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct TypedQualities<T> {
+    r#const: Option<T>,
+    default: Option<T>,
+    r#enum: Option<Vec<T>>,
+}
+
+#[skip_serializing_none]
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct StringTypeQualities {
+    #[serde(flatten)]
+    common_qualities: TypedQualities<String>,
+    min_length: Option<i32>,
+    max_length: Option<i32>,
+    pattern: Option<String>,
+    format: Option<FormatQualities>,
+}
+
+#[skip_serializing_none]
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct ObjectTypeQualities {
+    #[serde(flatten)]
+    common_qualities: TypedQualities<serde_json::Map<String, serde_json::Value>>,
+    required: Option<Vec<String>>,
+    properties: Option<HashMap<String, DataQualities>>,
+}
+
+#[skip_serializing_none]
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct ArrayTypeQualities {
+    min_items: Option<i32>,
+    max_items: Option<i32>,
+    unique_items: Option<bool>,
+    // items: Option<DataQualities>, // TODO: Not the actual schema entry yet
 }
 
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
-struct JSONSchema {
-    r#type: JSONSchemaTypes,
-    // TODO: Add more members
+#[serde(tag = "type")]
+enum RegularTypes {
+    Number(NumberTypeQualities<f32>),
+    String(StringTypeQualities),
+    Boolean(TypedQualities<bool>), // TODO: Does "enum" make sense here?
+    Integer(NumberTypeQualities<i32>),
+    Array(ArrayTypeQualities),
+    Object(ObjectTypeQualities),
+}
+
+#[skip_serializing_none]
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct SdfChoice {
+    sdf_choice: HashMap<String, DataQualities>
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+#[serde(untagged)]
+enum Types {
+    Type(RegularTypes),
+    SdfChoice(SdfChoice),
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -83,7 +157,7 @@ struct DataQualities {
     common_qualities: CommonQualities,
 
     #[serde(flatten)]
-    jsonschema: JSONSchema,
+    jsonschema: Option<Types>,
 
     unit: Option<String>,
     observable: Option<bool>,
