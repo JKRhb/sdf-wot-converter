@@ -24,7 +24,9 @@ struct CommonQualities {
     description: Option<String>,
     label: Option<String>,
     comment: Option<String>,
-    // TODO: Add sdfRef and sdfRequired
+    sdf_ref: Option<String>,
+    sdf_required: Option<Vec<String>>,
+    // TODO: Add validation for sdfRef and sdfRequired
 }
 
 #[skip_serializing_none]
