@@ -13,6 +13,7 @@ serde = { version = "1.0", features = ["derive"] }
 chrono = {version = "0.4.19", features = ["serde"]}
 assert-json-diff = "2.0.1"
 ciborium = "0.1.0"
+regex = "1.5.4"
 
 [dependencies.serde_with]
 version = "1.9.4"
