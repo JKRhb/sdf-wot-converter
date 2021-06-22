@@ -144,8 +144,8 @@ pub struct SecuritySchemeCommon {
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct VersionInfo {
-    instance: String,
-    model: Option<String>,
+    pub instance: String,
+    pub model: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
