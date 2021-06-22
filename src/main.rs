@@ -27,19 +27,19 @@ fn main() {
   print_definition::<SDFModel>("examples/sdf/example.sdf.json");
 
 
-  let example = fs::read_to_string("examples/sdf/example.sdf.json").expect("Something went wrong reading the file");
-  let definition: Result<SDFModel> = serde_json::from_str(&example);
+  let sdf_json = fs::read_to_string("examples/sdf/example.sdf.json").expect("Something went wrong reading the file");
+  let sdf_model: Result<SDFModel> = serde_json::from_str(&sdf_json);
 
-  match definition {
+  match sdf_model {
     Ok(result) => {
-      let blah = Thing::from(result);
-      let j = serde_json::to_string_pretty(&blah);
-      match j {
+      let converted_thing = Thing::from(result);
+      let serialized_thing = serde_json::to_string_pretty(&converted_thing);
+      match serialized_thing {
         Ok(result) => println!("{}", result),
-        Err(e) => println!("{}", e),
+        Err(error) => println!("{}", error),
       };
     },
-    Err(e) => println!("{}", e),
+    Err(error) => println!("{}", error),
   };
 }
 
