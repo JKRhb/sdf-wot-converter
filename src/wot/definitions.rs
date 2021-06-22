@@ -145,6 +145,7 @@ pub struct SecuritySchemeCommon {
 #[serde(rename_all = "camelCase")]
 pub struct VersionInfo {
     instance: String,
+    model: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
