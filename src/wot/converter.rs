@@ -38,20 +38,12 @@ impl From<SDFModel> for Thing {
                 version = None;
             }
             Some(infoblock) => {
-                match Some(infoblock.title) {
-                    None => title = no_title,
-                    Some(sdf_title) => title = sdf_title,
-                };
-                match Some(infoblock.version) {
-                    None => version = None,
-                    Some(sdf_version) => {
-                        version = Some(VersionInfo {
-                            // TODO: Revisit use of "instance" and "model"
-                            instance: sdf_version,
-                            model: None,
-                        })
-                    }
-                };
+                title = infoblock.title;
+                version = Some(VersionInfo {
+                    // TODO: Revisit use of "instance" and "model"
+                    instance: infoblock.version,
+                    model: None,
+                });
             }
         };
 
