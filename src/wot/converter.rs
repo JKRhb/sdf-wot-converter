@@ -10,6 +10,7 @@ use super::definitions::SecurityScheme;
 use super::definitions::SecuritySchemeCommon;
 use super::definitions::Thing;
 use super::definitions::TypeOrTypeArray;
+use super::definitions::VersionInfo;
 use std::collections::HashMap;
 use std::convert::From;
 
@@ -29,12 +30,29 @@ impl From<SDFModel> for Thing {
 
         let no_title = "No Title given.".to_string();
         let infoblock: Option<InfoBlock> = sdf_model.info;
-        let title: String = match infoblock {
-            None => no_title,
-            Some(infoblock) => match Some(infoblock.title) {
-                None => no_title,
-                Some(title) => title,
-            },
+        let title: String;
+        let version: Option<VersionInfo>;
+        match infoblock {
+            None => {
+                title = no_title;
+                version = None;
+            }
+            Some(infoblock) => {
+                match Some(infoblock.title) {
+                    None => title = no_title,
+                    Some(sdf_title) => title = sdf_title,
+                };
+                match Some(infoblock.version) {
+                    None => version = None,
+                    Some(sdf_version) => {
+                        version = Some(VersionInfo {
+                            // TODO: Revisit use of "instance" and "model"
+                            instance: sdf_version,
+                            model: None,
+                        })
+                    }
+                };
+            }
         };
 
         return Thing {
@@ -43,7 +61,7 @@ impl From<SDFModel> for Thing {
             titles: None,
             base: None,
             created: None,
-            version: None,
+            version: version,
             support: None,
             description: None,
             descriptions: None,
