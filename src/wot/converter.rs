@@ -1,6 +1,6 @@
 //! First attempt for a SDF to WoT converter.
 //!
-//! The code contained in this file should probably moved elsewhere (either to 
+//! The code contained in this file should probably be moved elsewhere (either to
 //! wot/definitions.rs or into to a separate directory.)
 
 use super::super::sdf::definitions::InfoBlock;
