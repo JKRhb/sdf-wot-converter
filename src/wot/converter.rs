@@ -50,25 +50,27 @@ impl From<SDFModel> for Thing {
         return Thing {
             context: context,
             title: title,
-            titles: None,
-            base: None,
-            created: None,
+            security: TypeOrTypeArray::Type(String::from("nosec_sc")),
+            security_definitions: security_definitions,
             version: version,
-            support: None,
-            description: None,
-            descriptions: None,
             actions: None,
             properties: None,
             events: None,
-            forms: None,
+
+            // Not covered by SDF yet:
+            r#type: None,
+            titles: None,
+            description: None,
+            descriptions: None,
             id: None,
             links: None,
+            forms: None,
             modified: None,
             profile: None,
             schema_definitions: None,
-            security: TypeOrTypeArray::Type(String::from("nosec_sc")),
-            security_definitions: security_definitions,
-            r#type: None,
+            base: None,
+            created: None,
+            support: None,
         };
     }
 }
