@@ -5,22 +5,22 @@ use std::collections::HashMap;
 
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(untagged)]
-enum Context {
+pub enum Context {
     String(String),
     Array(Vec<ContextEntry>),
 }
 
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(untagged)]
-enum ContextEntry {
+pub enum ContextEntry {
     String(String),
     Map(HashMap<String, String>),
 }
 
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(untagged)]
-enum TypeOrTypeArray<T> {
-    String(T),
+pub enum TypeOrTypeArray<T> {
+    Type(T),
     Array(Vec<T>),
 }
 
@@ -29,33 +29,33 @@ enum TypeOrTypeArray<T> {
 #[serde(rename_all = "camelCase")]
 pub struct Thing {
     #[serde(rename = "@context")]
-    context: Context,
+    pub context: Context,
     #[serde(rename = "@type")]
-    r#type: Option<TypeOrTypeArray<String>>,
-    id: Option<String>,
-    title: String,
-    titles: Option<HashMap<String, String>>,
-    description: Option<String>,
-    descriptions: Option<HashMap<String, String>>,
-    version: Option<VersionInfo>,
-    created: Option<DateTime<Utc>>,
-    modified: Option<DateTime<Utc>>,
-    support: Option<String>,
-    base: Option<String>,
-    actions: Option<HashMap<String, ActionAffordance>>,
-    properties: Option<HashMap<String, PropertyAffordance>>,
-    events: Option<HashMap<String, EventAffordance>>,
-    links: Option<Vec<Link>>,
-    forms: Option<Vec<Form>>,
-    security: TypeOrTypeArray<String>,
-    security_definitions: HashMap<String, SecurityScheme>,
-    profile: Option<TypeOrTypeArray<String>>,
-    schema_definitions: Option<HashMap<String, DataSchema>>,
+    pub r#type: Option<TypeOrTypeArray<String>>,
+    pub id: Option<String>,
+    pub title: String,
+    pub titles: Option<HashMap<String, String>>, // TODO: Consider using a MultiLanguage struct instead
+    pub description: Option<String>,
+    pub descriptions: Option<HashMap<String, String>>,
+    pub version: Option<VersionInfo>,
+    pub created: Option<DateTime<Utc>>,
+    pub modified: Option<DateTime<Utc>>,
+    pub support: Option<String>,
+    pub base: Option<String>,
+    pub actions: Option<HashMap<String, ActionAffordance>>,
+    pub properties: Option<HashMap<String, PropertyAffordance>>,
+    pub events: Option<HashMap<String, EventAffordance>>,
+    pub links: Option<Vec<Link>>,
+    pub forms: Option<Vec<Form>>,
+    pub security: TypeOrTypeArray<String>,
+    pub security_definitions: HashMap<String, SecurityScheme>,
+    pub profile: Option<TypeOrTypeArray<String>>,
+    pub schema_definitions: Option<HashMap<String, DataSchema>>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
-enum SchemeIn {
+pub enum SchemeIn {
     Header,
     Query,
     Body,
@@ -65,7 +65,7 @@ enum SchemeIn {
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "kebab-case")]
 #[serde(untagged)]
-enum SchemaQoP {
+pub enum SchemaQoP {
     Auth,
     AuthInit,
 }
@@ -74,7 +74,7 @@ enum SchemaQoP {
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 #[serde(tag = "scheme")]
-enum SecurityScheme {
+pub enum SecurityScheme {
     Nosec {
         #[serde(flatten)]
         common: SecuritySchemeCommon,
@@ -132,24 +132,24 @@ enum SecurityScheme {
 #[skip_serializing_none]
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
-struct SecuritySchemeCommon {
+pub struct SecuritySchemeCommon {
     #[serde(rename = "@type")]
-    r#type: Option<TypeOrTypeArray<String>>,
-    description: Option<String>,
-    descriptions: Option<HashMap<String, String>>,
-    proxy: Option<String>,
+    pub r#type: Option<TypeOrTypeArray<String>>,
+    pub description: Option<String>,
+    pub descriptions: Option<HashMap<String, String>>,
+    pub proxy: Option<String>,
 }
 
 #[skip_serializing_none]
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
-struct VersionInfo {
+pub struct VersionInfo {
     instance: String,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
-enum JSONSchemaTypes {
+pub enum JSONSchemaTypes {
     Null,
     Bool,
     Number,
@@ -161,7 +161,7 @@ enum JSONSchemaTypes {
 #[skip_serializing_none]
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
-struct DataSchema {
+pub struct DataSchema {
     #[serde(rename = "@type")]
     r#type: Option<TypeOrTypeArray<String>>,
     title: Option<HashMap<String, String>>,
@@ -182,7 +182,7 @@ struct DataSchema {
 #[skip_serializing_none]
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
-struct InteractionAffordance {
+pub struct InteractionAffordance {
     #[serde(rename = "@type")]
     r#type: Option<TypeOrTypeArray<String>>,
     title: Option<String>,
@@ -196,7 +196,7 @@ struct InteractionAffordance {
 #[skip_serializing_none]
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
-struct PropertyAffordance {
+pub struct PropertyAffordance {
     #[serde(flatten)]
     interaction_affordance: InteractionAffordance,
 
@@ -208,7 +208,7 @@ struct PropertyAffordance {
 #[skip_serializing_none]
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
-struct ActionAffordance {
+pub struct ActionAffordance {
     #[serde(flatten)]
     interaction_affordance: InteractionAffordance,
 
@@ -221,7 +221,7 @@ struct ActionAffordance {
 #[skip_serializing_none]
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
-struct EventAffordance {
+pub struct EventAffordance {
     #[serde(flatten)]
     interaction_affordance: InteractionAffordance,
 
@@ -232,7 +232,7 @@ struct EventAffordance {
 
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
-enum OperationType {
+pub enum OperationType {
     Readproperty,
     Writeproperty,
     Observeproperty,
@@ -249,7 +249,8 @@ enum OperationType {
 #[skip_serializing_none]
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
-struct Form { // TODO: Define forms for different affordance types
+pub struct Form {
+    // TODO: Define forms for different affordance types
     op: Option<TypeOrTypeArray<OperationType>>,
     href: String,
     content_type: Option<String>,
@@ -264,7 +265,7 @@ struct Form { // TODO: Define forms for different affordance types
 #[skip_serializing_none]
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
-struct AdditionalExpectedResponse {
+pub struct AdditionalExpectedResponse {
     success: Option<bool>,
     schema: Option<String>,
     content_type: Option<String>,
@@ -274,7 +275,7 @@ struct AdditionalExpectedResponse {
 #[skip_serializing_none]
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
-struct Link {
+pub struct Link {
     href: String,
     r#type: Option<String>,
     rel: Option<String>,
@@ -285,6 +286,7 @@ struct Link {
 #[skip_serializing_none]
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
-struct ExpectedResponse {
+pub struct ExpectedResponse {
     content_type: String,
 }
+
