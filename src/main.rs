@@ -25,6 +25,22 @@ fn print_definition<T: serde::Serialize + serde::de::DeserializeOwned>(path: &st
 fn main() {
   print_definition::<Thing>("examples/wot/example.td.json");
   print_definition::<SDFModel>("examples/sdf/example.sdf.json");
+
+
+  let example = fs::read_to_string("examples/sdf/example.sdf.json").expect("Something went wrong reading the file");
+  let definition: Result<SDFModel> = serde_json::from_str(&example);
+
+  match definition {
+    Ok(result) => {
+      let blah = Thing::from(result);
+      let j = serde_json::to_string_pretty(&blah);
+      match j {
+        Ok(result) => println!("{}", result),
+        Err(e) => println!("{}", e),
+      };
+    },
+    Err(e) => println!("{}", e),
+  };
 }
 
 #[cfg(test)]
