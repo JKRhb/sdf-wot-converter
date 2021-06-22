@@ -140,13 +140,6 @@ struct SecuritySchemeCommon {
     proxy: Option<String>,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
-#[serde(untagged)]
-enum SecurityDefinition {
-    NoSecurityScheme(String),
-    Array(Vec<ContextEntry>),
-}
-
 #[skip_serializing_none]
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
