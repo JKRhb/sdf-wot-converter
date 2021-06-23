@@ -277,11 +277,11 @@ pub struct AdditionalExpectedResponse {
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Link {
-    href: String,
-    r#type: Option<String>,
-    rel: Option<String>,
-    anchor: Option<String>,
-    sizes: Option<String>,
+    pub href: String,
+    pub r#type: Option<String>,
+    pub rel: Option<String>,
+    pub anchor: Option<String>,
+    pub sizes: Option<String>,
 }
 
 #[skip_serializing_none]
