@@ -5,6 +5,19 @@ use serde_json::Result;
 use std::fs;
 use wot::definitions::Thing;
 
+/// Reads a JSON file from a specified path, deserializes it to a supported data type,
+/// and returns a formatted `String` as a `Result`. 
+///
+/// # Arguments
+///
+/// * `path` - The path of the JSON file you want to deserialize
+/// 
+/// # Examples
+/// 
+/// ```
+/// read_json::<SDFModel>("examples/sdf/example.sdf.json");
+/// read_json::<Thing>("examples/wot/example.td.json");
+/// ```
 fn read_json<T: serde::Serialize + serde::de::DeserializeOwned>(path: &str) -> Result<String> {
   let example = fs::read_to_string(&path).expect("Something went wrong reading the file");
 
