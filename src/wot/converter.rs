@@ -18,7 +18,9 @@ use std::convert::From;
 
 impl From<SDFModel> for Thing {
     fn from(sdf_model: SDFModel) -> Self {
-        let mut context_entries: Vec<ContextEntry> = vec![ContextEntry::String("https://www.w3.org/2019/wot/td/v1".to_string())];
+        let mut context_entries: Vec<ContextEntry> = vec![ContextEntry::String(
+            "https://www.w3.org/2019/wot/td/v1".to_string(),
+        )];
         let nosec_sc = SecurityScheme::Nosec {
             common: SecuritySchemeCommon {
                 r#type: None,
@@ -51,23 +53,21 @@ impl From<SDFModel> for Thing {
                     model: None,
                 });
                 description = Some(infoblock.copyright);
-                links = Some(
-                    vec![Link {
-                        rel: Some("license".to_string()),
-                        href: infoblock.license,
-                        r#type: None,
-                        anchor: None,
-                        sizes: None,
-                    }],
-                );
+                links = Some(vec![Link {
+                    rel: Some("license".to_string()),
+                    href: infoblock.license,
+                    r#type: None,
+                    anchor: None,
+                    sizes: None,
+                }]);
             }
         };
 
         match sdf_model.namespace {
             Some(namespace) => {
                 context_entries.push(ContextEntry::Map(namespace.clone()));
-            },
-            None => {},
+            }
+            None => {}
         };
 
         return Thing {
