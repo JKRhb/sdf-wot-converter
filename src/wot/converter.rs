@@ -6,6 +6,7 @@
 use super::super::sdf::definitions::InfoBlock;
 use super::super::sdf::definitions::SDFModel;
 use super::definitions::Context;
+use super::definitions::Link;
 use super::definitions::SecurityScheme;
 use super::definitions::SecuritySchemeCommon;
 use super::definitions::Thing;
@@ -27,6 +28,7 @@ impl From<SDFModel> for Thing {
         };
         let mut security_definitions: HashMap<String, SecurityScheme> = HashMap::new();
         security_definitions.insert(String::from("nosec_sc"), nosec_sc);
+        let mut links: Vec<Link> = Vec::new();
 
         let no_title = "No Title given.".to_string();
         let infoblock: Option<InfoBlock> = sdf_model.info;
@@ -47,6 +49,14 @@ impl From<SDFModel> for Thing {
                     model: None,
                 });
                 description = Some(infoblock.copyright);
+                let license_link = Link {
+                    rel: Some("license".to_string()),
+                    href: infoblock.license,
+                    r#type: None,
+                    anchor: None,
+                    sizes: None,
+                };
+                links.push(license_link);
             }
         };
 
@@ -60,13 +70,13 @@ impl From<SDFModel> for Thing {
             actions: None,
             properties: None,
             events: None,
+            links: Some(links),
 
             // Not covered by SDF yet:
             r#type: None,
             titles: None,
             descriptions: None,
             id: None,
-            links: None,
             forms: None,
             modified: None,
             profile: None,
