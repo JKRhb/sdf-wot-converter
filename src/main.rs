@@ -59,6 +59,7 @@ fn main() {
     }
     Err(error) => println!("{}", error),
   };
+}
 
 #[cfg(test)]
 mod test {
