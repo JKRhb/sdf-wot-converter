@@ -48,11 +48,11 @@ impl From<SDFModel> for Thing {
         };
 
         return Thing {
-            context: context,
-            title: title,
+            context,
+            title,
             security: TypeOrTypeArray::Type(String::from("nosec_sc")),
             security_definitions: security_definitions,
-            version: version,
+            version,
             actions: None,
             properties: None,
             events: None,
