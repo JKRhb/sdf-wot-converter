@@ -272,7 +272,6 @@ pub struct AdditionalExpectedResponse {
     content_type: Option<String>,
 }
 
-
 #[skip_serializing_none]
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -290,4 +289,3 @@ pub struct Link {
 pub struct ExpectedResponse {
     content_type: String,
 }
-
