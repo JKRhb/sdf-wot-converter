@@ -35,26 +35,30 @@ fn print_definition<T: serde::Serialize + serde::de::DeserializeOwned>(path: &st
   };
 }
 
+fn convert_sdf_to_wot(path: &str) -> Result<Thing> {
+  // TODO: Refactor
+  let example = fs::read_to_string(&path).expect("Something went wrong reading the file");
+  let sdf_model: SDFModel = serde_json::from_str(&example)?;
+  let thing = Thing::from(sdf_model);
+
+  Ok(thing)
+}
+
 fn main() {
   print_definition::<Thing>("examples/wot/example.td.json");
   print_definition::<SDFModel>("examples/sdf/example.sdf.json");
 
-
-  let sdf_json = fs::read_to_string("examples/sdf/example.sdf.json").expect("Something went wrong reading the file");
-  let sdf_model: Result<SDFModel> = serde_json::from_str(&sdf_json);
-
-  match sdf_model {
-    Ok(result) => {
-      let converted_thing = Thing::from(result);
-      let serialized_thing = serde_json::to_string_pretty(&converted_thing);
-      match serialized_thing {
-        Ok(result) => println!("{}", result),
-        Err(error) => println!("{}", error),
-      };
-    },
+  match convert_sdf_to_wot("examples/sdf/example.sdf.json") {
+    Ok(thing) => {
+      let j = serde_json::to_string_pretty(&thing);
+      match j {
+        Ok(json_string) => println!("{}", json_string),
+        Err(error) => println!("{}", error)
+      }
+      
+    }
     Err(error) => println!("{}", error),
   };
-}
 
 #[cfg(test)]
 mod test {
