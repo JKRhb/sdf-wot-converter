@@ -6,6 +6,7 @@
 use super::super::sdf::definitions::InfoBlock;
 use super::super::sdf::definitions::SDFModel;
 use super::definitions::Context;
+use super::definitions::ContextEntry;
 use super::definitions::Link;
 use super::definitions::SecurityScheme;
 use super::definitions::SecuritySchemeCommon;
@@ -17,7 +18,7 @@ use std::convert::From;
 
 impl From<SDFModel> for Thing {
     fn from(sdf_model: SDFModel) -> Self {
-        let context = Context::String(String::from("https://www.w3.org/2019/wot/td/v1"));
+        let mut context_entries: Vec<ContextEntry> = vec![ContextEntry::String("https://www.w3.org/2019/wot/td/v1".to_string())];
         let nosec_sc = SecurityScheme::Nosec {
             common: SecuritySchemeCommon {
                 r#type: None,
@@ -62,8 +63,15 @@ impl From<SDFModel> for Thing {
             }
         };
 
+        match sdf_model.namespace {
+            Some(namespace) => {
+                context_entries.push(ContextEntry::Map(namespace.clone()));
+            },
+            None => {},
+        };
+
         return Thing {
-            context,
+            context: Context::Array(context_entries),
             title,
             description,
             security: TypeOrTypeArray::Type(String::from("nosec_sc")),
