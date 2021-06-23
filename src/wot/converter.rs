@@ -28,7 +28,7 @@ impl From<SDFModel> for Thing {
         };
         let mut security_definitions: HashMap<String, SecurityScheme> = HashMap::new();
         security_definitions.insert(String::from("nosec_sc"), nosec_sc);
-        let mut links: Vec<Link> = Vec::new();
+        let links;
 
         let no_title = "No Title given.".to_string();
         let infoblock: Option<InfoBlock> = sdf_model.info;
@@ -40,6 +40,7 @@ impl From<SDFModel> for Thing {
                 title = no_title;
                 version = None;
                 description = None;
+                links = None;
             }
             Some(infoblock) => {
                 title = infoblock.title;
@@ -49,14 +50,15 @@ impl From<SDFModel> for Thing {
                     model: None,
                 });
                 description = Some(infoblock.copyright);
-                let license_link = Link {
-                    rel: Some("license".to_string()),
-                    href: infoblock.license,
-                    r#type: None,
-                    anchor: None,
-                    sizes: None,
-                };
-                links.push(license_link);
+                links = Some(
+                    vec![Link {
+                        rel: Some("license".to_string()),
+                        href: infoblock.license,
+                        r#type: None,
+                        anchor: None,
+                        sizes: None,
+                    }],
+                );
             }
         };
 
@@ -70,7 +72,7 @@ impl From<SDFModel> for Thing {
             actions: None,
             properties: None,
             events: None,
-            links: Some(links),
+            links,
 
             // Not covered by SDF yet:
             r#type: None,
