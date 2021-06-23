@@ -31,11 +31,13 @@ impl From<SDFModel> for Thing {
         let no_title = "No Title given.".to_string();
         let infoblock: Option<InfoBlock> = sdf_model.info;
         let title: String;
+        let description: Option<String>;
         let version: Option<VersionInfo>;
         match infoblock {
             None => {
                 title = no_title;
                 version = None;
+                description = None;
             }
             Some(infoblock) => {
                 title = infoblock.title;
@@ -44,12 +46,14 @@ impl From<SDFModel> for Thing {
                     instance: infoblock.version,
                     model: None,
                 });
+                description = Some(infoblock.copyright);
             }
         };
 
         return Thing {
             context,
             title,
+            description,
             security: TypeOrTypeArray::Type(String::from("nosec_sc")),
             security_definitions: security_definitions,
             version,
@@ -60,7 +64,6 @@ impl From<SDFModel> for Thing {
             // Not covered by SDF yet:
             r#type: None,
             titles: None,
-            description: None,
             descriptions: None,
             id: None,
             links: None,
