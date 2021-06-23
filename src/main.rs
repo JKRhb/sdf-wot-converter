@@ -6,14 +6,14 @@ use std::fs;
 use wot::definitions::Thing;
 
 /// Reads a JSON file from a specified path, deserializes it to a supported data type,
-/// and returns a formatted `String` as a `Result`. 
+/// and returns a formatted `String` as a `Result`.
 ///
 /// # Arguments
 ///
 /// * `path` - The path of the JSON file you want to deserialize
-/// 
+///
 /// # Examples
-/// 
+///
 /// ```
 /// read_json::<SDFModel>("examples/sdf/example.sdf.json");
 /// read_json::<Thing>("examples/wot/example.td.json");
@@ -25,7 +25,7 @@ fn read_json<T: serde::Serialize + serde::de::DeserializeOwned>(path: &str) -> R
 
   let j = serde_json::to_string_pretty(&definition)?;
 
-  return Ok(j);
+  Ok(j)
 }
 
 fn print_definition<T: serde::Serialize + serde::de::DeserializeOwned>(path: &str) -> () {
@@ -53,9 +53,8 @@ fn main() {
       let j = serde_json::to_string_pretty(&thing);
       match j {
         Ok(json_string) => println!("{}", json_string),
-        Err(error) => println!("{}", error)
+        Err(error) => println!("{}", error),
       }
-      
     }
     Err(error) => println!("{}", error),
   };
