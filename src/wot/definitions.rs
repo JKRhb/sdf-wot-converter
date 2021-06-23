@@ -10,7 +10,7 @@ pub enum Context {
     Array(Vec<ContextEntry>),
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 #[serde(untagged)]
 pub enum ContextEntry {
     String(String),
