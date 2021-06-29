@@ -10,19 +10,17 @@ fn convert_actions(sdf_model: &sdf::SDFModel) -> Option<HashMap<String, wot::Act
     match &sdf_model.sdf_action {
         Some(sdf_actions) => {
             for (key, value) in sdf_actions {
-
                 let title: Option<String> = value.common_qualities.label.clone();
                 let description: Option<String> = value.common_qualities.description.clone();
-        
-        
-                let wot_action = wot::ActionAffordance{
+
+                let wot_action = wot::ActionAffordance {
                     // TODO: Deal with input and output data
                     input: None,
                     output: None,
                     safe: None,
                     idempotent: None,
 
-                    interaction_affordance: wot::InteractionAffordance{
+                    interaction_affordance: wot::InteractionAffordance {
                         title,
                         description,
 
@@ -31,13 +29,13 @@ fn convert_actions(sdf_model: &sdf::SDFModel) -> Option<HashMap<String, wot::Act
                         descriptions: None,
                         r#type: None,
                         uri_variables: None,
-                    }
+                    },
                 };
 
                 actions.insert(key.clone(), wot_action);
             }
-        },
-        None => ()
+        }
+        None => (),
     }
 
     if actions.len() > 0 {
@@ -65,7 +63,6 @@ fn convert_properties(
                 let read_only;
                 let writable = value.writable.unwrap_or(true);
                 let readable = value.readable.unwrap_or(true);
-                
                 if !readable && writable {
                     write_only = Some(true);
                     read_only = None;
@@ -82,18 +79,18 @@ fn convert_properties(
                 let wot_property = wot::PropertyAffordance {
                     observable: value.observable.clone(),
 
-                    data_schema: wot::DataSchema{
+                    data_schema: wot::DataSchema {
                         write_only,
                         read_only,
 
-                        r#enum: None, // Still TODO
-                        r#const: None, // Still TODO
+                        r#enum: None,    // Still TODO
+                        r#const: None,   // Still TODO
                         data_type: None, // Still TODO
-                        one_of: None, // TODO: Can this be mapped using sdfChoice?
+                        one_of: None,    // TODO: Can this be mapped using sdfChoice?
 
                         unit: value.unit.clone(), // TODO: Check if this kind of mapping is appropriate
 
-                        title: None, // Set to None to avoid duplication
+                        title: None,       // Set to None to avoid duplication
                         description: None, // Set to None to avoid duplication
                         titles: None,
                         descriptions: None,
