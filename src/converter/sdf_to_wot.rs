@@ -123,6 +123,46 @@ fn convert_properties(
     }
 }
 
+fn convert_events(sdf_model: &sdf::SDFModel) -> Option<HashMap<String, wot::EventAffordance>> {
+    let mut events: HashMap<String, wot::EventAffordance> = HashMap::new();
+
+    match &sdf_model.sdf_event {
+        Some(sdf_events) => {
+            for (key, value) in sdf_events {
+                let title: Option<String> = value.common_qualities.label.clone();
+                let description: Option<String> = value.common_qualities.description.clone();
+
+                let wot_event = wot::EventAffordance {
+                    subscription: None, // Still TODO
+                    data: None,         // Still TODO
+                    cancellation: None, // Still TODO
+
+                    // TODO: Refactor generation of InteractionAffordance
+                    interaction_affordance: wot::InteractionAffordance {
+                        title,
+                        description,
+
+                        forms: Vec::<wot::Form>::new(),
+                        titles: None,
+                        descriptions: None,
+                        r#type: None,
+                        uri_variables: None,
+                    },
+                };
+
+                events.insert(key.clone(), wot_event);
+            }
+        }
+        None => (),
+    }
+
+    if events.len() > 0 {
+        Some(events)
+    } else {
+        None
+    }
+}
+
 pub fn convert(sdf_model: sdf::SDFModel) -> wot::Thing {
     let mut context_entries: Vec<wot::ContextEntry> = vec![wot::ContextEntry::String(
         "https://www.w3.org/2019/wot/td/v1".to_string(),
@@ -183,9 +223,9 @@ pub fn convert(sdf_model: sdf::SDFModel) -> wot::Thing {
         security: wot::TypeOrTypeArray::Type(String::from("nosec_sc")),
         security_definitions,
         version,
-        events: None,
         actions: convert_actions(&sdf_model),
         properties: convert_properties(&sdf_model),
+        events: convert_events(&sdf_model),
         links,
 
         // Not covered by SDF yet:
