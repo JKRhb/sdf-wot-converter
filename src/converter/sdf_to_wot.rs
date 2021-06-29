@@ -21,7 +21,7 @@ pub fn convert(sdf_model: sdf::SDFModel) -> wot::Thing {
     let links;
 
     let no_title = "No Title given.".to_string();
-    let infoblock: Option<sdf::InfoBlock> = sdf_model.info;
+    let infoblock: &Option<sdf::InfoBlock> = &sdf_model.info;
     let title: String;
     let description: Option<String>;
     let version: Option<wot::VersionInfo>;
@@ -50,9 +50,9 @@ pub fn convert(sdf_model: sdf::SDFModel) -> wot::Thing {
         }
     };
 
-    match sdf_model.namespace {
+    match sdf_model.namespace.clone() {
         Some(namespace) => {
-            context_entries.push(wot::ContextEntry::Map(namespace.clone()));
+            context_entries.push(wot::ContextEntry::Map(namespace));
         }
         None => {}
     };
