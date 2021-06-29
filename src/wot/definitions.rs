@@ -165,7 +165,7 @@ pub enum JSONSchemaTypes {
 pub struct DataSchema {
     #[serde(rename = "@type")]
     pub r#type: Option<TypeOrTypeArray<String>>,
-    pub title: Option<HashMap<String, String>>,
+    pub title: Option<String>,
     pub titles: Option<HashMap<String, String>>, // TODO: Consider using a MultiLanguage struct instead
     pub description: Option<String>,
     pub descriptions: Option<HashMap<String, String>>,
