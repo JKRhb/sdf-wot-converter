@@ -33,16 +33,16 @@ pub fn convert(sdf_model: sdf::SDFModel) -> wot::Thing {
             links = None;
         }
         Some(infoblock) => {
-            title = infoblock.title;
+            title = infoblock.title.clone();
             version = Some(wot::VersionInfo {
                 // TODO: Revisit use of "instance" and "model"
-                instance: infoblock.version,
+                instance: infoblock.version.clone(),
                 model: None,
             });
-            description = Some(infoblock.copyright);
+            description = Some(infoblock.copyright.clone());
             links = Some(vec![wot::Link {
                 rel: Some("license".to_string()),
-                href: infoblock.license,
+                href: infoblock.license.clone(),
                 r#type: None,
                 anchor: None,
                 sizes: None,
