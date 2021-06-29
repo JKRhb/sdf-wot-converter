@@ -62,7 +62,7 @@ pub fn convert(sdf_model: sdf::SDFModel) -> wot::Thing {
         title,
         description,
         security: wot::TypeOrTypeArray::Type(String::from("nosec_sc")),
-        security_definitions: security_definitions,
+        security_definitions,
         version,
         actions: None,
         properties: None,
