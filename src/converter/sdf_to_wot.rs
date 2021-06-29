@@ -47,6 +47,85 @@ fn convert_actions(sdf_model: &sdf::SDFModel) -> Option<HashMap<String, wot::Act
     }
 }
 
+fn convert_properties(
+    sdf_model: &sdf::SDFModel,
+) -> Option<HashMap<String, wot::PropertyAffordance>> {
+    let mut properties: HashMap<String, wot::PropertyAffordance> = HashMap::new();
+
+    match &sdf_model.sdf_property {
+        Some(sdf_properties) => {
+            for (key, value) in sdf_properties {
+                // TODO: Refactor mapping of common qualities
+                // TODO: How should nullable be mapped?
+                // TODO: How should contentFormat be mapped?
+                let title: Option<String> = value.common_qualities.label.clone();
+                let description: Option<String> = value.common_qualities.description.clone();
+
+                let write_only;
+                let read_only;
+                let writable = value.writable.unwrap_or(true);
+                let readable = value.readable.unwrap_or(true);
+                
+                if !readable && writable {
+                    write_only = Some(true);
+                    read_only = None;
+                } else if !writable && readable {
+                    write_only = None;
+                    read_only = Some(true);
+                } else {
+                    // TODO: How do you map a property that is neither writable nor readable?
+                    write_only = None;
+                    read_only = None;
+                }
+
+                // TODO: Refactor as sdfProperty is an alias for sdfData
+                let wot_property = wot::PropertyAffordance {
+                    observable: value.observable.clone(),
+
+                    data_schema: wot::DataSchema{
+                        write_only,
+                        read_only,
+
+                        r#enum: None, // Still TODO
+                        r#const: None, // Still TODO
+                        data_type: None, // Still TODO
+                        one_of: None, // TODO: Can this be mapped using sdfChoice?
+
+                        unit: value.unit.clone(), // TODO: Check if this kind of mapping is appropriate
+
+                        title: None, // Set to None to avoid duplication
+                        description: None, // Set to None to avoid duplication
+                        titles: None,
+                        descriptions: None,
+                        format: None, // TODO: Can this be mapped?
+                        r#type: None,
+                    },
+
+                    interaction_affordance: wot::InteractionAffordance {
+                        title,
+                        description,
+
+                        forms: Vec::<wot::Form>::new(),
+                        titles: None,
+                        descriptions: None,
+                        r#type: None,
+                        uri_variables: None,
+                    },
+                };
+
+                properties.insert(key.clone(), wot_property);
+            }
+        }
+        None => (),
+    }
+
+    if properties.len() > 0 {
+        Some(properties)
+    } else {
+        None
+    }
+}
+
 pub fn convert(sdf_model: sdf::SDFModel) -> wot::Thing {
     let mut context_entries: Vec<wot::ContextEntry> = vec![wot::ContextEntry::String(
         "https://www.w3.org/2019/wot/td/v1".to_string(),
@@ -107,9 +186,9 @@ pub fn convert(sdf_model: sdf::SDFModel) -> wot::Thing {
         security: wot::TypeOrTypeArray::Type(String::from("nosec_sc")),
         security_definitions,
         version,
-        properties: None,
         events: None,
         actions: convert_actions(&sdf_model),
+        properties: convert_properties(&sdf_model),
         links,
 
         // Not covered by SDF yet:
