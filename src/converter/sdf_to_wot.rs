@@ -4,6 +4,49 @@ use crate::sdf::definitions as sdf;
 use crate::wot::definitions as wot;
 use std::collections::HashMap;
 
+fn convert_actions(sdf_model: &sdf::SDFModel) -> Option<HashMap<String, wot::ActionAffordance>> {
+    let mut actions: HashMap<String, wot::ActionAffordance> = HashMap::new();
+
+    match &sdf_model.sdf_action {
+        Some(sdf_actions) => {
+            for (key, value) in sdf_actions {
+
+                let title: Option<String> = value.common_qualities.label.clone();
+                let description: Option<String> = value.common_qualities.description.clone();
+        
+        
+                let wot_action = wot::ActionAffordance{
+                    // TODO: Deal with input and output data
+                    input: None,
+                    output: None,
+                    safe: None,
+                    idempotent: None,
+
+                    interaction_affordance: wot::InteractionAffordance{
+                        title,
+                        description,
+
+                        forms: Vec::<wot::Form>::new(),
+                        titles: None,
+                        descriptions: None,
+                        r#type: None,
+                        uri_variables: None,
+                    }
+                };
+
+                actions.insert(key.clone(), wot_action);
+            }
+        },
+        None => ()
+    }
+
+    if actions.len() > 0 {
+        Some(actions)
+    } else {
+        None
+    }
+}
+
 pub fn convert(sdf_model: sdf::SDFModel) -> wot::Thing {
     let mut context_entries: Vec<wot::ContextEntry> = vec![wot::ContextEntry::String(
         "https://www.w3.org/2019/wot/td/v1".to_string(),
@@ -64,9 +107,9 @@ pub fn convert(sdf_model: sdf::SDFModel) -> wot::Thing {
         security: wot::TypeOrTypeArray::Type(String::from("nosec_sc")),
         security_definitions,
         version,
-        actions: None,
         properties: None,
         events: None,
+        actions: convert_actions(&sdf_model),
         links,
 
         // Not covered by SDF yet:
