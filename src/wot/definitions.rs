@@ -164,20 +164,20 @@ pub enum JSONSchemaTypes {
 #[serde(rename_all = "camelCase")]
 pub struct DataSchema {
     #[serde(rename = "@type")]
-    r#type: Option<TypeOrTypeArray<String>>,
-    title: Option<HashMap<String, String>>,
-    titles: Option<HashMap<String, String>>, // TODO: Consider using a MultiLanguage struct instead
-    description: Option<String>,
-    descriptions: Option<HashMap<String, String>>,
+    pub r#type: Option<TypeOrTypeArray<String>>,
+    pub title: Option<HashMap<String, String>>,
+    pub titles: Option<HashMap<String, String>>, // TODO: Consider using a MultiLanguage struct instead
+    pub description: Option<String>,
+    pub descriptions: Option<HashMap<String, String>>,
     #[serde(rename = "type")]
-    data_type: Option<JSONSchemaTypes>,
-    r#const: Option<serde_json::Value>,
-    unit: Option<String>,
-    one_of: Option<Vec<DataSchema>>,
-    r#enum: Option<Vec<serde_json::Value>>,
-    read_only: Option<bool>,
-    write_only: Option<bool>,
-    format: Option<String>,
+    pub data_type: Option<JSONSchemaTypes>,
+    pub r#const: Option<serde_json::Value>,
+    pub unit: Option<String>,
+    pub one_of: Option<Vec<DataSchema>>,
+    pub r#enum: Option<Vec<serde_json::Value>>,
+    pub read_only: Option<bool>,
+    pub write_only: Option<bool>,
+    pub format: Option<String>,
 }
 
 #[skip_serializing_none]
@@ -185,13 +185,13 @@ pub struct DataSchema {
 #[serde(rename_all = "camelCase")]
 pub struct InteractionAffordance {
     #[serde(rename = "@type")]
-    r#type: Option<TypeOrTypeArray<String>>,
-    title: Option<String>,
-    titles: Option<HashMap<String, String>>,
-    description: Option<String>,
-    descriptions: Option<HashMap<String, String>>,
-    forms: Vec<Form>,
-    uri_variables: Option<HashMap<String, DataSchema>>,
+    pub r#type: Option<TypeOrTypeArray<String>>,
+    pub title: Option<String>,
+    pub titles: Option<HashMap<String, String>>,
+    pub description: Option<String>,
+    pub descriptions: Option<HashMap<String, String>>,
+    pub forms: Vec<Form>,
+    pub uri_variables: Option<HashMap<String, DataSchema>>,
 }
 
 #[skip_serializing_none]
@@ -199,11 +199,11 @@ pub struct InteractionAffordance {
 #[serde(rename_all = "camelCase")]
 pub struct PropertyAffordance {
     #[serde(flatten)]
-    interaction_affordance: InteractionAffordance,
+    pub interaction_affordance: InteractionAffordance,
 
     #[serde(flatten)]
-    data_schema: DataSchema,
-    observable: Option<bool>,
+    pub data_schema: DataSchema,
+    pub observable: Option<bool>,
 }
 
 #[skip_serializing_none]
@@ -211,12 +211,12 @@ pub struct PropertyAffordance {
 #[serde(rename_all = "camelCase")]
 pub struct ActionAffordance {
     #[serde(flatten)]
-    interaction_affordance: InteractionAffordance,
+    pub interaction_affordance: InteractionAffordance,
 
-    input: Option<DataSchema>,
-    output: Option<DataSchema>,
-    safe: Option<bool>,
-    idempotent: Option<bool>,
+    pub input: Option<DataSchema>,
+    pub output: Option<DataSchema>,
+    pub safe: Option<bool>,
+    pub idempotent: Option<bool>,
 }
 
 #[skip_serializing_none]
@@ -224,11 +224,11 @@ pub struct ActionAffordance {
 #[serde(rename_all = "camelCase")]
 pub struct EventAffordance {
     #[serde(flatten)]
-    interaction_affordance: InteractionAffordance,
+    pub interaction_affordance: InteractionAffordance,
 
-    subscription: Option<DataSchema>,
-    data: Option<DataSchema>,
-    cancellation: Option<DataSchema>,
+    pub subscription: Option<DataSchema>,
+    pub data: Option<DataSchema>,
+    pub cancellation: Option<DataSchema>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -252,24 +252,24 @@ pub enum OperationType {
 #[serde(rename_all = "camelCase")]
 pub struct Form {
     // TODO: Define forms for different affordance types
-    op: Option<TypeOrTypeArray<OperationType>>,
-    href: String,
-    content_type: Option<String>,
-    content_coding: Option<String>,
-    subprotocol: Option<String>,
-    security: Option<TypeOrTypeArray<String>>,
-    scopes: Option<TypeOrTypeArray<String>>,
-    response: Option<ExpectedResponse>,
-    additional_responses: Option<TypeOrTypeArray<AdditionalExpectedResponse>>,
+    pub op: Option<TypeOrTypeArray<OperationType>>,
+    pub href: String,
+    pub content_type: Option<String>,
+    pub content_coding: Option<String>,
+    pub subprotocol: Option<String>,
+    pub security: Option<TypeOrTypeArray<String>>,
+    pub scopes: Option<TypeOrTypeArray<String>>,
+    pub response: Option<ExpectedResponse>,
+    pub additional_responses: Option<TypeOrTypeArray<AdditionalExpectedResponse>>,
 }
 
 #[skip_serializing_none]
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AdditionalExpectedResponse {
-    success: Option<bool>,
-    schema: Option<String>,
-    content_type: Option<String>,
+    pub success: Option<bool>,
+    pub schema: Option<String>,
+    pub content_type: Option<String>,
 }
 
 #[skip_serializing_none]
@@ -287,5 +287,5 @@ pub struct Link {
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ExpectedResponse {
-    content_type: String,
+    pub content_type: String,
 }
