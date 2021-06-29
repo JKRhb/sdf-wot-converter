@@ -1,5 +1,7 @@
+mod converter;
 mod sdf;
 mod wot;
+
 use sdf::definitions::SDFModel;
 use serde_json;
 use std::env;
@@ -43,7 +45,7 @@ fn convert_sdf_to_wot(path: &str) -> serde_json::Result<Thing> {
   // TODO: Refactor
   let example = fs::read_to_string(&path).expect("Something went wrong reading the file");
   let sdf_model: SDFModel = serde_json::from_str(&example)?;
-  let thing = Thing::from(sdf_model);
+  let thing = converter::sdf_to_wot::convert(sdf_model);
 
   Ok(thing)
 }
