@@ -165,12 +165,45 @@ macro_rules! conversion_function {
     };
 }
 
-conversion_function!(wot::PropertyAffordance, sdf::PropertyQualities, convert_sdf_properties, convert_property);
-conversion_function!(wot::ActionAffordance, sdf::ActionQualities, convert_sdf_actions, convert_action);
-conversion_function!(wot::EventAffordance, sdf::EventQualities, convert_sdf_events, convert_event);
-conversion_function!(wot::PropertyAffordance, sdf::ObjectQualities, convert_sdf_object_properties, convert_sdf_properties, sdf_property);
-conversion_function!(wot::ActionAffordance, sdf::ObjectQualities, convert_sdf_object_actions, convert_sdf_actions, sdf_action);
-conversion_function!(wot::EventAffordance, sdf::ObjectQualities, convert_sdf_object_events, convert_sdf_events, sdf_event);
+conversion_function!(
+    wot::PropertyAffordance,
+    sdf::PropertyQualities,
+    convert_sdf_properties,
+    convert_property
+);
+conversion_function!(
+    wot::ActionAffordance,
+    sdf::ActionQualities,
+    convert_sdf_actions,
+    convert_action
+);
+conversion_function!(
+    wot::EventAffordance,
+    sdf::EventQualities,
+    convert_sdf_events,
+    convert_event
+);
+conversion_function!(
+    wot::PropertyAffordance,
+    sdf::ObjectQualities,
+    convert_sdf_object_properties,
+    convert_sdf_properties,
+    sdf_property
+);
+conversion_function!(
+    wot::ActionAffordance,
+    sdf::ObjectQualities,
+    convert_sdf_object_actions,
+    convert_sdf_actions,
+    sdf_action
+);
+conversion_function!(
+    wot::EventAffordance,
+    sdf::ObjectQualities,
+    convert_sdf_object_events,
+    convert_sdf_events,
+    sdf_event
+);
 
 macro_rules! create_thing_conversion_function {
     ($wot_type:ty, $function_name:ident, $object_function:ident) => {
@@ -185,19 +218,41 @@ macro_rules! create_thing_conversion_function {
                 Some(sdf_definitions) => {
                     for (key, value) in sdf_definitions {
                         let prefixed_key = get_prefixed_key(prefix.clone(), key.to_string());
-        
-                        $function_name(_sdf_model, wot_definitions, &value.sdf_thing, Some(prefixed_key.clone()));
-                        $object_function(_sdf_model, wot_definitions, &value.sdf_object, Some(prefixed_key));
+
+                        $function_name(
+                            _sdf_model,
+                            wot_definitions,
+                            &value.sdf_thing,
+                            Some(prefixed_key.clone()),
+                        );
+                        $object_function(
+                            _sdf_model,
+                            wot_definitions,
+                            &value.sdf_object,
+                            Some(prefixed_key),
+                        );
                     }
                 }
             }
         }
-    }
+    };
 }
 
-create_thing_conversion_function!(wot::ActionAffordance, convert_sdf_thing_actions, convert_sdf_object_actions);
-create_thing_conversion_function!(wot::PropertyAffordance, convert_sdf_thing_properties, convert_sdf_object_properties);
-create_thing_conversion_function!(wot::EventAffordance, convert_sdf_thing_events, convert_sdf_object_events);
+create_thing_conversion_function!(
+    wot::ActionAffordance,
+    convert_sdf_thing_actions,
+    convert_sdf_object_actions
+);
+create_thing_conversion_function!(
+    wot::PropertyAffordance,
+    convert_sdf_thing_properties,
+    convert_sdf_object_properties
+);
+create_thing_conversion_function!(
+    wot::EventAffordance,
+    convert_sdf_thing_events,
+    convert_sdf_object_events
+);
 
 fn convert_event(sdf_event: &sdf::EventQualities) -> wot::EventAffordance {
     wot::EventAffordance {
