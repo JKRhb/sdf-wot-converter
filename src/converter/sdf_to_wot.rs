@@ -22,21 +22,25 @@ fn create_interaction_affordance(
     }
 }
 
+fn convert_action(sdf_action: &sdf::ActionQualities) -> wot::ActionAffordance {
+    wot::ActionAffordance {
+        // TODO: Deal with input and output data
+        input: None,
+        output: None,
+        safe: None,
+        idempotent: None,
+
+        interaction_affordance: create_interaction_affordance(&sdf_action.common_qualities),
+    }
+}
+
 fn convert_actions(sdf_model: &sdf::SDFModel) -> Option<HashMap<String, wot::ActionAffordance>> {
     let mut actions: HashMap<String, wot::ActionAffordance> = HashMap::new();
 
     match &sdf_model.sdf_action {
         Some(sdf_actions) => {
             for (key, value) in sdf_actions {
-                let wot_action = wot::ActionAffordance {
-                    // TODO: Deal with input and output data
-                    input: None,
-                    output: None,
-                    safe: None,
-                    idempotent: None,
-
-                    interaction_affordance: create_interaction_affordance(&value.common_qualities),
-                };
+                let wot_action = convert_action(value);
 
                 actions.insert(key.clone(), wot_action);
             }
