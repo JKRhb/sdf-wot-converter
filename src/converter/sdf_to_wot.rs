@@ -66,9 +66,8 @@ fn convert_actions(sdf_model: &sdf::SDFModel) -> Option<HashMap<String, wot::Act
     }
 }
 
-fn convert_property(sdf_property: &sdf::PropertyQualities) -> wot::PropertyAffordance {
+fn convert_to_data_schema(sdf_property: &sdf::DataQualities) -> wot::DataSchema {
     // TODO: How should nullable be mapped?
-    // TODO: How should contentFormat be mapped?
 
     let write_only;
     let read_only;
@@ -86,28 +85,34 @@ fn convert_property(sdf_property: &sdf::PropertyQualities) -> wot::PropertyAffor
         read_only = None;
     }
 
+    wot::DataSchema {
+        write_only,
+        read_only,
+
+        r#enum: None,    // Still TODO
+        r#const: None,   // Still TODO
+        data_type: None, // Still TODO
+        one_of: None,    // TODO: Can this be mapped using sdfChoice?
+
+        unit: sdf_property.unit.clone(), // TODO: Check if this kind of mapping is appropriate
+
+        title: None,       // Set to None to avoid duplication
+        description: None, // Set to None to avoid duplication
+        titles: None,
+        descriptions: None,
+        format: None, // TODO: Can this be mapped?
+        r#type: None,
+    }
+}
+
+fn convert_property(sdf_property: &sdf::PropertyQualities) -> wot::PropertyAffordance {
+    // TODO: How should contentFormat be mapped?
+
     // TODO: Refactor as sdfProperty is an alias for sdfData
     wot::PropertyAffordance {
         observable: sdf_property.observable.clone(),
 
-        data_schema: wot::DataSchema {
-            write_only,
-            read_only,
-
-            r#enum: None,    // Still TODO
-            r#const: None,   // Still TODO
-            data_type: None, // Still TODO
-            one_of: None,    // TODO: Can this be mapped using sdfChoice?
-
-            unit: sdf_property.unit.clone(), // TODO: Check if this kind of mapping is appropriate
-
-            title: None,       // Set to None to avoid duplication
-            description: None, // Set to None to avoid duplication
-            titles: None,
-            descriptions: None,
-            format: None, // TODO: Can this be mapped?
-            r#type: None,
-        },
+        data_schema: convert_to_data_schema(sdf_property),
 
         interaction_affordance: create_interaction_affordance(&sdf_property.common_qualities),
     }
