@@ -57,6 +57,7 @@ fn convert_actions(sdf_model: &sdf::SDFModel) -> Option<HashMap<String, wot::Act
 
     convert_sdf_actions(&sdf_model, &mut actions_map, &sdf_model.sdf_action, None);
     convert_sdf_object_actions(&sdf_model, &mut actions_map, &sdf_model.sdf_object, None);
+    convert_sdf_thing_actions(&sdf_model, &mut actions_map, &sdf_model.sdf_thing, None);
 
     if actions_map.len() > 0 {
         Some(actions_map)
@@ -119,6 +120,7 @@ fn convert_properties(
 
     convert_sdf_properties(&sdf_model, &mut properties, &sdf_model.sdf_property, None);
     convert_sdf_object_properties(&sdf_model, &mut properties, &sdf_model.sdf_object, None);
+    convert_sdf_thing_properties(&sdf_model, &mut properties, &sdf_model.sdf_thing, None);
 
     if properties.len() > 0 {
         Some(properties)
@@ -170,6 +172,33 @@ conversion_function!(wot::PropertyAffordance, sdf::ObjectQualities, convert_sdf_
 conversion_function!(wot::ActionAffordance, sdf::ObjectQualities, convert_sdf_object_actions, convert_sdf_actions, sdf_action);
 conversion_function!(wot::EventAffordance, sdf::ObjectQualities, convert_sdf_object_events, convert_sdf_events, sdf_event);
 
+macro_rules! create_thing_conversion_function {
+    ($wot_type:ty, $function_name:ident, $object_function:ident) => {
+        fn $function_name(
+            _sdf_model: &sdf::SDFModel, // Might be used later for resolving references
+            wot_definitions: &mut HashMap<String, $wot_type>,
+            sdf_definitions: &Option<HashMap<String, sdf::ThingQualities>>,
+            prefix: Option<String>,
+        ) -> () {
+            match sdf_definitions {
+                None => (),
+                Some(sdf_definitions) => {
+                    for (key, value) in sdf_definitions {
+                        let prefixed_key = get_prefixed_key(prefix.clone(), key.to_string());
+        
+                        $function_name(_sdf_model, wot_definitions, &value.sdf_thing, Some(prefixed_key.clone()));
+                        $object_function(_sdf_model, wot_definitions, &value.sdf_object, Some(prefixed_key));
+                    }
+                }
+            }
+        }
+    }
+}
+
+create_thing_conversion_function!(wot::ActionAffordance, convert_sdf_thing_actions, convert_sdf_object_actions);
+create_thing_conversion_function!(wot::PropertyAffordance, convert_sdf_thing_properties, convert_sdf_object_properties);
+create_thing_conversion_function!(wot::EventAffordance, convert_sdf_thing_events, convert_sdf_object_events);
+
 fn convert_event(sdf_event: &sdf::EventQualities) -> wot::EventAffordance {
     wot::EventAffordance {
         subscription: None, // Still TODO
@@ -185,6 +214,7 @@ fn convert_events(sdf_model: &sdf::SDFModel) -> Option<HashMap<String, wot::Even
 
     convert_sdf_events(&sdf_model, &mut events, &sdf_model.sdf_event, None);
     convert_sdf_object_events(&sdf_model, &mut events, &sdf_model.sdf_object, None);
+    convert_sdf_thing_events(&sdf_model, &mut events, &sdf_model.sdf_thing, None);
 
     if events.len() > 0 {
         Some(events)
