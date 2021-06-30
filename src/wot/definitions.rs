@@ -152,8 +152,9 @@ pub struct VersionInfo {
 #[serde(rename_all = "camelCase")]
 pub enum JSONSchemaTypes {
     Null,
-    Bool,
+    Boolean,
     Number,
+    Integer,
     String,
     Array,
     Object,
