@@ -121,21 +121,23 @@ fn convert_properties(
     }
 }
 
+fn convert_event(sdf_event: &sdf::EventQualities) -> wot::EventAffordance {
+    wot::EventAffordance {
+        subscription: None, // Still TODO
+        data: None,         // Still TODO
+        cancellation: None, // Still TODO
+
+        interaction_affordance: create_interaction_affordance(&sdf_event.common_qualities),
+    }
+}
+
 fn convert_events(sdf_model: &sdf::SDFModel) -> Option<HashMap<String, wot::EventAffordance>> {
     let mut events: HashMap<String, wot::EventAffordance> = HashMap::new();
 
     match &sdf_model.sdf_event {
         Some(sdf_events) => {
             for (key, value) in sdf_events {
-                let wot_event = wot::EventAffordance {
-                    subscription: None, // Still TODO
-                    data: None,         // Still TODO
-                    cancellation: None, // Still TODO
-
-                    interaction_affordance: create_interaction_affordance(&value.common_qualities),
-                };
-
-                events.insert(key.clone(), wot_event);
+                events.insert(key.clone(), convert_event(&value));
             }
         }
         None => (),
