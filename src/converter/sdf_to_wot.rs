@@ -41,10 +41,25 @@ fn create_interaction_affordance(
 }
 
 fn convert_action(sdf_action: &sdf::ActionQualities) -> wot::ActionAffordance {
+    let input;
+    match &sdf_action.sdf_input_data {
+        None => input = None,
+        Some(input_data) => {
+            input = Some(convert_to_data_schema(&input_data));
+        }
+    };
+
+    let output;
+    match &sdf_action.sdf_output_data {
+        None => output = None,
+        Some(output_data) => {
+            output = Some(convert_to_data_schema(&output_data));
+        }
+    };
+
     wot::ActionAffordance {
-        // TODO: Deal with input and output data
-        input: None,
-        output: None,
+        input,
+        output,
         safe: None,
         idempotent: None,
 
