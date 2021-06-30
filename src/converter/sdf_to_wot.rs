@@ -55,7 +55,7 @@ fn convert_action(sdf_action: &sdf::ActionQualities) -> wot::ActionAffordance {
 fn convert_actions(sdf_model: &sdf::SDFModel) -> Option<HashMap<String, wot::ActionAffordance>> {
     let mut actions_map: HashMap<String, wot::ActionAffordance> = HashMap::new();
 
-    convert_sdf_actions(&sdf_model, &mut actions_map, &None, &None);
+    convert_sdf_actions(&sdf_model, &mut actions_map, &sdf_model.sdf_action, &None);
     convert_sdf_object_actions(&sdf_model, &mut actions_map, &sdf_model.sdf_object, &None);
 
     if actions_map.len() > 0 {
@@ -117,7 +117,7 @@ fn convert_properties(
 ) -> Option<HashMap<String, wot::PropertyAffordance>> {
     let mut properties: HashMap<String, wot::PropertyAffordance> = HashMap::new();
 
-    convert_sdf_properties(&sdf_model, &mut properties, &None, &None);
+    convert_sdf_properties(&sdf_model, &mut properties, &sdf_model.sdf_property, &None);
     convert_sdf_object_properties(&sdf_model, &mut properties, &sdf_model.sdf_object, &None);
 
     if properties.len() > 0 {
@@ -183,7 +183,7 @@ fn convert_event(sdf_event: &sdf::EventQualities) -> wot::EventAffordance {
 fn convert_events(sdf_model: &sdf::SDFModel) -> Option<HashMap<String, wot::EventAffordance>> {
     let mut events: HashMap<String, wot::EventAffordance> = HashMap::new();
 
-    convert_sdf_events(&sdf_model, &mut events, &None, &None);
+    convert_sdf_events(&sdf_model, &mut events, &sdf_model.sdf_event, &None);
     convert_sdf_object_events(&sdf_model, &mut events, &sdf_model.sdf_object, &None);
 
     if events.len() > 0 {
