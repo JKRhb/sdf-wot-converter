@@ -128,7 +128,7 @@ fn convert_properties(
 }
 
 macro_rules! conversion_function {
-    ($wot_type:ty, $sdf_type:ty, $function_name:ident, $function_call:ident $(,$affordance_conversion:ident, $field_name:ident)?) => {
+    ($wot_type:ty, $sdf_type:ty, $function_name:ident, $function_call:ident $(, $field_name:ident)?) => {
         fn $function_name(
             sdf_model: &sdf::SDFModel, // Might be used later for resolving references
             wot_definitions: &mut HashMap<String, $wot_type>,
@@ -144,8 +144,8 @@ macro_rules! conversion_function {
                             ($inner_function_call:ident) => {
                                 wot_definitions.insert(prefixed_key, $inner_function_call(&value));
                             };
-                            ($inner_function_call:ident, $inner_affordance_conversion:ident, $inner_field_name:ident) => {
-                                $inner_affordance_conversion(
+                            ($inner_function_call:ident, $inner_field_name:ident) => {
+                                $inner_function_call(
                                     sdf_model,
                                     wot_definitions,
                                     &value.$inner_field_name,
@@ -154,7 +154,7 @@ macro_rules! conversion_function {
                             };
                         }
 
-                        inner_function!($function_call $(, $affordance_conversion, $field_name)?);
+                        inner_function!($function_call $(, $field_name)?);
                     }
                 }
                 None => (),
@@ -166,9 +166,9 @@ macro_rules! conversion_function {
 conversion_function!(wot::PropertyAffordance, sdf::PropertyQualities, convert_sdf_properties, convert_property);
 conversion_function!(wot::ActionAffordance, sdf::ActionQualities, convert_sdf_actions, convert_action);
 conversion_function!(wot::EventAffordance, sdf::EventQualities, convert_sdf_events, convert_event);
-conversion_function!(wot::PropertyAffordance, sdf::ObjectQualities, convert_sdf_object_properties, convert_property, convert_sdf_properties, sdf_property);
-conversion_function!(wot::ActionAffordance, sdf::ObjectQualities, convert_sdf_object_actions, convert_action, convert_sdf_actions, sdf_action);
-conversion_function!(wot::EventAffordance, sdf::ObjectQualities, convert_sdf_object_events, convert_event, convert_sdf_events, sdf_event);
+conversion_function!(wot::PropertyAffordance, sdf::ObjectQualities, convert_sdf_object_properties, convert_sdf_properties, sdf_property);
+conversion_function!(wot::ActionAffordance, sdf::ObjectQualities, convert_sdf_object_actions, convert_sdf_actions, sdf_action);
+conversion_function!(wot::EventAffordance, sdf::ObjectQualities, convert_sdf_object_events, convert_sdf_events, sdf_event);
 
 fn convert_event(sdf_event: &sdf::EventQualities) -> wot::EventAffordance {
     wot::EventAffordance {
