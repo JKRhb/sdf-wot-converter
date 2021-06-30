@@ -81,6 +81,29 @@ fn convert_actions(sdf_model: &sdf::SDFModel) -> Option<HashMap<String, wot::Act
     }
 }
 
+fn map_data_type(jsonschema: &Option<sdf::Types>) -> Option<wot::JSONSchemaTypes> {
+    match jsonschema {
+        None => None,
+        Some(jsonschema_type) => match jsonschema_type {
+            sdf::Types::Type(regular_type) => {
+                match regular_type {
+                    // FIXME: WoT Data types are not really covered yet
+                    sdf::RegularTypes::Number(_) => Some(wot::JSONSchemaTypes::Number),
+                    sdf::RegularTypes::Integer(_) => Some(wot::JSONSchemaTypes::Integer),
+                    sdf::RegularTypes::String(_) => Some(wot::JSONSchemaTypes::String),
+                    sdf::RegularTypes::Array(_) => Some(wot::JSONSchemaTypes::Array),
+                    sdf::RegularTypes::Object(_) => Some(wot::JSONSchemaTypes::Object),
+                    sdf::RegularTypes::Boolean(_) => Some(wot::JSONSchemaTypes::Boolean),
+                }
+            },
+            sdf::Types::SdfChoice(_) => {
+                // TODO: How should sdfChoice be covered?
+                None
+            }
+        }
+    }
+}
+
 fn convert_to_data_schema(sdf_property: &sdf::DataQualities) -> wot::DataSchema {
     // TODO: How should nullable be mapped?
 
@@ -106,7 +129,7 @@ fn convert_to_data_schema(sdf_property: &sdf::DataQualities) -> wot::DataSchema 
 
         r#enum: None,    // Still TODO
         r#const: None,   // Still TODO
-        data_type: None, // Still TODO
+        data_type: map_data_type(&sdf_property.jsonschema),
         one_of: None,    // TODO: Can this be mapped using sdfChoice?
 
         unit: sdf_property.unit.clone(), // TODO: Check if this kind of mapping is appropriate
