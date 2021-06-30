@@ -4,6 +4,24 @@ use crate::sdf::definitions as sdf;
 use crate::wot::definitions as wot;
 use std::collections::HashMap;
 
+fn first_letter_to_uppper_case(s1: &String) -> String {
+    let mut c = s1.chars();
+    match c.next() {
+        None => String::new(),
+        Some(f) => f.to_uppercase().collect::<String>() + c.as_str(),
+    }
+}
+
+fn get_prefixed_key(prefix: &Option<String>, key: String) -> String {
+    match prefix {
+        Some(prefix) => {
+            let capitalized_affordance_name = first_letter_to_uppper_case(&key);
+            format!("{}{}", prefix, capitalized_affordance_name)
+        }
+        None => key,
+    }
+}
+
 fn create_interaction_affordance(
     common_qualities: &sdf::CommonQualities,
 ) -> wot::InteractionAffordance {
@@ -35,21 +53,54 @@ fn convert_action(sdf_action: &sdf::ActionQualities) -> wot::ActionAffordance {
 }
 
 fn convert_actions(sdf_model: &sdf::SDFModel) -> Option<HashMap<String, wot::ActionAffordance>> {
-    let mut actions: HashMap<String, wot::ActionAffordance> = HashMap::new();
+    let mut actions_map: HashMap<String, wot::ActionAffordance> = HashMap::new();
 
-    match &sdf_model.sdf_action {
+    convert_sdf_actions(&sdf_model, &mut actions_map, &None, &None);
+    convert_sdf_object_actions(&sdf_model, &mut actions_map, &sdf_model.sdf_object, &None);
+
+    if actions_map.len() > 0 {
+        Some(actions_map)
+    } else {
+        None
+    }
+}
+
+fn convert_sdf_actions(
+    sdf_model: &sdf::SDFModel, // Might be used later for resolving references
+    wot_actions: &mut HashMap<String, wot::ActionAffordance>,
+    sdf_actions: &Option<HashMap<String, sdf::ActionQualities>>,
+    prefix: &Option<String>,
+) -> () {
+    match sdf_actions {
         Some(sdf_actions) => {
             for (key, value) in sdf_actions {
-                actions.insert(key.clone(), convert_action(value));
+                let prefixed_key = get_prefixed_key(prefix, key.to_string());
+                wot_actions.insert(prefixed_key, convert_action(&value));
             }
         }
         None => (),
     }
+}
 
-    if actions.len() > 0 {
-        Some(actions)
-    } else {
-        None
+fn convert_sdf_object_actions(
+    sdf_model: &sdf::SDFModel, // Might be used later for resolving references
+    wot_actions: &mut HashMap<String, wot::ActionAffordance>,
+    sdf_objects: &Option<HashMap<String, sdf::ObjectQualities>>,
+    prefix: &Option<String>,
+) -> () {
+    match &sdf_objects {
+        Some(sdf_objects) => {
+            for (key, value) in sdf_objects {
+                let prefixed_key = get_prefixed_key(prefix, key.to_string());
+                convert_sdf_actions(
+                    sdf_model,
+                    wot_actions,
+                    &value.sdf_action,
+                    &Some(prefixed_key),
+                );
+            }
+        }
+        None => (),
     }
 }
 
