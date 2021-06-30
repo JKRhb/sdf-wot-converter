@@ -156,19 +156,53 @@ fn convert_properties(
 ) -> Option<HashMap<String, wot::PropertyAffordance>> {
     let mut properties: HashMap<String, wot::PropertyAffordance> = HashMap::new();
 
-    match &sdf_model.sdf_property {
-        Some(sdf_properties) => {
-            for (key, value) in sdf_properties {
-                properties.insert(key.clone(), convert_property(&value));
-            }
-        }
-        None => (),
-    }
+    convert_sdf_properties(&sdf_model, &mut properties, &None, &None);
+    convert_sdf_object_properties(&sdf_model, &mut properties, &sdf_model.sdf_object, &None);
 
     if properties.len() > 0 {
         Some(properties)
     } else {
         None
+    }
+}
+
+// TODO: The following two functions should be replaced with macros
+fn convert_sdf_properties(
+    sdf_model: &sdf::SDFModel, // Might be used later for resolving references
+    wot_properties: &mut HashMap<String, wot::PropertyAffordance>,
+    sdf_properties: &Option<HashMap<String, sdf::PropertyQualities>>,
+    prefix: &Option<String>,
+) -> () {
+    match sdf_properties {
+        Some(sdf_properties) => {
+            for (property_key, property) in sdf_properties {
+                let prefixed_key = get_prefixed_key(prefix, property_key.to_string());
+                wot_properties.insert(prefixed_key, convert_property(&property));
+            }
+        }
+        None => (),
+    }
+}
+
+fn convert_sdf_object_properties(
+    sdf_model: &sdf::SDFModel, // Might be used later for resolving references
+    wot_properties: &mut HashMap<String, wot::PropertyAffordance>,
+    sdf_objects: &Option<HashMap<String, sdf::ObjectQualities>>,
+    prefix: &Option<String>,
+) -> () {
+    match &sdf_objects {
+        Some(sdf_objects) => {
+            for (object_key, object) in sdf_objects {
+                let prefixed_key = get_prefixed_key(prefix, object_key.to_string());
+                convert_sdf_properties(
+                    sdf_model,
+                    wot_properties,
+                    &object.sdf_property,
+                    &Some(prefixed_key),
+                );
+            }
+        }
+        None => (),
     }
 }
 
