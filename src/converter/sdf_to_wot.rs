@@ -65,23 +65,6 @@ fn convert_actions(sdf_model: &sdf::SDFModel) -> Option<HashMap<String, wot::Act
     }
 }
 
-fn convert_sdf_actions(
-    sdf_model: &sdf::SDFModel, // Might be used later for resolving references
-    wot_actions: &mut HashMap<String, wot::ActionAffordance>,
-    sdf_actions: &Option<HashMap<String, sdf::ActionQualities>>,
-    prefix: &Option<String>,
-) -> () {
-    match sdf_actions {
-        Some(sdf_actions) => {
-            for (action_key, action) in sdf_actions {
-                let prefixed_key = get_prefixed_key(prefix, action_key.to_string());
-                wot_actions.insert(prefixed_key, convert_action(&action));
-            }
-        }
-        None => (),
-    }
-}
-
 fn convert_sdf_object_actions(
     sdf_model: &sdf::SDFModel, // Might be used later for resolving references
     wot_actions: &mut HashMap<String, wot::ActionAffordance>,
@@ -166,23 +149,30 @@ fn convert_properties(
     }
 }
 
-// TODO: The following two functions should be replaced with macros
-fn convert_sdf_properties(
-    sdf_model: &sdf::SDFModel, // Might be used later for resolving references
-    wot_properties: &mut HashMap<String, wot::PropertyAffordance>,
-    sdf_properties: &Option<HashMap<String, sdf::PropertyQualities>>,
-    prefix: &Option<String>,
-) -> () {
-    match sdf_properties {
-        Some(sdf_properties) => {
-            for (property_key, property) in sdf_properties {
-                let prefixed_key = get_prefixed_key(prefix, property_key.to_string());
-                wot_properties.insert(prefixed_key, convert_property(&property));
+macro_rules! conversion_function {
+    ($blah1:ty ,$blah2:ty, $blah3:ident, $blah4:ident) => {
+        fn $blah3(
+            sdf_model: &sdf::SDFModel, // Might be used later for resolving references
+            wot_definitions: &mut HashMap<String, $blah1>,
+            sdf_definitions: &Option<HashMap<String, $blah2>>,
+            prefix: &Option<String>,
+        ) -> () {
+            match sdf_definitions {
+                Some(sdf_definitions) => {
+                    for (key, value) in sdf_definitions {
+                        let prefixed_key = get_prefixed_key(prefix, key.to_string());
+                        wot_definitions.insert(prefixed_key, $blah4(&value));
+                    }
+                }
+                None => (),
             }
         }
-        None => (),
-    }
+    };
 }
+
+conversion_function!(wot::PropertyAffordance, sdf::PropertyQualities, convert_sdf_properties, convert_property);
+conversion_function!(wot::ActionAffordance, sdf::ActionQualities, convert_sdf_actions, convert_action);
+conversion_function!(wot::EventAffordance, sdf::EventQualities, convert_sdf_events, convert_event);
 
 fn convert_sdf_object_properties(
     sdf_model: &sdf::SDFModel, // Might be used later for resolving references
@@ -219,14 +209,7 @@ fn convert_event(sdf_event: &sdf::EventQualities) -> wot::EventAffordance {
 fn convert_events(sdf_model: &sdf::SDFModel) -> Option<HashMap<String, wot::EventAffordance>> {
     let mut events: HashMap<String, wot::EventAffordance> = HashMap::new();
 
-    match &sdf_model.sdf_event {
-        Some(sdf_events) => {
-            for (key, value) in sdf_events {
-                events.insert(key.clone(), convert_event(&value));
-            }
-        }
-        None => (),
-    }
+    convert_sdf_events(&sdf_model, &mut events, &None, &None);
 
     if events.len() > 0 {
         Some(events)
