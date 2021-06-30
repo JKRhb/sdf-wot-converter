@@ -12,7 +12,7 @@ fn first_letter_to_uppper_case(s1: &String) -> String {
     }
 }
 
-fn get_prefixed_key(prefix: &Option<String>, key: String) -> String {
+fn get_prefixed_key(prefix: Option<String>, key: String) -> String {
     match prefix {
         Some(prefix) => {
             let capitalized_affordance_name = first_letter_to_uppper_case(&key);
@@ -55,8 +55,8 @@ fn convert_action(sdf_action: &sdf::ActionQualities) -> wot::ActionAffordance {
 fn convert_actions(sdf_model: &sdf::SDFModel) -> Option<HashMap<String, wot::ActionAffordance>> {
     let mut actions_map: HashMap<String, wot::ActionAffordance> = HashMap::new();
 
-    convert_sdf_actions(&sdf_model, &mut actions_map, &sdf_model.sdf_action, &None);
-    convert_sdf_object_actions(&sdf_model, &mut actions_map, &sdf_model.sdf_object, &None);
+    convert_sdf_actions(&sdf_model, &mut actions_map, &sdf_model.sdf_action, None);
+    convert_sdf_object_actions(&sdf_model, &mut actions_map, &sdf_model.sdf_object, None);
 
     if actions_map.len() > 0 {
         Some(actions_map)
@@ -117,8 +117,8 @@ fn convert_properties(
 ) -> Option<HashMap<String, wot::PropertyAffordance>> {
     let mut properties: HashMap<String, wot::PropertyAffordance> = HashMap::new();
 
-    convert_sdf_properties(&sdf_model, &mut properties, &sdf_model.sdf_property, &None);
-    convert_sdf_object_properties(&sdf_model, &mut properties, &sdf_model.sdf_object, &None);
+    convert_sdf_properties(&sdf_model, &mut properties, &sdf_model.sdf_property, None);
+    convert_sdf_object_properties(&sdf_model, &mut properties, &sdf_model.sdf_object, None);
 
     if properties.len() > 0 {
         Some(properties)
@@ -133,12 +133,12 @@ macro_rules! conversion_function {
             _sdf_model: &sdf::SDFModel, // Might be used later for resolving references
             wot_definitions: &mut HashMap<String, $wot_type>,
             sdf_definitions: &Option<HashMap<String, $sdf_type>>,
-            prefix: &Option<String>,
+            prefix: Option<String>,
         ) -> () {
             match sdf_definitions {
                 Some(sdf_definitions) => {
                     for (key, value) in sdf_definitions {
-                        let prefixed_key = get_prefixed_key(prefix, key.to_string());
+                        let prefixed_key = get_prefixed_key(prefix.clone(), key.to_string());
 
                         macro_rules! inner_function {
                             ($inner_function_call:ident) => {
@@ -149,7 +149,7 @@ macro_rules! conversion_function {
                                     _sdf_model,
                                     wot_definitions,
                                     &value.$inner_field_name,
-                                    &Some(prefixed_key),
+                                    Some(prefixed_key),
                                 );
                             };
                         }
@@ -183,8 +183,8 @@ fn convert_event(sdf_event: &sdf::EventQualities) -> wot::EventAffordance {
 fn convert_events(sdf_model: &sdf::SDFModel) -> Option<HashMap<String, wot::EventAffordance>> {
     let mut events: HashMap<String, wot::EventAffordance> = HashMap::new();
 
-    convert_sdf_events(&sdf_model, &mut events, &sdf_model.sdf_event, &None);
-    convert_sdf_object_events(&sdf_model, &mut events, &sdf_model.sdf_object, &None);
+    convert_sdf_events(&sdf_model, &mut events, &sdf_model.sdf_event, None);
+    convert_sdf_object_events(&sdf_model, &mut events, &sdf_model.sdf_object, None);
 
     if events.len() > 0 {
         Some(events)
