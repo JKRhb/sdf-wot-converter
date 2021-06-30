@@ -4,15 +4,30 @@ use crate::sdf::definitions as sdf;
 use crate::wot::definitions as wot;
 use std::collections::HashMap;
 
+fn create_interaction_affordance(
+    common_qualities: &sdf::CommonQualities,
+) -> wot::InteractionAffordance {
+    let title: Option<String> = common_qualities.label.clone();
+    let description: Option<String> = common_qualities.description.clone();
+
+    wot::InteractionAffordance {
+        title,
+        description,
+
+        forms: Vec::<wot::Form>::new(),
+        titles: None,
+        descriptions: None,
+        r#type: None,
+        uri_variables: None,
+    }
+}
+
 fn convert_actions(sdf_model: &sdf::SDFModel) -> Option<HashMap<String, wot::ActionAffordance>> {
     let mut actions: HashMap<String, wot::ActionAffordance> = HashMap::new();
 
     match &sdf_model.sdf_action {
         Some(sdf_actions) => {
             for (key, value) in sdf_actions {
-                let title: Option<String> = value.common_qualities.label.clone();
-                let description: Option<String> = value.common_qualities.description.clone();
-
                 let wot_action = wot::ActionAffordance {
                     // TODO: Deal with input and output data
                     input: None,
@@ -20,16 +35,7 @@ fn convert_actions(sdf_model: &sdf::SDFModel) -> Option<HashMap<String, wot::Act
                     safe: None,
                     idempotent: None,
 
-                    interaction_affordance: wot::InteractionAffordance {
-                        title,
-                        description,
-
-                        forms: Vec::<wot::Form>::new(),
-                        titles: None,
-                        descriptions: None,
-                        r#type: None,
-                        uri_variables: None,
-                    },
+                    interaction_affordance: create_interaction_affordance(&value.common_qualities),
                 };
 
                 actions.insert(key.clone(), wot_action);
@@ -53,11 +59,8 @@ fn convert_properties(
     match &sdf_model.sdf_property {
         Some(sdf_properties) => {
             for (key, value) in sdf_properties {
-                // TODO: Refactor mapping of common qualities
                 // TODO: How should nullable be mapped?
                 // TODO: How should contentFormat be mapped?
-                let title: Option<String> = value.common_qualities.label.clone();
-                let description: Option<String> = value.common_qualities.description.clone();
 
                 let write_only;
                 let read_only;
@@ -98,16 +101,7 @@ fn convert_properties(
                         r#type: None,
                     },
 
-                    interaction_affordance: wot::InteractionAffordance {
-                        title,
-                        description,
-
-                        forms: Vec::<wot::Form>::new(),
-                        titles: None,
-                        descriptions: None,
-                        r#type: None,
-                        uri_variables: None,
-                    },
+                    interaction_affordance: create_interaction_affordance(&value.common_qualities),
                 };
 
                 properties.insert(key.clone(), wot_property);
@@ -129,25 +123,12 @@ fn convert_events(sdf_model: &sdf::SDFModel) -> Option<HashMap<String, wot::Even
     match &sdf_model.sdf_event {
         Some(sdf_events) => {
             for (key, value) in sdf_events {
-                let title: Option<String> = value.common_qualities.label.clone();
-                let description: Option<String> = value.common_qualities.description.clone();
-
                 let wot_event = wot::EventAffordance {
                     subscription: None, // Still TODO
                     data: None,         // Still TODO
                     cancellation: None, // Still TODO
 
-                    // TODO: Refactor generation of InteractionAffordance
-                    interaction_affordance: wot::InteractionAffordance {
-                        title,
-                        description,
-
-                        forms: Vec::<wot::Form>::new(),
-                        titles: None,
-                        descriptions: None,
-                        r#type: None,
-                        uri_variables: None,
-                    },
+                    interaction_affordance: create_interaction_affordance(&value.common_qualities),
                 };
 
                 events.insert(key.clone(), wot_event);
