@@ -130,7 +130,7 @@ fn convert_properties(
 macro_rules! conversion_function {
     ($wot_type:ty, $sdf_type:ty, $function_name:ident, $function_call:ident $(, $field_name:ident)?) => {
         fn $function_name(
-            sdf_model: &sdf::SDFModel, // Might be used later for resolving references
+            _sdf_model: &sdf::SDFModel, // Might be used later for resolving references
             wot_definitions: &mut HashMap<String, $wot_type>,
             sdf_definitions: &Option<HashMap<String, $sdf_type>>,
             prefix: &Option<String>,
@@ -146,7 +146,7 @@ macro_rules! conversion_function {
                             };
                             ($inner_function_call:ident, $inner_field_name:ident) => {
                                 $inner_function_call(
-                                    sdf_model,
+                                    _sdf_model,
                                     wot_definitions,
                                     &value.$inner_field_name,
                                     &Some(prefixed_key),
