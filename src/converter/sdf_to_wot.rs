@@ -53,6 +53,53 @@ fn convert_actions(sdf_model: &sdf::SDFModel) -> Option<HashMap<String, wot::Act
     }
 }
 
+fn convert_property(sdf_property: &sdf::PropertyQualities) -> wot::PropertyAffordance {
+    // TODO: How should nullable be mapped?
+    // TODO: How should contentFormat be mapped?
+
+    let write_only;
+    let read_only;
+    let writable = sdf_property.writable.unwrap_or(true);
+    let readable = sdf_property.readable.unwrap_or(true);
+    if !readable && writable {
+        write_only = Some(true);
+        read_only = None;
+    } else if !writable && readable {
+        write_only = None;
+        read_only = Some(true);
+    } else {
+        // TODO: How do you map a property that is neither writable nor readable?
+        write_only = None;
+        read_only = None;
+    }
+
+    // TODO: Refactor as sdfProperty is an alias for sdfData
+    wot::PropertyAffordance {
+        observable: sdf_property.observable.clone(),
+
+        data_schema: wot::DataSchema {
+            write_only,
+            read_only,
+
+            r#enum: None,    // Still TODO
+            r#const: None,   // Still TODO
+            data_type: None, // Still TODO
+            one_of: None,    // TODO: Can this be mapped using sdfChoice?
+
+            unit: sdf_property.unit.clone(), // TODO: Check if this kind of mapping is appropriate
+
+            title: None,       // Set to None to avoid duplication
+            description: None, // Set to None to avoid duplication
+            titles: None,
+            descriptions: None,
+            format: None, // TODO: Can this be mapped?
+            r#type: None,
+        },
+
+        interaction_affordance: create_interaction_affordance(&sdf_property.common_qualities),
+    }
+}
+
 fn convert_properties(
     sdf_model: &sdf::SDFModel,
 ) -> Option<HashMap<String, wot::PropertyAffordance>> {
@@ -61,52 +108,7 @@ fn convert_properties(
     match &sdf_model.sdf_property {
         Some(sdf_properties) => {
             for (key, value) in sdf_properties {
-                // TODO: How should nullable be mapped?
-                // TODO: How should contentFormat be mapped?
-
-                let write_only;
-                let read_only;
-                let writable = value.writable.unwrap_or(true);
-                let readable = value.readable.unwrap_or(true);
-                if !readable && writable {
-                    write_only = Some(true);
-                    read_only = None;
-                } else if !writable && readable {
-                    write_only = None;
-                    read_only = Some(true);
-                } else {
-                    // TODO: How do you map a property that is neither writable nor readable?
-                    write_only = None;
-                    read_only = None;
-                }
-
-                // TODO: Refactor as sdfProperty is an alias for sdfData
-                let wot_property = wot::PropertyAffordance {
-                    observable: value.observable.clone(),
-
-                    data_schema: wot::DataSchema {
-                        write_only,
-                        read_only,
-
-                        r#enum: None,    // Still TODO
-                        r#const: None,   // Still TODO
-                        data_type: None, // Still TODO
-                        one_of: None,    // TODO: Can this be mapped using sdfChoice?
-
-                        unit: value.unit.clone(), // TODO: Check if this kind of mapping is appropriate
-
-                        title: None,       // Set to None to avoid duplication
-                        description: None, // Set to None to avoid duplication
-                        titles: None,
-                        descriptions: None,
-                        format: None, // TODO: Can this be mapped?
-                        r#type: None,
-                    },
-
-                    interaction_affordance: create_interaction_affordance(&value.common_qualities),
-                };
-
-                properties.insert(key.clone(), wot_property);
+                properties.insert(key.clone(), convert_property(&value));
             }
         }
         None => (),
