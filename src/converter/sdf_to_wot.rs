@@ -40,9 +40,7 @@ fn convert_actions(sdf_model: &sdf::SDFModel) -> Option<HashMap<String, wot::Act
     match &sdf_model.sdf_action {
         Some(sdf_actions) => {
             for (key, value) in sdf_actions {
-                let wot_action = convert_action(value);
-
-                actions.insert(key.clone(), wot_action);
+                actions.insert(key.clone(), convert_action(value));
             }
         }
         None => (),
