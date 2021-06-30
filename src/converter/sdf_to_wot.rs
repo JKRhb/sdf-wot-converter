@@ -150,18 +150,18 @@ fn convert_properties(
 }
 
 macro_rules! conversion_function {
-    ($blah1:ty ,$blah2:ty, $blah3:ident, $blah4:ident) => {
-        fn $blah3(
+    ($wot_type:ty, $sdf_type:ty, $function_name:ident, $function_call:ident) => {
+        fn $function_name(
             sdf_model: &sdf::SDFModel, // Might be used later for resolving references
-            wot_definitions: &mut HashMap<String, $blah1>,
-            sdf_definitions: &Option<HashMap<String, $blah2>>,
+            wot_definitions: &mut HashMap<String, $wot_type>,
+            sdf_definitions: &Option<HashMap<String, $sdf_type>>,
             prefix: &Option<String>,
         ) -> () {
             match sdf_definitions {
                 Some(sdf_definitions) => {
                     for (key, value) in sdf_definitions {
                         let prefixed_key = get_prefixed_key(prefix, key.to_string());
-                        wot_definitions.insert(prefixed_key, $blah4(&value));
+                        wot_definitions.insert(prefixed_key, $function_call(&value));
                     }
                 }
                 None => (),
