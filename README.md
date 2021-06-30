@@ -1,3 +1,5 @@
+[![Build Status](https://github.com/JKRhb/sdf-wot-converter/actions/workflows/rust.yml/badge.svg)](https://github.com/JKRhb/sdf-wot-converter/actions/workflows/rust.yml)
+
 # SDF-WoT-Converter
 
 This repository provides a converter from [SDF](https://datatracker.ietf.org/doc/html/draft-ietf-asdf-sdf-05) (including protocol bindings) to [WoT TD](https://www.w3.org/TR/wot-thing-description/).
