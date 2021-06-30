@@ -73,9 +73,9 @@ fn convert_sdf_actions(
 ) -> () {
     match sdf_actions {
         Some(sdf_actions) => {
-            for (key, value) in sdf_actions {
-                let prefixed_key = get_prefixed_key(prefix, key.to_string());
-                wot_actions.insert(prefixed_key, convert_action(&value));
+            for (action_key, action) in sdf_actions {
+                let prefixed_key = get_prefixed_key(prefix, action_key.to_string());
+                wot_actions.insert(prefixed_key, convert_action(&action));
             }
         }
         None => (),
@@ -90,12 +90,12 @@ fn convert_sdf_object_actions(
 ) -> () {
     match &sdf_objects {
         Some(sdf_objects) => {
-            for (key, value) in sdf_objects {
-                let prefixed_key = get_prefixed_key(prefix, key.to_string());
+            for (object_key, object) in sdf_objects {
+                let prefixed_key = get_prefixed_key(prefix, object_key.to_string());
                 convert_sdf_actions(
                     sdf_model,
                     wot_actions,
-                    &value.sdf_action,
+                    &object.sdf_action,
                     &Some(prefixed_key),
                 );
             }
