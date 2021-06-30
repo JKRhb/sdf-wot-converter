@@ -169,7 +169,7 @@ pub struct DataQualities {
     pub sdf_type: Option<SDFType>,
     pub content_format: Option<String>,
 }
-use DataQualities as PropertyQualities;
+pub type PropertyQualities = DataQualities;
 
 #[skip_serializing_none]
 #[derive(Debug, Deserialize, Serialize)]
