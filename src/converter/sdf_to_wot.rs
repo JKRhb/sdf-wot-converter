@@ -272,9 +272,18 @@ create_thing_conversion_function!(
 );
 
 fn convert_event(sdf_event: &sdf::EventQualities) -> wot::EventAffordance {
+    // TODO: How should sdf_data be mapped?
+    let data;
+    match &sdf_event.sdf_output_data {
+        None => data = None,
+        Some(output_data) => {
+            data = Some(convert_to_data_schema(&output_data));
+        }
+    };
+
     wot::EventAffordance {
         subscription: None, // Still TODO
-        data: None,         // Still TODO
+        data,
         cancellation: None, // Still TODO
 
         interaction_affordance: create_interaction_affordance(&sdf_event.common_qualities),
