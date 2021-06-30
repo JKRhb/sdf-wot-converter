@@ -129,8 +129,8 @@ fn convert_properties(
     }
 }
 
-macro_rules! conversion_function {
-    ($wot_type:ty, $sdf_type:ty, $function_name:ident, $function_call:ident $(, $field_name:ident)?) => {
+macro_rules! create_object_conversion_function {
+    ($wot_type:ty, $sdf_type:ty, $function_name:ident, $function_call:ident, $field_name:ident) => {
         fn $function_name(
             _sdf_model: &sdf::SDFModel, // Might be used later for resolving references
             wot_definitions: &mut HashMap<String, $wot_type>,
@@ -142,21 +142,12 @@ macro_rules! conversion_function {
                     for (key, value) in sdf_definitions {
                         let prefixed_key = get_prefixed_key(prefix.clone(), key.to_string());
 
-                        macro_rules! inner_function {
-                            ($inner_function_call:ident) => {
-                                wot_definitions.insert(prefixed_key, $inner_function_call(&value));
-                            };
-                            ($inner_function_call:ident, $inner_field_name:ident) => {
-                                $inner_function_call(
-                                    _sdf_model,
-                                    wot_definitions,
-                                    &value.$inner_field_name,
-                                    Some(prefixed_key),
-                                );
-                            };
-                        }
-
-                        inner_function!($function_call $(, $field_name)?);
+                        $function_call(
+                            _sdf_model,
+                            wot_definitions,
+                            &value.$field_name,
+                            Some(prefixed_key),
+                        );
                     }
                 }
                 None => (),
@@ -165,39 +156,60 @@ macro_rules! conversion_function {
     };
 }
 
-conversion_function!(
+macro_rules! create_affordance_conversion_function {
+    ($wot_type:ty, $sdf_type:ty, $function_name:ident, $function_call:ident) => {
+        fn $function_name(
+            _sdf_model: &sdf::SDFModel, // Might be used later for resolving references
+            wot_definitions: &mut HashMap<String, $wot_type>,
+            sdf_definitions: &Option<HashMap<String, $sdf_type>>,
+            prefix: Option<String>,
+        ) -> () {
+            match sdf_definitions {
+                Some(sdf_definitions) => {
+                    for (key, value) in sdf_definitions {
+                        let prefixed_key = get_prefixed_key(prefix.clone(), key.to_string());
+                        wot_definitions.insert(prefixed_key, $function_call(&value));
+                    }
+                }
+                None => (),
+            }
+        }
+    };
+}
+
+create_affordance_conversion_function!(
     wot::PropertyAffordance,
     sdf::PropertyQualities,
     convert_sdf_properties,
     convert_property
 );
-conversion_function!(
+create_affordance_conversion_function!(
     wot::ActionAffordance,
     sdf::ActionQualities,
     convert_sdf_actions,
     convert_action
 );
-conversion_function!(
+create_affordance_conversion_function!(
     wot::EventAffordance,
     sdf::EventQualities,
     convert_sdf_events,
     convert_event
 );
-conversion_function!(
+create_object_conversion_function!(
     wot::PropertyAffordance,
     sdf::ObjectQualities,
     convert_sdf_object_properties,
     convert_sdf_properties,
     sdf_property
 );
-conversion_function!(
+create_object_conversion_function!(
     wot::ActionAffordance,
     sdf::ObjectQualities,
     convert_sdf_object_actions,
     convert_sdf_actions,
     sdf_action
 );
-conversion_function!(
+create_object_conversion_function!(
     wot::EventAffordance,
     sdf::ObjectQualities,
     convert_sdf_object_events,
