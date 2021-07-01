@@ -148,16 +148,56 @@ pub struct VersionInfo {
     pub model: Option<String>,
 }
 
+#[skip_serializing_none]
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
+pub struct NumberSchema<T> {
+    pub minimum: Option<T>,
+    pub exclusive_minimum: Option<T>,
+    pub maximum: Option<T>,
+    pub exclusive_maximum: Option<T>,
+    pub multiple_of: Option<T>,
+}
+
+#[skip_serializing_none]
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct StringSchema {
+    pub min_length: Option<u32>,
+    pub max_length: Option<u32>,
+    pub pattern: Option<String>,
+    pub content_encoding: Option<String>,
+    pub content_media_type: Option<String>,
+}
+
+#[skip_serializing_none]
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ArraySchema {
+    pub items: Option<Box<TypeOrTypeArray<DataSchema>>>,
+    pub min_items: Option<u32>,
+    pub max_items: Option<u32>,
+}
+
+#[skip_serializing_none]
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ObjectSchema {
+    pub properties: Option<HashMap<String, DataSchema>>,
+    pub required: Option<Vec<String>>,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+#[serde(tag = "type")]
 pub enum JSONSchemaTypes {
     Null,
     Boolean,
-    Number,
-    Integer,
-    String,
-    Array,
-    Object,
+    Number(NumberSchema<f32>),
+    Integer(NumberSchema<i32>),
+    String(StringSchema),
+    Array(ArraySchema),
+    Object(ObjectSchema),
 }
 
 #[skip_serializing_none]
@@ -170,7 +210,7 @@ pub struct DataSchema {
     pub titles: Option<HashMap<String, String>>, // TODO: Consider using a MultiLanguage struct instead
     pub description: Option<String>,
     pub descriptions: Option<HashMap<String, String>>,
-    #[serde(rename = "type")]
+    #[serde(flatten)]
     pub data_type: Option<JSONSchemaTypes>,
     pub r#const: Option<serde_json::Value>,
     pub unit: Option<String>,
