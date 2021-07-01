@@ -91,8 +91,8 @@ pub struct TypedQualities<T> {
 pub struct StringTypeQualities {
     #[serde(flatten)]
     pub common_qualities: TypedQualities<String>,
-    pub min_length: Option<i32>,
-    pub max_length: Option<i32>,
+    pub min_length: Option<u32>,
+    pub max_length: Option<u32>,
     pub pattern: Option<String>,
     pub format: Option<FormatQualities>,
 }
@@ -111,8 +111,8 @@ pub struct ObjectTypeQualities {
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ArrayTypeQualities {
-    pub min_items: Option<i32>,
-    pub max_items: Option<i32>,
+    pub min_items: Option<u32>,
+    pub max_items: Option<u32>,
     pub unique_items: Option<bool>,
     // items: Option<DataQualities>, // TODO: Not the actual schema entry yet
 }
