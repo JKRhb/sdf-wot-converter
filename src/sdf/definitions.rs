@@ -133,7 +133,7 @@ pub enum RegularTypes {
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SdfChoice {
-    sdf_choice: HashMap<String, DataQualities>
+    sdf_choice: HashMap<String, DataQualities>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]

@@ -171,10 +171,10 @@ fn convert_to_data_schema(sdf_property: &sdf::DataQualities) -> wot::DataSchema 
         write_only,
         read_only,
 
-        r#enum: None,    // Still TODO
-        r#const: None,   // Still TODO
+        r#enum: None,  // Still TODO
+        r#const: None, // Still TODO
         data_type: map_data_type(&sdf_property.jsonschema),
-        one_of: None,    // TODO: Can this be mapped using sdfChoice?
+        one_of: None, // TODO: Can this be mapped using sdfChoice?
 
         unit: sdf_property.unit.clone(), // TODO: Check if this kind of mapping is appropriate
 
