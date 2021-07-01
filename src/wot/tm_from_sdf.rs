@@ -258,8 +258,10 @@ fn convert_to_data_schema(sdf_property: &sdf::DataQualities) -> wot::DataSchema 
     } else if !writable && readable {
         write_only = None;
         read_only = Some(true);
+    } else if !writable && !readable {
+        write_only = Some(true);
+        read_only = Some(true);
     } else {
-        // TODO: How do you map a property that is neither writable nor readable?
         write_only = None;
         read_only = None;
     }
