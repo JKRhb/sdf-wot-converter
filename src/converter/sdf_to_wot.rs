@@ -81,26 +81,70 @@ fn convert_actions(sdf_model: &sdf::SDFModel) -> Option<HashMap<String, wot::Act
     }
 }
 
+fn map_regular_type(sdf_type: &sdf::RegularTypes) -> Option<wot::JSONSchemaTypes> {
+    match sdf_type {
+        sdf::RegularTypes::Number(sdf_schema) => {
+            let mapping = wot::JSONSchemaTypes::Number(wot::NumberSchema::<f32> {
+                minimum: sdf_schema.minimum.clone(),
+                exclusive_minimum: sdf_schema.exclusive_minimum.clone(),
+                maximum: sdf_schema.maximum.clone(),
+                exclusive_maximum: sdf_schema.exclusive_maximum.clone(),
+                multiple_of: sdf_schema.multiple_of.clone(),
+            });
+            Some(mapping)
+        }
+        sdf::RegularTypes::Integer(sdf_schema) => {
+            let mapping = wot::JSONSchemaTypes::Integer(wot::NumberSchema::<i32> {
+                minimum: sdf_schema.minimum.clone(),
+                exclusive_minimum: sdf_schema.exclusive_minimum.clone(),
+                maximum: sdf_schema.maximum.clone(),
+                exclusive_maximum: sdf_schema.exclusive_maximum.clone(),
+                multiple_of: sdf_schema.multiple_of.clone(),
+            });
+            Some(mapping)
+        }
+        sdf::RegularTypes::String(sdf_schema) => {
+            let mapping = wot::JSONSchemaTypes::String(wot::StringSchema {
+                // TODO: format is not mapped yet
+                min_length: sdf_schema.min_length.clone(),
+                max_length: sdf_schema.max_length.clone(),
+                pattern: sdf_schema.pattern.clone(),
+                content_encoding: None,
+                content_media_type: None,
+            });
+            Some(mapping)
+        }
+        sdf::RegularTypes::Array(sdf_schema) => {
+            let mapping = wot::JSONSchemaTypes::Array(wot::ArraySchema {
+                // TODO: Can unique_items be mapped?
+                // TODO: items is still to be mapped
+                min_items: sdf_schema.min_items.clone(),
+                max_items: sdf_schema.max_items.clone(),
+                items: None,
+            });
+            Some(mapping)
+        }
+        sdf::RegularTypes::Object(sdf_schema) => {
+            let mapping = wot::JSONSchemaTypes::Object(wot::ObjectSchema {
+                required: sdf_schema.required.clone(),
+                properties: None, // TODO: Mapping has to implemented
+            });
+            Some(mapping)
+        }
+        sdf::RegularTypes::Boolean(_) => Some(wot::JSONSchemaTypes::Boolean),
+    }
+}
+
 fn map_data_type(jsonschema: &Option<sdf::Types>) -> Option<wot::JSONSchemaTypes> {
     match jsonschema {
         None => None,
         Some(jsonschema_type) => match jsonschema_type {
-            sdf::Types::Type(regular_type) => {
-                match regular_type {
-                    // FIXME: WoT Data types are not really covered yet
-                    sdf::RegularTypes::Number(_) => Some(wot::JSONSchemaTypes::Number),
-                    sdf::RegularTypes::Integer(_) => Some(wot::JSONSchemaTypes::Integer),
-                    sdf::RegularTypes::String(_) => Some(wot::JSONSchemaTypes::String),
-                    sdf::RegularTypes::Array(_) => Some(wot::JSONSchemaTypes::Array),
-                    sdf::RegularTypes::Object(_) => Some(wot::JSONSchemaTypes::Object),
-                    sdf::RegularTypes::Boolean(_) => Some(wot::JSONSchemaTypes::Boolean),
-                }
-            },
+            sdf::Types::Type(regular_type) => map_regular_type(regular_type),
             sdf::Types::SdfChoice(_) => {
                 // TODO: How should sdfChoice be covered?
                 None
             }
-        }
+        },
     }
 }
 
