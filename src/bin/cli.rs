@@ -1,13 +1,9 @@
-mod converter;
-mod sdf;
-mod wot;
+use sdf_wot_converter::{converter, sdf::definitions::SDFModel, wot::definitions::Thing};
 
-use sdf::definitions::SDFModel;
 use serde_json;
 use std::env;
 use std::fs;
 use url::Url;
-use wot::definitions::Thing;
 
 /// Reads a JSON file from a specified path, deserializes it to a supported data type,
 /// and returns a formatted `String` as a `Result`.
