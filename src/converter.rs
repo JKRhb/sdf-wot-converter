@@ -74,7 +74,7 @@ fn print_definition<T: SerializableModel>(path: &str) -> () {
 /// 
 /// # Examples
 ///
-/// ```
+/// ```rust
 /// use sdf_wot_converter::converter::print_sdf_definition;
 /// 
 /// print_sdf_definition("examples/sdf/example.sdf.json");
@@ -89,7 +89,7 @@ pub fn print_sdf_definition(path: &str) -> () {
 /// 
 /// # Examples
 ///
-/// ```
+/// ```rust
 /// use sdf_wot_converter::converter::print_wot_definition;
 /// 
 /// print_wot_definition("examples/wot/example.td.json");
