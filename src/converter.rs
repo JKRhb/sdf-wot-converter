@@ -69,10 +69,30 @@ fn print_definition<T: SerializableModel>(path: &str) -> () {
     };
 }
 
+/// Deserializes an SDF model, converts it back into a JSON string
+/// and prints it to the command line.
+/// 
+/// # Examples
+///
+/// ```
+/// use sdf_wot_converter::converter::print_sdf_definition;
+/// 
+/// print_sdf_definition("examples/sdf/example.sdf.json");
+/// ```
 pub fn print_sdf_definition(path: &str) -> () {
     print_definition::<SDFModel>(path)
 }
 
+/// Deserializes an WoT TD definition, converts it back into a 
+/// JSON string and prints it to the command line.
+/// 
+/// # Examples
+///
+/// ```
+/// use sdf_wot_converter::converter::print_wot_definition;
+/// 
+/// print_wot_definition("examples/wot/example.td.json");
+/// ```
 pub fn print_wot_definition(path: &str) -> () {
     print_definition::<Thing>(path)
 }
