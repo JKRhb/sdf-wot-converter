@@ -1,9 +1,10 @@
 use sdf_wot_converter::{converter, sdf::definitions::SDFModel, wot::definitions::Thing};
 
+use clap::{crate_authors, crate_version, App, Arg};
 use serde_json;
 use std::env;
 use std::fs;
-use url::Url;
+// use url::Url;
 
 /// Reads a JSON file from a specified path, deserializes it to a supported data type,
 /// and returns a formatted `String` as a `Result`.
@@ -47,61 +48,94 @@ fn convert_sdf_to_wot(path: &str) -> serde_json::Result<Thing> {
 }
 
 fn main() -> Result<(), url::ParseError> {
-  let args: Vec<String> = env::args().collect();
-  let command = &args[1];
-  let path = &args[2];
+  let input_help = "The input file path. Must either end with sdf.json \
+                    (for SDF) or td.json (for WoT TD).";
+  let output_help = "The output file path. Must either end with sdf.json \
+                     (when converting to SDF) or td.json (when converting \
+                      to WoT TD).";
 
-  // TODO: This is only a first rough attempt that has to be reworked
-  match command.as_str() {
-    "print" => {
-      if path.ends_with("sdf.json") {
-        print_definition::<SDFModel>(path.as_str());
-      } else if path.ends_with("td.json") {
-        print_definition::<Thing>(path.as_str());
-      } else {
-        panic!("Illegal file ending! Must be either .sdf.json or td.json.");
-      }
-      Ok(())
+  let app = App::new("sdf-wot-converter")
+    .version(crate_version!())
+    .author(crate_authors!())
+    .subcommand(
+      App::new("print")
+        .about("Reads in an SDF or WoT file and prints it in the terminal.")
+        .arg(
+          Arg::with_name("input")
+            .help(input_help)
+            .index(1)
+            .required(true),
+        ),
+    )
+    .subcommand(
+      App::new("convert")
+        .about("Reads in an SDF or WoT file and prints it in the terminal.")
+        .arg(
+          Arg::with_name("input")
+            .help(input_help)
+            .index(1)
+            .required(true),
+        )
+        .arg(
+          Arg::with_name("output")
+            .help(output_help)
+            .index(2)
+            .required(true),
+        ),
+    )
+    .get_matches();
+
+  if let Some(ref matches) = app.subcommand_matches("print") {
+    let path = matches.value_of("input").unwrap();
+    if path.ends_with("sdf.json") {
+      print_definition::<SDFModel>(path);
+    } else if path.ends_with("td.json") {
+      print_definition::<Thing>(path);
+    } else {
+      panic!("Illegal file ending! Must be either .sdf.json or td.json.");
     }
-    "convert" => {
-      if path.ends_with("sdf.json") {
-        match convert_sdf_to_wot(path) {
-          Ok(thing) => {
-            let json_string = serde_json::to_string_pretty(&thing);
-            match json_string {
-              Ok(json_string) => {
-                if args.len() >= 4 {
-                  fs::write(args[3].as_str(), json_string).expect("Unable to write file");
-                } else {
-                  println!("{}", json_string);
-                }
-              }
-              Err(error) => println!("{}", error),
+  } else if let Some(ref matches) = app.subcommand_matches("convert") {
+    // TODO: Replace if-else with match
+    let input_path = matches.value_of("input").unwrap();
+    let output_path = matches.value_of("output").unwrap();
+    if input_path.ends_with("sdf.json") {
+      assert!(output_path.ends_with("td.json"));
+      match convert_sdf_to_wot(input_path) {
+        Ok(thing) => {
+          let json_string = serde_json::to_string_pretty(&thing);
+          match json_string {
+            Ok(json_string) => {
+              fs::write(output_path, json_string).expect("Unable to write file");
             }
+            Err(error) => println!("{}", error),
           }
-          Err(error) => println!("{}", error),
-        };
-      } else if path.ends_with("td.json") {
-        panic!("TD to SDF conversion is not implemented yet!");
-      } else {
-        panic!("Illegal file ending! Must be either .sdf.json or td.json.");
-      }
-      Ok(())
-    }
-    _ => {
-      // FIXME: Parsing of URLs has to be implemented
-      let data_url = Url::parse(path.as_str());
-      match data_url {
-        Ok(url) => {
-          if url.scheme() == "http" || url.scheme() == "https" {
-            println!("The use of URLs as an input is not implemented yet.");
-          }
-          Ok(())
         }
-        Err(error) => Err(error),
-      }
+        Err(error) => println!("{}", error),
+      };
+    } else if input_path.ends_with("td.json") {
+      panic!("TD to SDF conversion is not implemented yet!");
+    } else {
+      panic!("Illegal file ending! Must be either .sdf.json or td.json.");
     }
   }
+
+  Ok(())
+  // TODO: Implement possibility to use URLs as input
+  //
+  //   _ => {
+  //     // FIXME: Parsing of URLs has to be implemented
+  //     let data_url = Url::parse(path.as_str());
+  //     match data_url {
+  //       Ok(url) => {
+  //         if url.scheme() == "http" || url.scheme() == "https" {
+  //           println!("The use of URLs as an input is not implemented yet.");
+  //         }
+  //         Ok(())
+  //       }
+  //       Err(error) => Err(error),
+  //     }
+  //   }
+  // }
 }
 
 #[cfg(test)]
