@@ -21,6 +21,7 @@ cargo install --git https://github.com/JKRhb/sdf-wot-converter.git
 
 in a terminal of your choice.
 The installation takes a while but once its compilation has been finished the converter should be usable right away.
+It can be called using `sdf-wot-converter-cli` and one of the subcommands described below.
 
 ## Using the Command Line Tool
 
@@ -35,7 +36,7 @@ Both SDF protocol bindings and Thing Models are not covered yet but will be adde
 **Example:**
 
 ```
-sdf-wot-converter convert examples/sdf/example.sdf.json example.td.json
+sdf-wot-converter-cli convert examples/sdf/example.sdf.json example.td.json
 ```
 
 ### `print`
@@ -48,7 +49,7 @@ The result is then printed in the terminal.
 **Example:**
 
 ```
-sdf-wot-converter print examples/sdf/example.sdf.json
+sdf-wot-converter-cli print examples/sdf/example.sdf.json
 ```
 
 ## License
