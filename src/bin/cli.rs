@@ -1,17 +1,8 @@
-use sdf_wot_converter::{converter, sdf::definitions::SDFModel, wot::definitions::Thing};
+use sdf_wot_converter::converter;
 
 use clap::{crate_authors, crate_version, App, Arg};
-use serde_json;
 use std::env;
-use std::fs;
 // use url::Url;
-
-fn print_definition<T: serde::Serialize + serde::de::DeserializeOwned>(path: &str) -> () {
-  match converter::read_json::<T>(path) {
-    Ok(result) => println!("{}", result),
-    Err(e) => println!("{}", e),
-  };
-}
 
 fn is_valid_input(input: String) -> Result<(), String> {
   if input.ends_with("sdf.json") || input.ends_with("td.json") {
@@ -67,9 +58,10 @@ fn main() {
   if let Some(ref matches) = app.subcommand_matches("print") {
     let path = matches.value_of("input").unwrap();
     if path.ends_with("sdf.json") {
-      print_definition::<SDFModel>(path);
+      converter::print_sdf_definition(path);
+      println!("{}", converter::get_sdf_json_string(path).unwrap());
     } else if path.ends_with("td.json") {
-      print_definition::<Thing>(path);
+      converter::print_wot_definition(path);
     }
   } else if let Some(ref matches) = app.subcommand_matches("convert") {
     // TODO: Replace if-else with match
@@ -77,12 +69,7 @@ fn main() {
     let output_path = matches.value_of("output").unwrap();
     if input_path.ends_with("sdf.json") {
       assert!(output_path.ends_with("td.json"));
-      let json_string = converter::convert_sdf_to_wot(input_path)
-        .and_then(|thing| serde_json::to_string_pretty(&thing));
-      match json_string {
-        Ok(json_string) => fs::write(output_path, json_string).expect("Unable to write file"),
-        Err(error) => panic!("{}", error),
-      }
+      converter::sdf_to_wot_from_and_to_path(input_path, output_path);
     } else if input_path.ends_with("td.json") {
       panic!("TD to SDF conversion is not implemented yet!");
     }
@@ -104,28 +91,4 @@ fn main() {
   //     }
   //   }
   // }
-}
-
-#[cfg(test)]
-mod test {
-  use super::*;
-
-  fn test_function<T: serde::Serialize + serde::de::DeserializeOwned>(path: &str) -> () {
-    match converter::read_json::<T>(path) {
-      Ok(result) => println!("{}", result),
-      Err(error) => panic!("{}", error),
-    };
-  }
-
-  #[test]
-  fn test_sdf() {
-    // TODO: Add assertions
-    test_function::<SDFModel>("examples/sdf/example.sdf.json");
-  }
-
-  #[test]
-  fn test_wot() {
-    // TODO: Add assertions
-    test_function::<Thing>("examples/wot/example.td.json");
-  }
 }
