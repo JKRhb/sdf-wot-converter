@@ -47,7 +47,7 @@ fn convert_sdf_to_wot(path: &str) -> serde_json::Result<Thing> {
   Ok(thing)
 }
 
-fn main() -> Result<(), url::ParseError> {
+fn main() {
   let input_help = "The input file path. Must either end with sdf.json \
                     (for SDF) or td.json (for WoT TD).";
   let output_help = "The output file path. Must either end with sdf.json \
@@ -100,18 +100,11 @@ fn main() -> Result<(), url::ParseError> {
     let output_path = matches.value_of("output").unwrap();
     if input_path.ends_with("sdf.json") {
       assert!(output_path.ends_with("td.json"));
-      match convert_sdf_to_wot(input_path) {
-        Ok(thing) => {
-          let json_string = serde_json::to_string_pretty(&thing);
-          match json_string {
-            Ok(json_string) => {
-              fs::write(output_path, json_string).expect("Unable to write file");
-            }
-            Err(error) => println!("{}", error),
-          }
-        }
-        Err(error) => println!("{}", error),
-      };
+      let json_string = convert_sdf_to_wot(input_path).and_then(|thing| serde_json::to_string_pretty(&thing));
+      match json_string {
+        Ok(json_string) => fs::write(output_path, json_string).expect("Unable to write file"),
+        Err(error) => panic!("{}", error)
+      }
     } else if input_path.ends_with("td.json") {
       panic!("TD to SDF conversion is not implemented yet!");
     } else {
@@ -119,7 +112,6 @@ fn main() -> Result<(), url::ParseError> {
     }
   }
 
-  Ok(())
   // TODO: Implement possibility to use URLs as input
   //
   //   _ => {
