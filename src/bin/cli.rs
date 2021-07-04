@@ -77,10 +77,11 @@ fn main() {
     let output_path = matches.value_of("output").unwrap();
     if input_path.ends_with("sdf.json") {
       assert!(output_path.ends_with("td.json"));
-      let json_string = convert_sdf_to_wot(input_path).and_then(|thing| serde_json::to_string_pretty(&thing));
+      let json_string = converter::convert_sdf_to_wot(input_path)
+        .and_then(|thing| serde_json::to_string_pretty(&thing));
       match json_string {
         Ok(json_string) => fs::write(output_path, json_string).expect("Unable to write file"),
-        Err(error) => panic!("{}", error)
+        Err(error) => panic!("{}", error),
       }
     } else if input_path.ends_with("td.json") {
       panic!("TD to SDF conversion is not implemented yet!");
