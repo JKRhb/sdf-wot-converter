@@ -79,6 +79,16 @@ fn print_definition<T: SerializableModel>(path: &str) -> () {
 /// 
 /// print_sdf_definition("examples/sdf/example.sdf.json");
 /// ```
+/// 
+/// # Panics
+///
+/// The function panics if the file path does not end with `sdf.json`.
+///
+/// ```rust,should_panic
+/// use sdf_wot_converter::converter::print_sdf_definition;
+/// 
+/// print_sdf_definition("examples/wot/example.td.json");
+/// ```
 pub fn print_sdf_definition(path: &str) -> () {
     assert!(path.ends_with("sdf.json"));
     print_definition::<SDFModel>(path)
@@ -93,6 +103,16 @@ pub fn print_sdf_definition(path: &str) -> () {
 /// use sdf_wot_converter::converter::print_wot_definition;
 /// 
 /// print_wot_definition("examples/wot/example.td.json");
+/// ```
+/// 
+/// # Panics
+///
+/// The function panics if the file path does not end with `td.json`.
+///
+/// ```rust,should_panic
+/// use sdf_wot_converter::converter::print_wot_definition;
+/// 
+/// print_wot_definition("examples/sdf/example.sdf.json");
 /// ```
 pub fn print_wot_definition(path: &str) -> () {
     assert!(path.ends_with("td.json"));
