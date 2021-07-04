@@ -37,7 +37,7 @@ fn main() {
     )
     .subcommand(
       App::new("convert")
-        .about("Reads in an SDF or WoT file and prints it in the terminal.")
+        .about("Reads in an SDF or WoT file and converts it into the other format.")
         .arg(
           Arg::with_name("input")
             .help(input_help)
