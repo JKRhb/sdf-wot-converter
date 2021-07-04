@@ -80,6 +80,7 @@ fn print_definition<T: SerializableModel>(path: &str) -> () {
 /// print_sdf_definition("examples/sdf/example.sdf.json");
 /// ```
 pub fn print_sdf_definition(path: &str) -> () {
+    assert!(path.ends_with("sdf.json"));
     print_definition::<SDFModel>(path)
 }
 
@@ -94,6 +95,7 @@ pub fn print_sdf_definition(path: &str) -> () {
 /// print_wot_definition("examples/wot/example.td.json");
 /// ```
 pub fn print_wot_definition(path: &str) -> () {
+    assert!(path.ends_with("td.json"));
     print_definition::<Thing>(path)
 }
 
