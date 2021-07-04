@@ -135,7 +135,3 @@ pub fn sdf_to_wot_from_and_to_path(input_path: &str, output_path: &str) {
         Err(error) => panic!("{}", error),
     }
 }
-
-pub fn convert_sdf_to_wot_file(path: &str) -> Result<Thing, String> {
-    deserialize_sdf_json(path).and_then(|thing| Ok(sdf_to_wot::convert(thing)))
-}
