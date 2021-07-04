@@ -47,6 +47,14 @@ fn convert_sdf_to_wot(path: &str) -> serde_json::Result<Thing> {
   Ok(thing)
 }
 
+fn is_valid_input(input: String) -> Result<(), String> {
+  if input.ends_with("sdf.json") || input.ends_with("td.json") {
+    Ok(())
+  } else {
+    Err(String::from("Illegal file ending! Must be either .sdf.json or td.json."))
+  }
+}
+
 fn main() {
   let input_help = "The input file path. Must either end with sdf.json \
                     (for SDF) or td.json (for WoT TD).";
@@ -64,7 +72,8 @@ fn main() {
           Arg::with_name("input")
             .help(input_help)
             .index(1)
-            .required(true),
+            .required(true)
+            .validator(is_valid_input),
         ),
     )
     .subcommand(
@@ -74,13 +83,15 @@ fn main() {
           Arg::with_name("input")
             .help(input_help)
             .index(1)
-            .required(true),
+            .required(true)
+            .validator(is_valid_input),
         )
         .arg(
           Arg::with_name("output")
             .help(output_help)
             .index(2)
-            .required(true),
+            .required(true)
+            .validator(is_valid_input),
         ),
     )
     .get_matches();
@@ -91,8 +102,6 @@ fn main() {
       print_definition::<SDFModel>(path);
     } else if path.ends_with("td.json") {
       print_definition::<Thing>(path);
-    } else {
-      panic!("Illegal file ending! Must be either .sdf.json or td.json.");
     }
   } else if let Some(ref matches) = app.subcommand_matches("convert") {
     // TODO: Replace if-else with match
@@ -107,8 +116,6 @@ fn main() {
       }
     } else if input_path.ends_with("td.json") {
       panic!("TD to SDF conversion is not implemented yet!");
-    } else {
-      panic!("Illegal file ending! Must be either .sdf.json or td.json.");
     }
   }
 
