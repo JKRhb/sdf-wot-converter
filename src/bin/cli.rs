@@ -6,52 +6,20 @@ use std::env;
 use std::fs;
 // use url::Url;
 
-/// Reads a JSON file from a specified path, deserializes it to a supported data type,
-/// and returns a formatted `String` as a `Result`.
-///
-/// # Arguments
-///
-/// * `path` - The path of the JSON file you want to deserialize
-///
-/// # Examples
-///
-/// ```
-/// read_json::<SDFModel>("examples/sdf/example.sdf.json");
-/// read_json::<Thing>("examples/wot/example.td.json");
-/// ```
-fn read_json<T: serde::Serialize + serde::de::DeserializeOwned>(
-  path: &str,
-) -> serde_json::Result<String> {
-  let example = fs::read_to_string(&path).expect("Something went wrong reading the file");
-
-  let definition: T = serde_json::from_str(&example)?;
-
-  let j = serde_json::to_string_pretty(&definition)?;
-
-  Ok(j)
-}
-
 fn print_definition<T: serde::Serialize + serde::de::DeserializeOwned>(path: &str) -> () {
-  match read_json::<T>(path) {
+  match converter::read_json::<T>(path) {
     Ok(result) => println!("{}", result),
     Err(e) => println!("{}", e),
   };
-}
-
-fn convert_sdf_to_wot(path: &str) -> serde_json::Result<Thing> {
-  // TODO: Refactor
-  let example = fs::read_to_string(&path).expect("Something went wrong reading the file");
-  let sdf_model: SDFModel = serde_json::from_str(&example)?;
-  let thing = converter::sdf_to_wot::convert(sdf_model);
-
-  Ok(thing)
 }
 
 fn is_valid_input(input: String) -> Result<(), String> {
   if input.ends_with("sdf.json") || input.ends_with("td.json") {
     Ok(())
   } else {
-    Err(String::from("Illegal file ending! Must be either .sdf.json or td.json."))
+    Err(String::from(
+      "Illegal file ending! Must be either .sdf.json or td.json.",
+    ))
   }
 }
 
@@ -142,7 +110,7 @@ mod test {
   use super::*;
 
   fn test_function<T: serde::Serialize + serde::de::DeserializeOwned>(path: &str) -> () {
-    match read_json::<T>(path) {
+    match converter::read_json::<T>(path) {
       Ok(result) => println!("{}", result),
       Err(error) => panic!("{}", error),
     };
