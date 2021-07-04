@@ -20,8 +20,12 @@ impl<T: serde::Serialize + serde::de::DeserializeOwned> SerializableModel for T 
 /// # Examples
 ///
 /// ```
-/// read_json::<SDFModel>("examples/sdf/example.sdf.json");
-/// read_json::<Thing>("examples/wot/example.td.json");
+/// use sdf_wot_converter::converter::import_from_json;
+/// use sdf_wot_converter::sdf::definitions::SDFModel;
+/// use sdf_wot_converter::wot::definitions::Thing;
+///
+/// import_from_json::<SDFModel>("examples/sdf/example.sdf.json");
+/// import_from_json::<Thing>("examples/wot/example.td.json");
 /// ```
 fn import_from_json<T: SerializableModel>(path: &str) -> Result<T, serde_json::Error> {
     let json_string = fs::read_to_string(&path).expect("Something went wrong reading the file");
