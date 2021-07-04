@@ -355,13 +355,10 @@ create_thing_conversion_function!(
 
 fn convert_event(sdf_event: &sdf::EventQualities) -> wot::EventAffordance {
     // TODO: How should sdf_data be mapped?
-    let data;
-    match &sdf_event.sdf_output_data {
-        None => data = None,
-        Some(output_data) => {
-            data = Some(convert_to_data_schema(&output_data));
-        }
-    };
+    let data = sdf_event
+        .sdf_output_data
+        .as_ref()
+        .and_then(|output_data| Some(convert_to_data_schema(&output_data)));
 
     wot::EventAffordance {
         subscription: None, // Still TODO
@@ -432,11 +429,8 @@ pub fn convert(sdf_model: sdf::SDFModel) -> wot::Thing {
         }
     };
 
-    match sdf_model.namespace.clone() {
-        Some(namespace) => {
-            context_entries.push(wot::ContextEntry::Map(namespace));
-        }
-        None => {}
+    if let Some(x) = sdf_model.namespace.clone() {
+        context_entries.push(wot::ContextEntry::Map(x));
     };
 
     return wot::Thing {
