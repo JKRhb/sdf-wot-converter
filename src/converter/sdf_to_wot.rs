@@ -433,7 +433,7 @@ pub fn convert(sdf_model: sdf::SDFModel) -> wot::Thing {
         context_entries.push(wot::ContextEntry::Map(x));
     };
 
-    return wot::Thing {
+    wot::Thing {
         context: wot::Context::Array(context_entries),
         title,
         description,
@@ -457,5 +457,5 @@ pub fn convert(sdf_model: sdf::SDFModel) -> wot::Thing {
         base: None,
         created: None,
         support: None,
-    };
+    }
 }
