@@ -117,20 +117,3 @@ pub fn sdf_to_wot_from_and_to_path(input_path: &str, output_path: &str) {
 pub fn convert_sdf_to_wot_file(path: &str) -> Result<Thing, String> {
     deserialize_sdf_json(path).and_then(|thing| Ok(sdf_to_wot::convert(thing)))
 }
-
-#[cfg(test)]
-mod test {
-    use super::*;
-
-    #[test]
-    fn test_sdf() {
-        // TODO: Add assertions
-        print_sdf_definition("examples/sdf/example.sdf.json");
-    }
-
-    #[test]
-    fn test_wot() {
-        // TODO: Add assertions
-        print_sdf_definition("examples/wot/example.td.json");
-    }
-}
