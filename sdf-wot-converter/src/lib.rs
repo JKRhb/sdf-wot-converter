@@ -41,10 +41,15 @@ pub trait SerializableModel: serde::Serialize + serde::de::DeserializeOwned {
         serde_json::to_string_pretty(&self).or(Err("Serialization failed!".to_string()))
     }
 
-    fn deserialize_json(path: &str) -> Result<Self, String> {
-        Self::import_json_from_path(path)
-            .and_then(|x| serde_json::from_str(x.as_str()).map_err(|e| e.to_string()))
-            .map_err(|e| e.to_string())
+    fn deserialize_json_string(json_string: String) -> Result<Self, String> {
+        match serde_json::from_str(json_string.as_str()) {
+            Ok(model) => Ok(model),
+            Err(_) => Err("Deserialization failed!".to_string()),
+        }
+    }
+
+    fn deserialize_json_from_path(path: &str) -> Result<Self, String> {
+        Self::import_json_from_path(path).and_then(Self::deserialize_json_string)
     }
 
     fn write_json_to_path(&self, path: &str) -> Result<(), String> {

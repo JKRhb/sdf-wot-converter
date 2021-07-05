@@ -6,7 +6,7 @@ use super::wot::definitions::Thing;
 use super::SerializableModel;
 
 fn print_definition<T: SerializableModel>(path: &str) -> () {
-    match T::deserialize_json(path) {
+    match T::deserialize_json_from_path(path) {
         Ok(model) => model.print(),
         Err(error) => println!("{}", error),
     }
@@ -45,7 +45,7 @@ pub fn sdf_to_wot(sdf_model: SDFModel) -> Result<Thing, String> {
 }
 
 pub fn sdf_to_wot_from_path(path: &str) -> Result<Thing, String> {
-    SDFModel::deserialize_json(path).and_then(sdf_to_wot)
+    SDFModel::deserialize_json_from_path(path).and_then(sdf_to_wot)
 }
 
 pub fn sdf_to_wot_from_and_to_path(input_path: &str, output_path: &str) -> Result<(), String> {
