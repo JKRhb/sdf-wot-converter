@@ -3,4 +3,5 @@
 members = [
     "sdf-wot-converter",
     "sdf-wot-converter-cli",
+    "sdf-wot-converter-wasm",
 ]
