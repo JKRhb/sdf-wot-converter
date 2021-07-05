@@ -59,7 +59,6 @@ fn main() {
     let path = matches.value_of("input").unwrap();
     if path.ends_with("sdf.json") {
       converter::print_sdf_definition(path);
-      println!("{}", converter::get_sdf_json_string(path).unwrap());
     } else if path.ends_with("td.json") {
       converter::print_wot_definition(path);
     }
