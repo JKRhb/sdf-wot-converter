@@ -67,8 +67,10 @@ fn main() {
     let input_path = matches.value_of("input").unwrap();
     let output_path = matches.value_of("output").unwrap();
     if input_path.ends_with("sdf.json") {
-      assert!(output_path.ends_with("td.json"));
-      converter::sdf_to_wot_from_and_to_path(input_path, output_path);
+      match converter::sdf_to_wot_from_and_to_path(input_path, output_path) {
+        Err(error) => println!("{}", error),
+        _ => (),
+      }
     } else if input_path.ends_with("td.json") {
       panic!("TD to SDF conversion is not implemented yet!");
     }

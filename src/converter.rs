@@ -4,7 +4,6 @@ pub mod wot_to_sdf;
 use super::sdf::definitions::SDFModel;
 use super::wot::definitions::Thing;
 use super::SerializableModel;
-use std::fs;
 
 fn print_definition<T: SerializableModel>(path: &str) -> () {
     match T::deserialize_json(path) {
@@ -49,11 +48,10 @@ pub fn sdf_to_wot_from_path(path: &str) -> Result<Thing, String> {
     SDFModel::deserialize_json(path).and_then(sdf_to_wot)
 }
 
-pub fn sdf_to_wot_from_and_to_path(input_path: &str, output_path: &str) {
-    let model = sdf_to_wot_from_path(input_path).and_then(|x| x.serialize_json());
-
-    match model {
-        Ok(json_string) => fs::write(output_path, json_string).expect("Writing to file failed!"),
-        Err(error) => panic!("{}", error),
+pub fn sdf_to_wot_from_and_to_path(input_path: &str, output_path: &str) -> Result<(), String> {
+    if !output_path.ends_with("td.json") {
+        return Err("The output filename has to end with td.json!".to_string());
     }
+
+    sdf_to_wot_from_path(input_path).and_then(|x| x.write_json_to_path(output_path))
 }

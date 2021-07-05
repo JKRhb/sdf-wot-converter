@@ -46,4 +46,9 @@ pub trait SerializableModel: serde::Serialize + serde::de::DeserializeOwned {
             .and_then(|x| serde_json::from_str(x.as_str()).map_err(|e| e.to_string()))
             .map_err(|e| e.to_string())
     }
+
+    fn write_json_to_path(&self, path: &str) -> Result<(), String> {
+        self.serialize_json()
+            .and_then(|x| fs::write(path, x).map_err(|e| e.to_string()))
+    }
 }
