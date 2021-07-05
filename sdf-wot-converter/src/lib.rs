@@ -11,6 +11,13 @@ pub mod wot;
 
 use std::fs;
 
+fn write_to_path(path: &str, content: String) -> Result<(), String> {
+    match fs::write(path, content) {
+        Ok(_) => Ok(()),
+        Err(_) => Err("Error writing to path".to_string()),
+    }
+}
+
 /// Conveniance trait that is used to identify structs that implement serialization and
 /// deserialization capabilities provided by `serde`.
 pub trait SerializableModel: serde::Serialize + serde::de::DeserializeOwned {
@@ -54,6 +61,6 @@ pub trait SerializableModel: serde::Serialize + serde::de::DeserializeOwned {
 
     fn write_json_to_path(&self, path: &str) -> Result<(), String> {
         self.serialize_json()
-            .and_then(|x| fs::write(path, x).map_err(|e| e.to_string()))
+            .and_then(|json_string| write_to_path(path, json_string))
     }
 }
