@@ -1,0 +1,11 @@
+[package]
+name = "sdf-wot-converter-cli"
+version = "0.1.0"
+authors = ["Jan Romann <jan.romann@uni-bremen.de>"]
+edition = "2018"
+license = "MIT"
+repository = "https://github.com/JKRhb/sdf-wot-converter"
+
+[dependencies]
+sdf-wot-converter = { path = "../sdf-wot-converter" }
+clap = "2.33.3"

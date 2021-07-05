@@ -278,12 +278,19 @@ dependencies = [
  "assert-json-diff",
  "chrono",
  "ciborium",
- "clap",
  "regex",
  "serde",
  "serde_json",
  "serde_with",
  "url",
+]
+
+[[package]]
+name = "sdf-wot-converter-cli"
+version = "0.1.0"
+dependencies = [
+ "clap",
+ "sdf-wot-converter",
 ]
 
 [[package]]
