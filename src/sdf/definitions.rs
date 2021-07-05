@@ -2,6 +2,8 @@ use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 use std::collections::HashMap;
 
+use super::super::SerializableModel;
+
 #[skip_serializing_none]
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -16,6 +18,12 @@ pub struct SDFModel {
     pub sdf_action: Option<HashMap<String, ActionQualities>>,
     pub sdf_event: Option<HashMap<String, EventQualities>>,
     pub sdf_data: Option<HashMap<String, DataQualities>>,
+}
+
+impl SerializableModel for SDFModel {
+    fn path_is_valid(path: &str) -> bool {
+        path.ends_with("sdf.json")
+    }
 }
 
 #[skip_serializing_none]

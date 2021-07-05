@@ -3,6 +3,8 @@ use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 use std::collections::HashMap;
 
+use super::super::SerializableModel;
+
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(untagged)]
 pub enum Context {
@@ -51,6 +53,12 @@ pub struct Thing {
     pub security_definitions: HashMap<String, SecurityScheme>,
     pub profile: Option<TypeOrTypeArray<String>>,
     pub schema_definitions: Option<HashMap<String, DataSchema>>,
+}
+
+impl SerializableModel for Thing {
+    fn path_is_valid(path: &str) -> bool {
+        path.ends_with("td.json")
+    }
 }
 
 #[derive(Debug, Deserialize, Serialize)]
