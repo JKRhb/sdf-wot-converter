@@ -2,7 +2,8 @@ pub mod sdf_to_wot;
 pub mod wot_to_sdf;
 
 use super::sdf::definitions::SDFModel;
-use super::wot::definitions::Thing;
+use super::wot::definitions::ThingModel;
+use super::wot::definitions::ThingDescription;
 use super::SerializableModel;
 
 fn print_definition<T: SerializableModel>(path: &str) -> () {
@@ -32,25 +33,39 @@ pub fn print_sdf_definition(path: &str) -> () {
 /// # Examples
 ///
 /// ```rust
-/// use sdf_wot_converter::converter::print_wot_definition;
+/// use sdf_wot_converter::converter::print_wot_td_definition;
 ///
-/// print_wot_definition("examples/wot/example.td.json");
+/// print_wot_td_definition("examples/wot/example.td.json");
 /// ```
-pub fn print_wot_definition(path: &str) -> () {
-    print_definition::<Thing>(path)
+pub fn print_wot_td_definition(path: &str) -> () {
+    print_definition::<ThingDescription>(path)
 }
 
-pub fn sdf_to_wot(sdf_model: SDFModel) -> Result<Thing, String> {
+/// Deserializes an WoT TM definition, converts it back into a
+/// JSON string and prints it to the command line.
+///
+/// # Examples
+///
+/// ```rust
+/// use sdf_wot_converter::converter::print_wot_tm_definition;
+///
+/// print_wot_tm_definition("examples/wot/example.tm.json");
+/// ```
+pub fn print_wot_tm_definition(path: &str) -> () {
+    print_definition::<ThingModel>(path)
+}
+
+pub fn sdf_to_wot(sdf_model: SDFModel) -> Result<ThingModel, String> {
     Ok(sdf_to_wot::convert(sdf_model))
 }
 
-pub fn sdf_to_wot_from_path(path: &str) -> Result<Thing, String> {
+pub fn sdf_to_wot_from_path(path: &str) -> Result<ThingModel, String> {
     SDFModel::deserialize_json_from_path(path).and_then(sdf_to_wot)
 }
 
 pub fn sdf_to_wot_from_and_to_path(input_path: &str, output_path: &str) -> Result<(), String> {
-    if !output_path.ends_with("td.json") {
-        return Err("The output filename has to end with td.json!".to_string());
+    if !output_path.ends_with("tm.json") {
+        return Err("The output filename has to end with tm.json!".to_string());
     }
 
     sdf_to_wot_from_path(input_path).and_then(|x| x.write_json_to_path(output_path))

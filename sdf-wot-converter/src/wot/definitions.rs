@@ -29,13 +29,44 @@ pub enum TypeOrTypeArray<T> {
 #[skip_serializing_none]
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct Thing {
+pub struct ThingDescription {
+    #[serde(flatten)]
+    pub base_thing: BaseThing,
+    pub title: String,
+    pub security: TypeOrTypeArray<String>,
+    pub security_definitions: HashMap<String, SecurityScheme>,
+    pub links: Option<Vec<TMLink>>,
+    pub forms: Option<Vec<TMForm>>,
+    pub actions: Option<HashMap<String, TDActionAffordance>>,
+    pub properties: Option<HashMap<String, TDPropertyAffordance>>,
+    pub events: Option<HashMap<String, TDEventAffordance>>,
+}
+
+#[skip_serializing_none]
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ThingModel {
+    #[serde(flatten)]
+    pub base_thing: BaseThing,
+    pub title: Option<String>,
+    pub security: Option<TypeOrTypeArray<String>>,
+    pub security_definitions: Option<HashMap<String, SecurityScheme>>,
+    pub links: Option<Vec<TMLink>>,
+    pub forms: Option<Vec<TMForm>>,
+    pub actions: Option<HashMap<String, TMActionAffordance>>,
+    pub properties: Option<HashMap<String, TMPropertyAffordance>>,
+    pub events: Option<HashMap<String, TMEventAffordance>>,
+}
+
+#[skip_serializing_none]
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BaseThing {
     #[serde(rename = "@context")]
     pub context: Context,
     #[serde(rename = "@type")]
     pub r#type: Option<TypeOrTypeArray<String>>,
     pub id: Option<String>,
-    pub title: String,
     pub titles: Option<HashMap<String, String>>, // TODO: Consider using a MultiLanguage struct instead
     pub description: Option<String>,
     pub descriptions: Option<HashMap<String, String>>,
@@ -44,20 +75,19 @@ pub struct Thing {
     pub modified: Option<DateTime<Utc>>,
     pub support: Option<String>,
     pub base: Option<String>,
-    pub actions: Option<HashMap<String, ActionAffordance>>,
-    pub properties: Option<HashMap<String, PropertyAffordance>>,
-    pub events: Option<HashMap<String, EventAffordance>>,
-    pub links: Option<Vec<Link>>,
-    pub forms: Option<Vec<Form>>,
-    pub security: TypeOrTypeArray<String>,
-    pub security_definitions: HashMap<String, SecurityScheme>,
     pub profile: Option<TypeOrTypeArray<String>>,
     pub schema_definitions: Option<HashMap<String, DataSchema>>,
 }
 
-impl SerializableModel for Thing {
+impl SerializableModel for ThingDescription {
     fn path_is_valid(path: &str) -> bool {
         path.ends_with("td.json")
+    }
+}
+
+impl SerializableModel for ThingModel {
+    fn path_is_valid(path: &str) -> bool {
+        path.ends_with("tm.json")
     }
 }
 
@@ -232,6 +262,24 @@ pub struct DataSchema {
 #[skip_serializing_none]
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
+pub struct TDInteractionAffordance {
+    pub forms: Option<Vec<TDForm>>,
+    #[serde(flatten)]
+    pub interaction_affordance_fields: InteractionAffordance,
+}
+
+#[skip_serializing_none]
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TMInteractionAffordance {
+    pub forms: Option<Vec<TMForm>>,
+    #[serde(flatten)]
+    pub interaction_affordance_fields: InteractionAffordance,
+}
+
+#[skip_serializing_none]
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct InteractionAffordance {
     #[serde(rename = "@type")]
     pub r#type: Option<TypeOrTypeArray<String>>,
@@ -239,17 +287,35 @@ pub struct InteractionAffordance {
     pub titles: Option<HashMap<String, String>>,
     pub description: Option<String>,
     pub descriptions: Option<HashMap<String, String>>,
-    pub forms: Vec<Form>,
     pub uri_variables: Option<HashMap<String, DataSchema>>,
 }
 
 #[skip_serializing_none]
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct PropertyAffordance {
+pub struct TDPropertyAffordance {
     #[serde(flatten)]
-    pub interaction_affordance: InteractionAffordance,
+    pub property_affordance_fields: PropertyAffordance,
 
+    #[serde(flatten)]
+    pub interaction_affordance: TDInteractionAffordance,
+}
+
+#[skip_serializing_none]
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TMPropertyAffordance {
+    #[serde(flatten)]
+    pub property_affordance_fields: PropertyAffordance,
+
+    #[serde(flatten)]
+    pub interaction_affordance: TMInteractionAffordance,
+}
+
+#[skip_serializing_none]
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PropertyAffordance {
     #[serde(flatten)]
     pub data_schema: DataSchema,
     pub observable: Option<bool>,
@@ -258,10 +324,29 @@ pub struct PropertyAffordance {
 #[skip_serializing_none]
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct ActionAffordance {
+pub struct TDActionAffordance {
     #[serde(flatten)]
-    pub interaction_affordance: InteractionAffordance,
+    pub action_affordance_fields: ActionAffordance,
 
+    #[serde(flatten)]
+    pub interaction_affordance: TDInteractionAffordance,
+}
+
+#[skip_serializing_none]
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TMActionAffordance {
+    #[serde(flatten)]
+    pub action_affordance_fields: ActionAffordance,
+
+    #[serde(flatten)]
+    pub interaction_affordance: TMInteractionAffordance,
+}
+
+#[skip_serializing_none]
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ActionAffordance {
     pub input: Option<DataSchema>,
     pub output: Option<DataSchema>,
     pub safe: Option<bool>,
@@ -271,10 +356,29 @@ pub struct ActionAffordance {
 #[skip_serializing_none]
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct EventAffordance {
+pub struct TDEventAffordance {
     #[serde(flatten)]
-    pub interaction_affordance: InteractionAffordance,
+    pub event_affordance_fields: EventAffordance,
 
+    #[serde(flatten)]
+    pub interaction_affordance: TDInteractionAffordance,
+}
+
+#[skip_serializing_none]
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TMEventAffordance {
+    #[serde(flatten)]
+    pub event_affordance_fields: EventAffordance,
+
+    #[serde(flatten)]
+    pub interaction_affordance: TMInteractionAffordance,
+}
+
+#[skip_serializing_none]
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct EventAffordance {
     pub subscription: Option<DataSchema>,
     pub data: Option<DataSchema>,
     pub cancellation: Option<DataSchema>,
@@ -299,10 +403,27 @@ pub enum OperationType {
 #[skip_serializing_none]
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
+pub struct TDForm {
+    pub href: String,
+    #[serde(flatten)]
+    form_fields: Form,
+}
+
+#[skip_serializing_none]
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TMForm {
+    pub href: Option<String>,
+    #[serde(flatten)]
+    form_fields: Form,
+}
+
+#[skip_serializing_none]
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Form {
     // TODO: Define forms for different affordance types
     pub op: Option<TypeOrTypeArray<OperationType>>,
-    pub href: String,
     pub content_type: Option<String>,
     pub content_coding: Option<String>,
     pub subprotocol: Option<String>,
@@ -324,8 +445,25 @@ pub struct AdditionalExpectedResponse {
 #[skip_serializing_none]
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct Link {
+pub struct TDLink {
     pub href: String,
+    #[serde(flatten)]
+    pub link_fields: Link,
+}
+
+#[skip_serializing_none]
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TMLink {
+    pub href: Option<String>,
+    #[serde(flatten)]
+    pub link_fields: Link,
+}
+
+#[skip_serializing_none]
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Link {
     pub r#type: Option<String>,
     pub rel: Option<String>,
     pub anchor: Option<String>,
