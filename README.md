@@ -2,7 +2,7 @@
 
 # SDF-WoT-Converter
 
-This repository provides a converter from [SDF](https://datatracker.ietf.org/doc/html/draft-ietf-asdf-sdf-05) (including protocol bindings) to [WoT TD](https://www.w3.org/TR/wot-thing-description/).
+This repository provides a converter from [SDF](https://datatracker.ietf.org/doc/html/draft-ietf-asdf-sdf-05) (with protocol bindings) to [WoT TD](https://www.w3.org/TR/wot-thing-description/) including Thing Models.
 The converter is still WIP but can already be used for experimenting with it.
 It will be continously updated over the upcoming weeks.
 
@@ -29,27 +29,29 @@ So far, the converter provides two commands (`convert` and `print`) that can be 
 
 ### `convert`
 
-This command converts an SDF to a WoT TD file (the other direction will be implemented in an upcoming version).
+This command converts an SDF to a WoT Thing Model file (the other direction will be implemented in an upcoming version).
 It accepts a file path pointing to an SDF file as its first and the output path as its second argument.
-Both SDF protocol bindings and Thing Models are not covered yet but will be added soon.
+Both SDF protocol bindings and Thing Descriptions are not covered yet but will be added soon.
 
 **Example:**
 
 ```
-sdf-wot-converter-cli convert examples/sdf/example.sdf.json example.td.json
+sdf-wot-converter-cli convert examples/sdf/example.sdf.json example.tm.json
 ```
 
 ### `print`
 
 This command serves primarily for debug purposes and will probably be removed in a later version.
-It accepts a file path that must point to a WoT TD (whose filename must end with `td.json`) or an SDF model (ending with `sdf.json`).
+It accepts a file path that must point to a WoT TD (whose filename must end with `td.json`), a WoT TM (ending with `tm.json`), or an SDF model (ending with `sdf.json`).
 It reads in the model, and performs first a deserialization into Rust data structures followed by a serialization back into JSON.
 The result is then printed in the terminal.
 
-**Example:**
+**Examples:**
 
 ```
 sdf-wot-converter-cli print examples/sdf/example.sdf.json
+sdf-wot-converter-cli print examples/wot/example.tm.json
+sdf-wot-converter-cli print examples/wot/example.td.json
 ```
 
 ## License
