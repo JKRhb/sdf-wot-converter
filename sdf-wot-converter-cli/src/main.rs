@@ -5,21 +5,22 @@ use std::env;
 // use url::Url;
 
 fn is_valid_input(input: String) -> Result<(), String> {
-  if input.ends_with("sdf.json") || input.ends_with("td.json") {
+  if input.ends_with("sdf.json") || input.ends_with("td.json") || input.ends_with("tm.json") {
     Ok(())
   } else {
     Err(String::from(
-      "Illegal file ending! Must be either .sdf.json or td.json.",
+      "Illegal file ending! Must be either .sdf.json, td.json, or tm.json!",
     ))
   }
 }
 
 fn main() {
   let input_help = "The input file path. Must either end with sdf.json \
-                    (for SDF) or td.json (for WoT TD).";
+                    (for SDF), td.json or tm.json (when \
+                    converting to a WoT TD/TM)";
   let output_help = "The output file path. Must either end with sdf.json \
-                     (when converting to SDF) or td.json (when converting \
-                      to WoT TD).";
+                     (when converting to SDF), td.json or tm.json (when \
+                     converting to a WoT TD/TM).";
 
   let app = App::new("sdf-wot-converter")
     .version(crate_version!())
@@ -60,7 +61,9 @@ fn main() {
     if path.ends_with("sdf.json") {
       converter::print_sdf_definition(path);
     } else if path.ends_with("td.json") {
-      converter::print_wot_definition(path);
+      converter::print_wot_td_definition(path);
+    } else if path.ends_with("tm.json") {
+      converter::print_wot_tm_definition(path);
     }
   } else if let Some(ref matches) = app.subcommand_matches("convert") {
     // TODO: Replace if-else with match
@@ -71,8 +74,8 @@ fn main() {
         Err(error) => println!("{}", error),
         _ => (),
       }
-    } else if input_path.ends_with("td.json") {
-      panic!("TD to SDF conversion is not implemented yet!");
+    } else if input_path.ends_with("td.json") || input_path.ends_with("tm.json") {
+      panic!("TD/TM to SDF conversion is not implemented yet!");
     }
   }
 

@@ -3,6 +3,7 @@ pub mod wot_to_sdf;
 
 use super::sdf::definitions::SDFModel;
 use super::wot::definitions::ThingModel;
+use super::wot::definitions::ThingDescription;
 use super::SerializableModel;
 
 fn print_definition<T: SerializableModel>(path: &str) -> () {
@@ -32,11 +33,25 @@ pub fn print_sdf_definition(path: &str) -> () {
 /// # Examples
 ///
 /// ```rust
-/// use sdf_wot_converter::converter::print_wot_definition;
+/// use sdf_wot_converter::converter::print_wot_td_definition;
 ///
-/// print_wot_definition("examples/wot/example.td.json");
+/// print_wot_td_definition("examples/wot/example.td.json");
 /// ```
-pub fn print_wot_definition(path: &str) -> () {
+pub fn print_wot_td_definition(path: &str) -> () {
+    print_definition::<ThingDescription>(path)
+}
+
+/// Deserializes an WoT TM definition, converts it back into a
+/// JSON string and prints it to the command line.
+///
+/// # Examples
+///
+/// ```rust
+/// use sdf_wot_converter::converter::print_wot_tm_definition;
+///
+/// print_wot_tm_definition("examples/wot/example.tm.json");
+/// ```
+pub fn print_wot_tm_definition(path: &str) -> () {
     print_definition::<ThingModel>(path)
 }
 
