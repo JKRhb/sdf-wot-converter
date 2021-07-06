@@ -5,7 +5,9 @@ use std::env;
 // use url::Url;
 
 fn is_valid_input(input: String) -> Result<(), String> {
-  if input.ends_with("sdf.json") || input.ends_with("td.json") || input.ends_with("tm.json") {
+  let legal_file_endings = vec!["sdf.json", "td.json", "tm.json"];
+
+  if legal_file_endings.iter().any(|x| input.ends_with(x)) {
     Ok(())
   } else {
     Err(String::from(
