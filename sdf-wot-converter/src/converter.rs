@@ -2,7 +2,7 @@ pub mod sdf_to_wot;
 pub mod wot_to_sdf;
 
 use super::sdf::definitions::SDFModel;
-use super::wot::definitions::Thing;
+use super::wot::definitions::ThingModel;
 use super::SerializableModel;
 
 fn print_definition<T: SerializableModel>(path: &str) -> () {
@@ -37,14 +37,14 @@ pub fn print_sdf_definition(path: &str) -> () {
 /// print_wot_definition("examples/wot/example.td.json");
 /// ```
 pub fn print_wot_definition(path: &str) -> () {
-    print_definition::<Thing>(path)
+    print_definition::<ThingModel>(path)
 }
 
-pub fn sdf_to_wot(sdf_model: SDFModel) -> Result<Thing, String> {
+pub fn sdf_to_wot(sdf_model: SDFModel) -> Result<ThingModel, String> {
     Ok(sdf_to_wot::convert(sdf_model))
 }
 
-pub fn sdf_to_wot_from_path(path: &str) -> Result<Thing, String> {
+pub fn sdf_to_wot_from_path(path: &str) -> Result<ThingModel, String> {
     SDFModel::deserialize_json_from_path(path).and_then(sdf_to_wot)
 }
 
