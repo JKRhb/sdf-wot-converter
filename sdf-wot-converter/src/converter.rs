@@ -49,8 +49,8 @@ pub fn sdf_to_wot_from_path(path: &str) -> Result<ThingModel, String> {
 }
 
 pub fn sdf_to_wot_from_and_to_path(input_path: &str, output_path: &str) -> Result<(), String> {
-    if !output_path.ends_with("td.json") {
-        return Err("The output filename has to end with td.json!".to_string());
+    if !output_path.ends_with("tm.json") {
+        return Err("The output filename has to end with tm.json!".to_string());
     }
 
     sdf_to_wot_from_path(input_path).and_then(|x| x.write_json_to_path(output_path))

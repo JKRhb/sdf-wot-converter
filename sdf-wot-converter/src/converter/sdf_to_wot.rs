@@ -24,23 +24,27 @@ fn get_prefixed_key(prefix: Option<String>, key: String) -> String {
 
 fn create_interaction_affordance(
     common_qualities: &sdf::CommonQualities,
-) -> wot::InteractionAffordance {
+) -> wot::TMInteractionAffordance {
     let title: Option<String> = common_qualities.label.clone();
     let description: Option<String> = common_qualities.description.clone();
 
-    wot::InteractionAffordance {
+    let interaction_affordance_fields = wot::InteractionAffordance {
         title,
         description,
 
-        forms: Vec::<wot::Form>::new(),
         titles: None,
         descriptions: None,
         r#type: None,
         uri_variables: None,
+    };
+
+    wot::TMInteractionAffordance {
+        interaction_affordance_fields,
+        forms: None,
     }
 }
 
-fn convert_action(sdf_action: &sdf::ActionQualities) -> wot::ActionAffordance {
+fn convert_action(sdf_action: &sdf::ActionQualities) -> wot::TMActionAffordance {
     let input;
     match &sdf_action.sdf_input_data {
         None => input = None,
@@ -57,18 +61,21 @@ fn convert_action(sdf_action: &sdf::ActionQualities) -> wot::ActionAffordance {
         }
     };
 
-    wot::ActionAffordance {
+    let action_affordance_fields = wot::ActionAffordance {
         input,
         output,
         safe: None,
         idempotent: None,
+    };
 
+    wot::TMActionAffordance {
+        action_affordance_fields,
         interaction_affordance: create_interaction_affordance(&sdf_action.common_qualities),
     }
 }
 
-fn convert_actions(sdf_model: &sdf::SDFModel) -> Option<HashMap<String, wot::ActionAffordance>> {
-    let mut actions_map: HashMap<String, wot::ActionAffordance> = HashMap::new();
+fn convert_actions(sdf_model: &sdf::SDFModel) -> Option<HashMap<String, wot::TMActionAffordance>> {
+    let mut actions_map: HashMap<String, wot::TMActionAffordance> = HashMap::new();
 
     convert_sdf_actions(&sdf_model, &mut actions_map, &sdf_model.sdf_action, None);
     convert_sdf_object_actions(&sdf_model, &mut actions_map, &sdf_model.sdf_object, None);
@@ -187,23 +194,26 @@ fn convert_to_data_schema(sdf_property: &sdf::DataQualities) -> wot::DataSchema 
     }
 }
 
-fn convert_property(sdf_property: &sdf::PropertyQualities) -> wot::PropertyAffordance {
+fn convert_property(sdf_property: &sdf::PropertyQualities) -> wot::TMPropertyAffordance {
     // TODO: How should contentFormat be mapped?
 
     // TODO: Refactor as sdfProperty is an alias for sdfData
-    wot::PropertyAffordance {
+    let property_affordance_fields = wot::PropertyAffordance {
         observable: sdf_property.observable.clone(),
 
         data_schema: convert_to_data_schema(sdf_property),
+    };
 
+    wot::TMPropertyAffordance {
+        property_affordance_fields,
         interaction_affordance: create_interaction_affordance(&sdf_property.common_qualities),
     }
 }
 
 fn convert_properties(
     sdf_model: &sdf::SDFModel,
-) -> Option<HashMap<String, wot::PropertyAffordance>> {
-    let mut properties: HashMap<String, wot::PropertyAffordance> = HashMap::new();
+) -> Option<HashMap<String, wot::TMPropertyAffordance>> {
+    let mut properties: HashMap<String, wot::TMPropertyAffordance> = HashMap::new();
 
     convert_sdf_properties(&sdf_model, &mut properties, &sdf_model.sdf_property, None);
     convert_sdf_object_properties(&sdf_model, &mut properties, &sdf_model.sdf_object, None);
@@ -265,39 +275,39 @@ macro_rules! create_affordance_conversion_function {
 }
 
 create_affordance_conversion_function!(
-    wot::PropertyAffordance,
+    wot::TMPropertyAffordance,
     sdf::PropertyQualities,
     convert_sdf_properties,
     convert_property
 );
 create_affordance_conversion_function!(
-    wot::ActionAffordance,
+    wot::TMActionAffordance,
     sdf::ActionQualities,
     convert_sdf_actions,
     convert_action
 );
 create_affordance_conversion_function!(
-    wot::EventAffordance,
+    wot::TMEventAffordance,
     sdf::EventQualities,
     convert_sdf_events,
     convert_event
 );
 create_object_conversion_function!(
-    wot::PropertyAffordance,
+    wot::TMPropertyAffordance,
     sdf::ObjectQualities,
     convert_sdf_object_properties,
     convert_sdf_properties,
     sdf_property
 );
 create_object_conversion_function!(
-    wot::ActionAffordance,
+    wot::TMActionAffordance,
     sdf::ObjectQualities,
     convert_sdf_object_actions,
     convert_sdf_actions,
     sdf_action
 );
 create_object_conversion_function!(
-    wot::EventAffordance,
+    wot::TMEventAffordance,
     sdf::ObjectQualities,
     convert_sdf_object_events,
     convert_sdf_events,
@@ -338,39 +348,43 @@ macro_rules! create_thing_conversion_function {
 }
 
 create_thing_conversion_function!(
-    wot::ActionAffordance,
+    wot::TMActionAffordance,
     convert_sdf_thing_actions,
     convert_sdf_object_actions
 );
 create_thing_conversion_function!(
-    wot::PropertyAffordance,
+    wot::TMPropertyAffordance,
     convert_sdf_thing_properties,
     convert_sdf_object_properties
 );
 create_thing_conversion_function!(
-    wot::EventAffordance,
+    wot::TMEventAffordance,
     convert_sdf_thing_events,
     convert_sdf_object_events
 );
 
-fn convert_event(sdf_event: &sdf::EventQualities) -> wot::EventAffordance {
+fn convert_event(sdf_event: &sdf::EventQualities) -> wot::TMEventAffordance {
     // TODO: How should sdf_data be mapped?
     let data = sdf_event
         .sdf_output_data
         .as_ref()
         .and_then(|output_data| Some(convert_to_data_schema(&output_data)));
 
-    wot::EventAffordance {
+    let event_affordance_fields = wot::EventAffordance {
         subscription: None, // Still TODO
         data,
         cancellation: None, // Still TODO
+    };
 
+    wot::TMEventAffordance {
+        event_affordance_fields,
         interaction_affordance: create_interaction_affordance(&sdf_event.common_qualities),
+
     }
 }
 
-fn convert_events(sdf_model: &sdf::SDFModel) -> Option<HashMap<String, wot::EventAffordance>> {
-    let mut events: HashMap<String, wot::EventAffordance> = HashMap::new();
+fn convert_events(sdf_model: &sdf::SDFModel) -> Option<HashMap<String, wot::TMEventAffordance>> {
+    let mut events: HashMap<String, wot::TMEventAffordance> = HashMap::new();
 
     convert_sdf_events(&sdf_model, &mut events, &sdf_model.sdf_event, None);
     convert_sdf_object_events(&sdf_model, &mut events, &sdf_model.sdf_object, None);
@@ -383,48 +397,40 @@ fn convert_events(sdf_model: &sdf::SDFModel) -> Option<HashMap<String, wot::Even
     }
 }
 
-pub fn convert(sdf_model: sdf::SDFModel) -> wot::Thing {
+pub fn convert(sdf_model: sdf::SDFModel) -> wot::ThingModel {
     let mut context_entries: Vec<wot::ContextEntry> = vec![wot::ContextEntry::String(
         "https://www.w3.org/2019/wot/td/v1".to_string(),
     )];
-    let nosec_sc = wot::SecurityScheme::Nosec {
-        common: wot::SecuritySchemeCommon {
-            r#type: None,
-            description: None,
-            descriptions: None,
-            proxy: None,
-        },
-    };
-    let mut security_definitions: HashMap<String, wot::SecurityScheme> = HashMap::new();
-    security_definitions.insert(String::from("nosec_sc"), nosec_sc);
     let links;
 
-    let no_title = "No Title given.".to_string();
     let infoblock: &Option<sdf::InfoBlock> = &sdf_model.info;
-    let title: String;
+    let title: Option<String>;
     let description: Option<String>;
     let version: Option<wot::VersionInfo>;
     match infoblock {
         None => {
-            title = no_title;
+            title = None;
             version = None;
             description = None;
             links = None;
         }
         Some(infoblock) => {
-            title = infoblock.title.clone();
+            title = Some(infoblock.title.clone());
+            let link_fields = wot::Link {
+                rel: Some("license".to_string()),
+                r#type: None,
+                anchor: None,
+                sizes: None,
+            };
             version = Some(wot::VersionInfo {
                 // TODO: Revisit use of "instance" and "model"
                 instance: infoblock.version.clone(),
                 model: None,
             });
             description = Some(infoblock.copyright.clone());
-            links = Some(vec![wot::Link {
-                rel: Some("license".to_string()),
-                href: infoblock.license.clone(),
-                r#type: None,
-                anchor: None,
-                sizes: None,
+            links = Some(vec![wot::TMLink {
+                link_fields,
+                href: Some(infoblock.license.clone()),
             }]);
         }
     };
@@ -433,29 +439,35 @@ pub fn convert(sdf_model: sdf::SDFModel) -> wot::Thing {
         context_entries.push(wot::ContextEntry::Map(x));
     };
 
-    wot::Thing {
+    let base_thing = wot::BaseThing {
         context: wot::Context::Array(context_entries),
-        title,
         description,
-        security: wot::TypeOrTypeArray::Type(String::from("nosec_sc")),
-        security_definitions,
         version,
-        actions: convert_actions(&sdf_model),
-        properties: convert_properties(&sdf_model),
-        events: convert_events(&sdf_model),
-        links,
 
         // Not covered by SDF yet:
         r#type: None,
         titles: None,
         descriptions: None,
         id: None,
-        forms: None,
         modified: None,
         profile: None,
         schema_definitions: None,
         base: None,
         created: None,
         support: None,
+    };
+
+    wot::ThingModel {
+        base_thing,
+
+        title,
+        actions: convert_actions(&sdf_model),
+        properties: convert_properties(&sdf_model),
+        events: convert_events(&sdf_model),
+        links,
+
+        forms: None,
+        security: None,
+        security_definitions: None,
     }
 }
