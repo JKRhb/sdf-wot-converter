@@ -1,13 +1,14 @@
 pub mod sdf_to_wot;
 pub mod wot_to_sdf;
 
+use crate::deserialize_json_from_path;
 use crate::sdf::definitions::SDFModel;
 use crate::wot::definitions::ThingDescription;
 use crate::wot::definitions::ThingModel;
 use crate::SerializableModel;
 
 fn print_definition<T: SerializableModel>(path: &str) {
-    match T::deserialize_json_from_path(path) {
+    match deserialize_json_from_path::<T>(path) {
         Ok(model) => model.print(),
         Err(error) => println!("{}", error),
     }
@@ -60,7 +61,7 @@ pub fn sdf_to_wot(sdf_model: SDFModel) -> Result<ThingModel, String> {
 }
 
 pub fn sdf_to_wot_from_path(path: &str) -> Result<ThingModel, String> {
-    SDFModel::deserialize_json_from_path(path).and_then(sdf_to_wot)
+    deserialize_json_from_path::<SDFModel>(path).and_then(sdf_to_wot)
 }
 
 pub fn sdf_to_wot_from_and_to_path(input_path: &str, output_path: &str) -> Result<(), String> {

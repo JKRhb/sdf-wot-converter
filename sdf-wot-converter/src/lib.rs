@@ -18,6 +18,24 @@ fn write_to_path(path: &str, content: String) -> Result<(), String> {
     }
 }
 
+/// Reads a JSON file from a specified path, deserializes it to a supported data type,
+/// and returns an instance of the data type as a `Result`.
+///
+/// # Arguments
+///
+/// * `path` - The path of the JSON file you want to deserialize
+///
+fn import_json_from_path<T: SerializableModel>(path: &str) -> Result<String, String> {
+    if !T::path_is_valid(&path) {
+        return Err("Invalid input path given!".to_string());
+    }
+    fs::read_to_string(&path).map_err(|_| "Something went wrong reading the file".to_string())
+}
+
+pub fn deserialize_json_from_path<T: SerializableModel>(path: &str) -> Result<T, String> {
+    import_json_from_path::<T>(path).and_then(T::deserialize_json_string)
+}
+
 /// Conveniance trait that is used to identify structs that implement serialization and
 /// deserialization capabilities provided by `serde`.
 pub trait SerializableModel: serde::Serialize + serde::de::DeserializeOwned {
@@ -30,20 +48,6 @@ pub trait SerializableModel: serde::Serialize + serde::de::DeserializeOwned {
         }
     }
 
-    /// Reads a JSON file from a specified path, deserializes it to a supported data type,
-    /// and returns an instance of the data type as a `Result`.
-    ///
-    /// # Arguments
-    ///
-    /// * `path` - The path of the JSON file you want to deserialize
-    ///
-    fn import_json_from_path(path: &str) -> Result<String, String> {
-        if !Self::path_is_valid(&path) {
-            return Err("Invalid input path given!".to_string());
-        }
-        fs::read_to_string(&path).map_err(|_| "Something went wrong reading the file".to_string())
-    }
-
     fn serialize_json(&self) -> Result<String, String> {
         serde_json::to_string_pretty(&self).map_err(|_| "Serialization failed!".to_string())
     }
@@ -53,10 +57,6 @@ pub trait SerializableModel: serde::Serialize + serde::de::DeserializeOwned {
             Ok(model) => Ok(model),
             Err(_) => Err("Deserialization failed!".to_string()),
         }
-    }
-
-    fn deserialize_json_from_path(path: &str) -> Result<Self, String> {
-        Self::import_json_from_path(path).and_then(Self::deserialize_json_string)
     }
 
     fn write_json_to_path(&self, path: &str) -> Result<(), String> {
