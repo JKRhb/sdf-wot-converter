@@ -379,7 +379,6 @@ fn convert_event(sdf_event: &sdf::EventQualities) -> wot::TMEventAffordance {
     wot::TMEventAffordance {
         event_affordance_fields,
         interaction_affordance: create_interaction_affordance(&sdf_event.common_qualities),
-
     }
 }
 
