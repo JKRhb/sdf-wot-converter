@@ -199,7 +199,7 @@ fn convert_property(sdf_property: &sdf::PropertyQualities) -> wot::TMPropertyAff
 
     // TODO: Refactor as sdfProperty is an alias for sdfData
     let property_affordance_fields = wot::PropertyAffordance {
-        observable: sdf_property.observable.clone(),
+        observable: sdf_property.observable,
 
         data_schema: convert_to_data_schema(sdf_property),
     };
@@ -367,8 +367,7 @@ fn convert_event(sdf_event: &sdf::EventQualities) -> wot::TMEventAffordance {
     // TODO: How should sdf_data be mapped?
     let data = sdf_event
         .sdf_output_data
-        .as_ref()
-        .and_then(|output_data| Some(convert_to_data_schema(&output_data)));
+        .as_ref().map(|output_data| convert_to_data_schema(&output_data));
 
     let event_affordance_fields = wot::EventAffordance {
         subscription: None, // Still TODO

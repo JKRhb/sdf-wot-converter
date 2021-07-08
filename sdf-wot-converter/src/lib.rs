@@ -41,11 +41,11 @@ pub trait SerializableModel: serde::Serialize + serde::de::DeserializeOwned {
         if !Self::path_is_valid(&path) {
             return Err("Invalid input path given!".to_string());
         }
-        fs::read_to_string(&path).or(Err("Something went wrong reading the file".to_string()))
+        fs::read_to_string(&path).map_err(|_| "Something went wrong reading the file".to_string())
     }
 
     fn serialize_json(&self) -> Result<String, String> {
-        serde_json::to_string_pretty(&self).or(Err("Serialization failed!".to_string()))
+        serde_json::to_string_pretty(&self).map_err(|_| "Serialization failed!".to_string())
     }
 
     fn deserialize_json_string(json_string: String) -> Result<Self, String> {
