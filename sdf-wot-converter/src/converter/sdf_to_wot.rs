@@ -367,7 +367,8 @@ fn convert_event(sdf_event: &sdf::EventQualities) -> wot::TMEventAffordance {
     // TODO: How should sdf_data be mapped?
     let data = sdf_event
         .sdf_output_data
-        .as_ref().map(|output_data| convert_to_data_schema(&output_data));
+        .as_ref()
+        .map(|output_data| convert_to_data_schema(&output_data));
 
     let event_affordance_fields = wot::EventAffordance {
         subscription: None, // Still TODO
