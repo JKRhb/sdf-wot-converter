@@ -1,4 +1,4 @@
-[![Build Status](https://github.com/JKRhb/sdf-wot-converter/actions/workflows/rust.yml/badge.svg)](https://github.com/JKRhb/sdf-wot-converter/actions/workflows/rust.yml)
+[![Build Status](https://github.com/JKRhb/sdf-wot-converter/actions/workflows/test.yml/badge.svg)](https://github.com/JKRhb/sdf-wot-converter/actions/workflows/test.yml)
 
 # SDF-WoT-Converter
 

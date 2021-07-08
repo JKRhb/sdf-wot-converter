@@ -5,7 +5,7 @@ on:
     branches:
       - master
 
-name: Test with Code Coverage
+name: Build Status
 
 jobs:
   test:
