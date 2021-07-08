@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 use std::collections::HashMap;
 
-use super::super::SerializableModel;
+use crate::SerializableModel;
 
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(untagged)]

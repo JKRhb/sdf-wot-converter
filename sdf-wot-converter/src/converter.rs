@@ -1,10 +1,10 @@
 pub mod sdf_to_wot;
 pub mod wot_to_sdf;
 
-use super::sdf::definitions::SDFModel;
-use super::wot::definitions::ThingDescription;
-use super::wot::definitions::ThingModel;
-use super::SerializableModel;
+use crate::sdf::definitions::SDFModel;
+use crate::wot::definitions::ThingDescription;
+use crate::wot::definitions::ThingModel;
+use crate::SerializableModel;
 
 fn print_definition<T: SerializableModel>(path: &str) {
     match T::deserialize_json_from_path(path) {
