@@ -4,7 +4,7 @@ use crate::sdf::definitions as sdf;
 use crate::wot::definitions as wot;
 use std::collections::HashMap;
 
-fn first_letter_to_uppper_case(s1: &String) -> String {
+fn first_letter_to_uppper_case(s1: &str) -> String {
     let mut c = s1.chars();
     match c.next() {
         None => String::new(),
@@ -81,7 +81,7 @@ fn convert_actions(sdf_model: &sdf::SDFModel) -> Option<HashMap<String, wot::TMA
     convert_sdf_object_actions(&sdf_model, &mut actions_map, &sdf_model.sdf_object, None);
     convert_sdf_thing_actions(&sdf_model, &mut actions_map, &sdf_model.sdf_thing, None);
 
-    if actions_map.len() > 0 {
+    if !actions_map.is_empty() {
         Some(actions_map)
     } else {
         None
@@ -92,29 +92,29 @@ fn map_regular_type(sdf_type: &sdf::RegularTypes) -> Option<wot::JSONSchemaTypes
     match sdf_type {
         sdf::RegularTypes::Number(sdf_schema) => {
             let mapping = wot::JSONSchemaTypes::Number(wot::NumberSchema::<f32> {
-                minimum: sdf_schema.minimum.clone(),
-                exclusive_minimum: sdf_schema.exclusive_minimum.clone(),
-                maximum: sdf_schema.maximum.clone(),
-                exclusive_maximum: sdf_schema.exclusive_maximum.clone(),
-                multiple_of: sdf_schema.multiple_of.clone(),
+                minimum: sdf_schema.minimum,
+                exclusive_minimum: sdf_schema.exclusive_minimum,
+                maximum: sdf_schema.maximum,
+                exclusive_maximum: sdf_schema.exclusive_maximum,
+                multiple_of: sdf_schema.multiple_of,
             });
             Some(mapping)
         }
         sdf::RegularTypes::Integer(sdf_schema) => {
             let mapping = wot::JSONSchemaTypes::Integer(wot::NumberSchema::<i32> {
-                minimum: sdf_schema.minimum.clone(),
-                exclusive_minimum: sdf_schema.exclusive_minimum.clone(),
-                maximum: sdf_schema.maximum.clone(),
-                exclusive_maximum: sdf_schema.exclusive_maximum.clone(),
-                multiple_of: sdf_schema.multiple_of.clone(),
+                minimum: sdf_schema.minimum,
+                exclusive_minimum: sdf_schema.exclusive_minimum,
+                maximum: sdf_schema.maximum,
+                exclusive_maximum: sdf_schema.exclusive_maximum,
+                multiple_of: sdf_schema.multiple_of,
             });
             Some(mapping)
         }
         sdf::RegularTypes::String(sdf_schema) => {
             let mapping = wot::JSONSchemaTypes::String(wot::StringSchema {
                 // TODO: format is not mapped yet
-                min_length: sdf_schema.min_length.clone(),
-                max_length: sdf_schema.max_length.clone(),
+                min_length: sdf_schema.min_length,
+                max_length: sdf_schema.max_length,
                 pattern: sdf_schema.pattern.clone(),
                 content_encoding: None,
                 content_media_type: None,
@@ -125,8 +125,8 @@ fn map_regular_type(sdf_type: &sdf::RegularTypes) -> Option<wot::JSONSchemaTypes
             let mapping = wot::JSONSchemaTypes::Array(wot::ArraySchema {
                 // TODO: Can unique_items be mapped?
                 // TODO: items is still to be mapped
-                min_items: sdf_schema.min_items.clone(),
-                max_items: sdf_schema.max_items.clone(),
+                min_items: sdf_schema.min_items,
+                max_items: sdf_schema.max_items,
                 items: None,
             });
             Some(mapping)
@@ -219,7 +219,7 @@ fn convert_properties(
     convert_sdf_object_properties(&sdf_model, &mut properties, &sdf_model.sdf_object, None);
     convert_sdf_thing_properties(&sdf_model, &mut properties, &sdf_model.sdf_thing, None);
 
-    if properties.len() > 0 {
+    if !properties.is_empty() {
         Some(properties)
     } else {
         None
@@ -379,7 +379,6 @@ fn convert_event(sdf_event: &sdf::EventQualities) -> wot::TMEventAffordance {
     wot::TMEventAffordance {
         event_affordance_fields,
         interaction_affordance: create_interaction_affordance(&sdf_event.common_qualities),
-
     }
 }
 
@@ -390,7 +389,7 @@ fn convert_events(sdf_model: &sdf::SDFModel) -> Option<HashMap<String, wot::TMEv
     convert_sdf_object_events(&sdf_model, &mut events, &sdf_model.sdf_object, None);
     convert_sdf_thing_events(&sdf_model, &mut events, &sdf_model.sdf_thing, None);
 
-    if events.len() > 0 {
+    if !events.is_empty() {
         Some(events)
     } else {
         None

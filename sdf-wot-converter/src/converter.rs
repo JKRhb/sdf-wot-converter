@@ -2,11 +2,11 @@ pub mod sdf_to_wot;
 pub mod wot_to_sdf;
 
 use super::sdf::definitions::SDFModel;
-use super::wot::definitions::ThingModel;
 use super::wot::definitions::ThingDescription;
+use super::wot::definitions::ThingModel;
 use super::SerializableModel;
 
-fn print_definition<T: SerializableModel>(path: &str) -> () {
+fn print_definition<T: SerializableModel>(path: &str) {
     match T::deserialize_json_from_path(path) {
         Ok(model) => model.print(),
         Err(error) => println!("{}", error),
@@ -23,7 +23,7 @@ fn print_definition<T: SerializableModel>(path: &str) -> () {
 ///
 /// print_sdf_definition("examples/sdf/example.sdf.json");
 /// ```
-pub fn print_sdf_definition(path: &str) -> () {
+pub fn print_sdf_definition(path: &str) {
     print_definition::<SDFModel>(path)
 }
 
@@ -37,7 +37,7 @@ pub fn print_sdf_definition(path: &str) -> () {
 ///
 /// print_wot_td_definition("examples/wot/example.td.json");
 /// ```
-pub fn print_wot_td_definition(path: &str) -> () {
+pub fn print_wot_td_definition(path: &str) {
     print_definition::<ThingDescription>(path)
 }
 
@@ -51,7 +51,7 @@ pub fn print_wot_td_definition(path: &str) -> () {
 ///
 /// print_wot_tm_definition("examples/wot/example.tm.json");
 /// ```
-pub fn print_wot_tm_definition(path: &str) -> () {
+pub fn print_wot_tm_definition(path: &str) {
     print_definition::<ThingModel>(path)
 }
 
