@@ -16,6 +16,17 @@ fn is_valid_input(input: String) -> Result<(), String> {
     }
 }
 
+fn print_model_from_file(input: Option<&str>) {
+    let path = input.unwrap(); // TODO: This should be handled differently
+    if path.ends_with("sdf.json") {
+        converter::print_sdf_definition_from_path(path);
+    } else if path.ends_with("td.json") {
+        converter::print_wot_td_definition_from_path(path);
+    } else if path.ends_with("tm.json") {
+        converter::print_wot_tm_definition_from_path(path);
+    }
+}
+
 fn main() {
     let input_help = "The input file path. Must either end with sdf.json \
                     (for SDF), td.json or tm.json (when \
@@ -59,14 +70,7 @@ fn main() {
         .get_matches();
 
     if let Some(ref matches) = app.subcommand_matches("print") {
-        let path = matches.value_of("input").unwrap();
-        if path.ends_with("sdf.json") {
-            converter::print_sdf_definition_from_path(path);
-        } else if path.ends_with("td.json") {
-            converter::print_wot_td_definition_from_path(path);
-        } else if path.ends_with("tm.json") {
-            converter::print_wot_tm_definition_from_path(path);
-        }
+        print_model_from_file(matches.value_of("input"));
     } else if let Some(ref matches) = app.subcommand_matches("convert") {
         // TODO: Replace if-else with match
         let input_path = matches.value_of("input").unwrap();
