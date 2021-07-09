@@ -55,7 +55,7 @@ pub fn print_wot_tm_definition(path: &str) {
     print_definition::<ThingModel>(path)
 }
 
-pub fn sdf_to_wot(sdf_model: SDFModel) -> Result<ThingModel, String> {
+fn sdf_to_wot(sdf_model: SDFModel) -> Result<ThingModel, String> {
     Ok(sdf_to_wot::convert(sdf_model))
 }
 
