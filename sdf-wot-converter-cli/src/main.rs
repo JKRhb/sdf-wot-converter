@@ -101,3 +101,21 @@ fn main() {
     //   }
     // }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn print_model_from_file_test() {
+        print_model_from_file(Some("examples/sdf/example.sdf.json"));
+        print_model_from_file(Some("examples/wot/example.td.json"));
+        print_model_from_file(Some("examples/wot/example.tm.json"));
+    }
+
+    #[test]
+    #[should_panic]
+    fn print_model_from_file_test_panic() {
+        print_model_from_file(None);
+    }
+}
