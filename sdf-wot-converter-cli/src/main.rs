@@ -118,4 +118,13 @@ mod tests {
     fn print_model_from_file_test_panic() {
         print_model_from_file(None);
     }
+
+    #[test]
+    fn is_valid_input_test() {
+        assert!(is_valid_input("examples/sdf/example.sdf.json".to_string()).is_ok());
+        assert!(is_valid_input("examples/wot/example.td.json".to_string()).is_ok());
+        assert!(is_valid_input("examples/wot/example.tm.json".to_string()).is_ok());
+
+        assert!(is_valid_input("blah.json".to_string()).is_err());
+    }
 }
