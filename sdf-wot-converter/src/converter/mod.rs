@@ -100,6 +100,6 @@ mod tests {
     #[test]
     fn test_print_definition() {
         print_definition::<SDFModel>("examples/sdf/example.sdf.json");
-        print_definition::<ThingDescription>("examples/wot/example.td.json");
+        print_definition::<ThingModel>("examples/wot/example.td.json");
     }
 }
