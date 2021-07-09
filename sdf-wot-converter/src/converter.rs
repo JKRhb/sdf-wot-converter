@@ -70,3 +70,33 @@ pub fn sdf_to_wot_from_and_to_path(input_path: &str, output_path: &str) -> Resul
 
     sdf_to_wot_from_path(input_path).and_then(|x| x.write_json_to_path(output_path))
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_sdf_to_wot() {
+        let sdf_model = SDFModel {
+            info: None,
+            namespace: None,
+            default_namespace: None,
+            sdf_data: None,
+            sdf_object: None,
+            sdf_thing: None,
+            sdf_product: None,
+            sdf_action: None,
+            sdf_property: None,
+            sdf_event: None,
+        };
+
+        let output = sdf_to_wot(sdf_model);
+        assert!(output.is_ok());
+    }
+
+    #[test]
+    fn test_print_definition() {
+        print_definition::<SDFModel>("examples/sdf/example.sdf.json");
+        print_definition::<ThingDescription>("examples/wot/example.td.json");
+    }
+}
