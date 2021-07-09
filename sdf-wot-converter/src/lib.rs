@@ -30,6 +30,15 @@ pub trait SerializableModel: serde::Serialize + serde::de::DeserializeOwned {
         }
     }
 
+    /// Deserializes a `SerializableModel`, converts it back into
+    /// a JSON string and prints it to the command line.
+    fn print_definition_from_path(path: &str) {
+        match Self::deserialize_json_from_path(path) {
+            Ok(model) => model.print(),
+            Err(error) => println!("{}", error),
+        }
+    }
+
     /// Reads a JSON file from a specified path, deserializes it to a supported data type,
     /// and returns an instance of the data type as a `Result`.
     ///

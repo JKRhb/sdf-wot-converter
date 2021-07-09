@@ -5,15 +5,6 @@ use crate::wot::definitions::ThingDescription;
 use crate::wot::definitions::ThingModel;
 use crate::SerializableModel;
 
-/// Deserializes a `SerializableModel`, converts it back into
-/// a JSON string and prints it to the command line.
-fn print_definition<T: SerializableModel>(path: &str) {
-    match T::deserialize_json_from_path(path) {
-        Ok(model) => model.print(),
-        Err(error) => println!("{}", error),
-    }
-}
-
 /// Deserializes an SDF model, converts it back into a JSON string
 /// and prints it to the command line.
 ///
@@ -25,7 +16,7 @@ fn print_definition<T: SerializableModel>(path: &str) {
 /// print_sdf_definition_from_path("examples/sdf/example.sdf.json");
 /// ```
 pub fn print_sdf_definition_from_path(path: &str) {
-    print_definition::<SDFModel>(path)
+    SDFModel::print_definition_from_path(path);
 }
 
 /// Deserializes an WoT TD definition, converts it back into a
@@ -39,7 +30,7 @@ pub fn print_sdf_definition_from_path(path: &str) {
 /// print_wot_td_definition_from_path("examples/wot/example.td.json");
 /// ```
 pub fn print_wot_td_definition_from_path(path: &str) {
-    print_definition::<ThingDescription>(path)
+    ThingDescription::print_definition_from_path(path);
 }
 
 /// Deserializes an WoT TM definition, converts it back into a
@@ -53,7 +44,7 @@ pub fn print_wot_td_definition_from_path(path: &str) {
 /// print_wot_tm_definition_from_path("examples/wot/example.tm.json");
 /// ```
 pub fn print_wot_tm_definition_from_path(path: &str) {
-    print_definition::<ThingModel>(path)
+    ThingModel::print_definition_from_path(path);
 }
 
 /// Converts an SDF model to a WoT Thing Model.
@@ -94,11 +85,5 @@ mod tests {
 
         let output = sdf_to_wot(sdf_model);
         assert!(output.is_ok());
-    }
-
-    #[test]
-    fn test_print_definition() {
-        print_definition::<SDFModel>("examples/sdf/example.sdf.json");
-        print_definition::<ThingModel>("examples/wot/example.td.json");
     }
 }
