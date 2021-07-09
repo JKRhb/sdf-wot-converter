@@ -1,4 +1,3 @@
-pub mod sdf_to_wot;
 pub mod wot_to_sdf;
 
 use crate::sdf::definitions::SDFModel;
@@ -59,7 +58,7 @@ pub fn print_wot_tm_definition(path: &str) {
 
 /// Converts an SDF model to a WoT Thing Model.
 fn sdf_to_wot(sdf_model: SDFModel) -> Result<ThingModel, String> {
-    Ok(sdf_to_wot::convert(sdf_model))
+    Ok(ThingModel::from(sdf_model))
 }
 
 pub fn sdf_to_wot_from_path(path: &str) -> Result<ThingModel, String> {
