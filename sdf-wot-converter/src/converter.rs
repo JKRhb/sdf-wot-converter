@@ -6,6 +6,8 @@ use crate::wot::definitions::ThingDescription;
 use crate::wot::definitions::ThingModel;
 use crate::SerializableModel;
 
+/// Deserializes a `SerializableModel`, converts it back into
+/// a JSON string and prints it to the command line.
 fn print_definition<T: SerializableModel>(path: &str) {
     match T::deserialize_json_from_path(path) {
         Ok(model) => model.print(),
@@ -55,6 +57,7 @@ pub fn print_wot_tm_definition(path: &str) {
     print_definition::<ThingModel>(path)
 }
 
+/// Converts an SDF model to a WoT Thing Model.
 fn sdf_to_wot(sdf_model: SDFModel) -> Result<ThingModel, String> {
     Ok(sdf_to_wot::convert(sdf_model))
 }
