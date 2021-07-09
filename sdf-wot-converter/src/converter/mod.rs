@@ -20,11 +20,11 @@ fn print_definition<T: SerializableModel>(path: &str) {
 /// # Examples
 ///
 /// ```rust
-/// use sdf_wot_converter::converter::print_sdf_definition;
+/// use sdf_wot_converter::converter::print_sdf_definition_from_path;
 ///
-/// print_sdf_definition("examples/sdf/example.sdf.json");
+/// print_sdf_definition_from_path("examples/sdf/example.sdf.json");
 /// ```
-pub fn print_sdf_definition(path: &str) {
+pub fn print_sdf_definition_from_path(path: &str) {
     print_definition::<SDFModel>(path)
 }
 
@@ -34,11 +34,11 @@ pub fn print_sdf_definition(path: &str) {
 /// # Examples
 ///
 /// ```rust
-/// use sdf_wot_converter::converter::print_wot_td_definition;
+/// use sdf_wot_converter::converter::print_wot_td_definition_from_path;
 ///
-/// print_wot_td_definition("examples/wot/example.td.json");
+/// print_wot_td_definition_from_path("examples/wot/example.td.json");
 /// ```
-pub fn print_wot_td_definition(path: &str) {
+pub fn print_wot_td_definition_from_path(path: &str) {
     print_definition::<ThingDescription>(path)
 }
 
@@ -48,11 +48,11 @@ pub fn print_wot_td_definition(path: &str) {
 /// # Examples
 ///
 /// ```rust
-/// use sdf_wot_converter::converter::print_wot_tm_definition;
+/// use sdf_wot_converter::converter::print_wot_tm_definition_from_path;
 ///
-/// print_wot_tm_definition("examples/wot/example.tm.json");
+/// print_wot_tm_definition_from_path("examples/wot/example.tm.json");
 /// ```
-pub fn print_wot_tm_definition(path: &str) {
+pub fn print_wot_tm_definition_from_path(path: &str) {
     print_definition::<ThingModel>(path)
 }
 

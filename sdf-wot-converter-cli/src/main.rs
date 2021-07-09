@@ -61,11 +61,11 @@ fn main() {
     if let Some(ref matches) = app.subcommand_matches("print") {
         let path = matches.value_of("input").unwrap();
         if path.ends_with("sdf.json") {
-            converter::print_sdf_definition(path);
+            converter::print_sdf_definition_from_path(path);
         } else if path.ends_with("td.json") {
-            converter::print_wot_td_definition(path);
+            converter::print_wot_td_definition_from_path(path);
         } else if path.ends_with("tm.json") {
-            converter::print_wot_tm_definition(path);
+            converter::print_wot_tm_definition_from_path(path);
         }
     } else if let Some(ref matches) = app.subcommand_matches("convert") {
         // TODO: Replace if-else with match
