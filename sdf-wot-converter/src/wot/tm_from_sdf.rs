@@ -470,3 +470,29 @@ fn convert_events(sdf_model: &sdf::SDFModel) -> Option<HashMap<String, wot::TMEv
         None
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn first_letter_to_uppper_case_test() {
+        assert_eq!(first_letter_to_uppper_case(""), "");
+        assert_eq!(first_letter_to_uppper_case("a"), "A");
+        assert_eq!(first_letter_to_uppper_case("A"), "A");
+        assert_eq!(first_letter_to_uppper_case("ab"), "Ab");
+        assert_eq!(first_letter_to_uppper_case("Ab"), "Ab");
+        assert_eq!(first_letter_to_uppper_case("aB"), "AB");
+        assert_eq!(first_letter_to_uppper_case("AB"), "AB");
+    }
+
+    #[test]
+    fn get_prefixed_key_test() {
+        let key = "bar".to_string();
+        let prefix = "foo".to_string();
+        let prefixed_key = "fooBar".to_string();
+
+        assert_eq!(get_prefixed_key(None, key.clone()), key);
+        assert_eq!(get_prefixed_key(Some(prefix), key.clone()), prefixed_key);
+    }
+}
