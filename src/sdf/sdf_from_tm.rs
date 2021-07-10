@@ -6,8 +6,8 @@ use crate::wot::definitions as wot;
 /// returns `None` at the moment.
 ///
 /// TODO: Investigate how to map this.
-fn create_info_block(thing_model: wot::ThingModel) -> Option<sdf::InfoBlock> {
-    let title = thing_model.title;
+fn create_info_block(thing_model: &wot::ThingModel) -> Option<sdf::InfoBlock> {
+    let title = thing_model.title.clone();
     let version = None;
     let copyright = None;
     let license = None;
@@ -26,7 +26,7 @@ fn create_info_block(thing_model: wot::ThingModel) -> Option<sdf::InfoBlock> {
 /// Converts a WoT Thing Model into an SDF model.
 impl From<wot::ThingModel> for sdf::SDFModel {
     fn from(thing_model: wot::ThingModel) -> Self {
-        let info = create_info_block(thing_model);
+        let info = create_info_block(&thing_model);
         let namespace = None;
         let default_namespace = None;
         let sdf_thing = None;
