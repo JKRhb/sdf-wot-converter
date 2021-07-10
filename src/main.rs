@@ -111,14 +111,14 @@ mod tests {
 
     fn get_legal_inputs() -> Vec<&'static str> {
         vec![
-            "../examples/sdf/example.sdf.json",
-            "../examples/wot/example.td.json",
-            "../examples/wot/example.tm.json",
+            "examples/sdf/example.sdf.json",
+            "examples/wot/example.td.json",
+            "examples/wot/example.tm.json",
         ]
     }
 
     fn get_illegal_inputs() -> Vec<&'static str> {
-        vec!["../examples/foobar", "../examples/foobar.json"]
+        vec!["examples/foobar", "examples/foobar.json"]
     }
 
     #[test]
