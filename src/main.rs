@@ -1,6 +1,6 @@
 use sdf_wot_converter::{converter, ConverterResult};
 
-use clap::{crate_authors, crate_version, App, Arg};
+use clap::{crate_authors, crate_name, crate_version, App, Arg};
 use std::{env, fs};
 // use url::Url;
 
@@ -54,7 +54,7 @@ fn main() -> ConverterResult<()> {
                      (when converting to SDF), td.json or tm.json (when \
                      converting to a WoT TD/TM).";
 
-    let app = App::new("sdf-wot-converter")
+    let app = App::new(crate_name!())
         .version(crate_version!())
         .author(crate_authors!())
         .subcommand(
