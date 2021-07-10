@@ -24,6 +24,21 @@ impl SerializableModel for SDFModel {
     fn path_is_valid(path: &str) -> bool {
         path.ends_with("sdf.json")
     }
+
+    fn new_empty_model() -> SDFModel {
+        SDFModel {
+            info: None,
+            namespace: None,
+            default_namespace: None,
+            sdf_data: None,
+            sdf_object: None,
+            sdf_thing: None,
+            sdf_product: None,
+            sdf_action: None,
+            sdf_property: None,
+            sdf_event: None,
+        }
+    }
 }
 
 #[skip_serializing_none]
