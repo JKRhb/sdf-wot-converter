@@ -21,10 +21,6 @@ pub struct SDFModel {
 }
 
 impl SerializableModel for SDFModel {
-    fn path_is_valid(path: &str) -> bool {
-        path.ends_with("sdf.json")
-    }
-
     fn new_empty_model() -> SDFModel {
         SDFModel {
             info: None,

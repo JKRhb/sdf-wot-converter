@@ -10,15 +10,17 @@ use crate::ConverterResult;
 /// # Examples
 ///
 /// ```rust
-/// use sdf_wot_converter::converter::print_sdf_definition_from_path;
+/// use sdf_wot_converter::converter::print_sdf_definition;
+/// use std::fs;
 ///
-/// print_sdf_definition_from_path("examples/sdf/example.sdf.json");
+/// let json_string = fs::read_to_string("examples/sdf/example.sdf.json").unwrap();
 ///
-/// assert!(print_sdf_definition_from_path("examples/sdf/example.sdf.json").is_ok());
-/// assert!(print_sdf_definition_from_path("foobar.json").is_err());
+/// let result = print_sdf_definition(json_string);
+///
+/// assert!(result.is_ok());
 /// ```
-pub fn print_sdf_definition_from_path(path: &str) -> ConverterResult<()> {
-    SDFModel::print_definition_from_path(path)
+pub fn print_sdf_definition(json_string: String) -> ConverterResult<()> {
+    SDFModel::print_definition(json_string)
 }
 
 /// Deserializes a WoT TD definition, converts it back into a
@@ -27,15 +29,17 @@ pub fn print_sdf_definition_from_path(path: &str) -> ConverterResult<()> {
 /// # Examples
 ///
 /// ```rust
-/// use sdf_wot_converter::converter::print_wot_td_definition_from_path;
+/// use sdf_wot_converter::converter::print_wot_td_definition;
+/// use std::fs;
 ///
-/// print_wot_td_definition_from_path("examples/wot/example.td.json");
+/// let json_string = fs::read_to_string("examples/wot/example.td.json").unwrap();
 ///
-/// assert!(print_wot_td_definition_from_path("examples/wot/example.td.json").is_ok());
-/// assert!(print_wot_td_definition_from_path("foobar.json").is_err());
+/// let result = print_wot_td_definition(json_string);
+///
+/// assert!(result.is_ok());
 /// ```
-pub fn print_wot_td_definition_from_path(path: &str) -> ConverterResult<()> {
-    ThingDescription::print_definition_from_path(path)
+pub fn print_wot_td_definition(json_string: String) -> ConverterResult<()> {
+    ThingDescription::print_definition(json_string)
 }
 
 /// Deserializes a WoT TM definition, converts it back into a
@@ -44,19 +48,61 @@ pub fn print_wot_td_definition_from_path(path: &str) -> ConverterResult<()> {
 /// # Examples
 ///
 /// ```rust
-/// use sdf_wot_converter::converter::print_wot_tm_definition_from_path;
+/// use sdf_wot_converter::converter::print_wot_tm_definition;
+/// use std::fs;
 ///
-/// print_wot_tm_definition_from_path("examples/wot/example.tm.json");
+/// let json_string = fs::read_to_string("examples/wot/example.tm.json").unwrap();
 ///
-/// assert!(print_wot_tm_definition_from_path("examples/wot/example.tm.json").is_ok());
-/// assert!(print_wot_tm_definition_from_path("foobar.json").is_err());
+/// let result = print_wot_tm_definition(json_string);
+///
+/// assert!(result.is_ok());
 /// ```
-pub fn print_wot_tm_definition_from_path(path: &str) -> ConverterResult<()> {
-    ThingModel::print_definition_from_path(path)
+pub fn print_wot_tm_definition(json_string: String) -> ConverterResult<()> {
+    ThingModel::print_definition(json_string)
+}
+
+/// Deserializes an SDF Model JSON `String` and converts it into an WoT Thing Model
+/// JSON `String`.
+///
+/// # Examples
+///
+/// ```rust
+/// use sdf_wot_converter::converter::convert_sdf_to_wot_tm;
+/// use std::fs;
+///
+/// let json_string = fs::read_to_string("examples/sdf/example.sdf.json").unwrap();
+///
+/// let result = convert_sdf_to_wot_tm(json_string);
+/// assert!(result.is_ok());
+/// ```
+pub fn convert_sdf_to_wot_tm(json_string: String) -> ConverterResult<String> {
+    SDFModel::deserialize_json_string(json_string)
+        .and_then(sdf_to_wot_tm)
+        .and_then(|m| ThingModel::serialize_json(&m))
+}
+
+/// Deserializes a WoT Thing Model JSON `String` and converts it into an SDF Model
+/// JSON `String`.
+///
+/// # Examples
+///
+/// ```rust
+/// use sdf_wot_converter::converter::convert_sdf_to_wot_tm;
+/// use std::fs;
+///
+/// let json_string = fs::read_to_string("examples/sdf/example.sdf.json").unwrap();
+///
+/// let result = convert_sdf_to_wot_tm(json_string);
+/// assert!(result.is_ok());
+/// ```
+pub fn convert_wot_tm_to_sdf(json_string: String) -> ConverterResult<String> {
+    ThingModel::deserialize_json_string(json_string)
+        .and_then(wot_tm_to_sdf)
+        .and_then(|m| SDFModel::serialize_json(&m))
 }
 
 /// Converts an SDF model to a WoT Thing Model.
-fn sdf_to_wot(sdf_model: SDFModel) -> ConverterResult<ThingModel> {
+fn sdf_to_wot_tm(sdf_model: SDFModel) -> ConverterResult<ThingModel> {
     Ok(ThingModel::from(sdf_model))
 }
 
@@ -65,63 +111,13 @@ fn wot_tm_to_sdf(thing_model: ThingModel) -> ConverterResult<SDFModel> {
     Ok(SDFModel::from(thing_model))
 }
 
-/// Deserializes an SDF definition from a given file path and converts
-/// it into a WoT Thing Model.
-///
-/// # Examples
-///
-/// ```rust
-/// use sdf_wot_converter::converter::sdf_to_wot_from_path;
-///
-/// let result = sdf_to_wot_from_path("examples/sdf/example.sdf.json");
-/// assert!(result.is_ok());
-///
-/// assert!(sdf_to_wot_from_path("foobar.json").is_err());
-/// ```
-pub fn sdf_to_wot_from_path(path: &str) -> ConverterResult<ThingModel> {
-    SDFModel::deserialize_json_from_path(path).and_then(sdf_to_wot)
-}
-
-/// Deserializes a WoT Thing Model from a given file path and converts
-/// it into an SDF Model.
-///
-/// # Examples
-///
-/// ```rust
-/// use sdf_wot_converter::converter::wot_tm_to_sdf_from_path;
-///
-/// let result = wot_tm_to_sdf_from_path("examples/wot/example.tm.json");
-/// assert!(result.is_ok());
-///
-/// assert!(wot_tm_to_sdf_from_path("foobar.json").is_err());
-/// ```
-pub fn wot_tm_to_sdf_from_path(path: &str) -> ConverterResult<SDFModel> {
-    ThingModel::deserialize_json_from_path(path).and_then(wot_tm_to_sdf)
-}
-
-pub fn sdf_to_wot_from_and_to_path(input_path: &str, output_path: &str) -> ConverterResult<()> {
-    if !output_path.ends_with("tm.json") {
-        return Err("The output filename has to end with tm.json!".into());
-    }
-
-    sdf_to_wot_from_path(input_path).and_then(|x| x.write_json_to_path(output_path))
-}
-
-pub fn wot_tm_to_sdf_from_and_to_path(input_path: &str, output_path: &str) -> ConverterResult<()> {
-    if !output_path.ends_with("sdf.json") {
-        return Err("The output filename has to end with sdf.json!".into());
-    }
-
-    wot_tm_to_sdf_from_path(input_path).and_then(|x| x.write_json_to_path(output_path))
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
-    fn test_sdf_to_wot() {
-        let output = sdf_to_wot(SDFModel::new_empty_model());
+    fn test_sdf_to_wot_tm() {
+        let output = sdf_to_wot_tm(SDFModel::new_empty_model());
         assert!(output.is_ok());
     }
 

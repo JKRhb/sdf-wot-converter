@@ -107,10 +107,6 @@ fn get_empty_common_security() -> SecuritySchemeCommon {
 }
 
 impl SerializableModel for ThingDescription {
-    fn path_is_valid(path: &str) -> bool {
-        path.ends_with("td.json")
-    }
-
     fn new_empty_model() -> ThingDescription {
         let base_thing = get_empty_base_thing();
         let security = TypeOrTypeArray::Type("nosec_sc".to_string());
@@ -137,10 +133,6 @@ impl SerializableModel for ThingDescription {
 }
 
 impl SerializableModel for ThingModel {
-    fn path_is_valid(path: &str) -> bool {
-        path.ends_with("tm.json")
-    }
-
     fn new_empty_model() -> ThingModel {
         let base_thing = get_empty_base_thing();
 
