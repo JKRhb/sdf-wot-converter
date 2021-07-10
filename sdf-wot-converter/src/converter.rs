@@ -12,7 +12,10 @@ use crate::ConverterResult;
 /// ```rust
 /// use sdf_wot_converter::converter::print_sdf_definition_from_path;
 ///
-/// print_sdf_definition_from_path("examples/sdf/example.sdf.json");
+/// print_sdf_definition_from_path("../examples/sdf/example.sdf.json");
+///
+/// assert!(print_sdf_definition_from_path("../examples/sdf/example.sdf.json").is_ok());
+/// assert!(print_sdf_definition_from_path("foobar.json").is_err());
 /// ```
 pub fn print_sdf_definition_from_path(path: &str) -> ConverterResult<()> {
     SDFModel::print_definition_from_path(path)
@@ -26,7 +29,10 @@ pub fn print_sdf_definition_from_path(path: &str) -> ConverterResult<()> {
 /// ```rust
 /// use sdf_wot_converter::converter::print_wot_td_definition_from_path;
 ///
-/// print_wot_td_definition_from_path("examples/wot/example.td.json");
+/// print_wot_td_definition_from_path("../examples/wot/example.td.json");
+///
+/// assert!(print_wot_td_definition_from_path("../examples/wot/example.td.json").is_ok());
+/// assert!(print_wot_td_definition_from_path("foobar.json").is_err());
 /// ```
 pub fn print_wot_td_definition_from_path(path: &str) -> ConverterResult<()> {
     ThingDescription::print_definition_from_path(path)
@@ -40,7 +46,10 @@ pub fn print_wot_td_definition_from_path(path: &str) -> ConverterResult<()> {
 /// ```rust
 /// use sdf_wot_converter::converter::print_wot_tm_definition_from_path;
 ///
-/// print_wot_tm_definition_from_path("examples/wot/example.tm.json");
+/// print_wot_tm_definition_from_path("../examples/wot/example.tm.json");
+///
+/// assert!(print_wot_tm_definition_from_path("../examples/wot/example.tm.json").is_ok());
+/// assert!(print_wot_tm_definition_from_path("foobar.json").is_err());
 /// ```
 pub fn print_wot_tm_definition_from_path(path: &str) -> ConverterResult<()> {
     ThingModel::print_definition_from_path(path)
@@ -51,15 +60,18 @@ fn sdf_to_wot(sdf_model: SDFModel) -> ConverterResult<ThingModel> {
     Ok(ThingModel::from(sdf_model))
 }
 
-/// Deserializes an WoT TM definition, converts it back into a
-/// JSON string and prints it to the command line.
+/// Deserializes an SDF definition from a given file path and converts
+/// it into a WoT Thing Model.
 ///
 /// # Examples
 ///
 /// ```rust
-/// use sdf_wot_converter::converter::print_wot_tm_definition_from_path;
+/// use sdf_wot_converter::converter::sdf_to_wot_from_path;
 ///
-/// print_wot_tm_definition_from_path("examples/wot/example.tm.json");
+/// let result = sdf_to_wot_from_path("../examples/sdf/example.sdf.json");
+/// assert!(result.is_ok());
+///
+/// assert!(sdf_to_wot_from_path("foobar.json").is_err());
 /// ```
 pub fn sdf_to_wot_from_path(path: &str) -> ConverterResult<ThingModel> {
     SDFModel::deserialize_json_from_path(path).and_then(sdf_to_wot)
