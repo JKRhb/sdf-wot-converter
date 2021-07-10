@@ -79,15 +79,82 @@ pub struct BaseThing {
     pub schema_definitions: Option<HashMap<String, DataSchema>>,
 }
 
+fn get_empty_base_thing() -> BaseThing {
+    BaseThing {
+        base: None,
+        context: Context::String("http://www.w3.org/ns/td".to_string()),
+        created: None,
+        description: None,
+        descriptions: None,
+        id: None,
+        modified: None,
+        profile: None,
+        schema_definitions: None,
+        support: None,
+        titles: None,
+        r#type: None,
+        version: None,
+    }
+}
+
+fn get_empty_common_security() -> SecuritySchemeCommon {
+    SecuritySchemeCommon {
+        description: None,
+        descriptions: None,
+        r#type: None,
+        proxy: None,
+    }
+}
+
 impl SerializableModel for ThingDescription {
     fn path_is_valid(path: &str) -> bool {
         path.ends_with("td.json")
+    }
+
+    fn new_empty_model() -> ThingDescription {
+        let base_thing = get_empty_base_thing();
+        let security = TypeOrTypeArray::Type("nosec_sc".to_string());
+        let nosec_sc = SecurityScheme::Nosec {
+            common: get_empty_common_security(),
+        };
+        let security_definitions: HashMap<String, SecurityScheme> =
+            vec![("nosec_sc".to_string(), nosec_sc)]
+                .into_iter()
+                .collect();
+
+        ThingDescription {
+            base_thing,
+            title: "Empty Thing Description".to_string(),
+            actions: None,
+            events: None,
+            properties: None,
+            forms: None,
+            links: None,
+            security,
+            security_definitions,
+        }
     }
 }
 
 impl SerializableModel for ThingModel {
     fn path_is_valid(path: &str) -> bool {
         path.ends_with("tm.json")
+    }
+
+    fn new_empty_model() -> ThingModel {
+        let base_thing = get_empty_base_thing();
+
+        ThingModel {
+            base_thing,
+            title: None,
+            actions: None,
+            events: None,
+            properties: None,
+            forms: None,
+            links: None,
+            security: None,
+            security_definitions: None,
+        }
     }
 }
 

@@ -80,8 +80,10 @@ fn main() -> ConverterResult<()> {
         let output_path = matches.value_of("output").unwrap();
         if input_path.ends_with("sdf.json") {
             return converter::sdf_to_wot_from_and_to_path(input_path, output_path);
-        } else if input_path.ends_with("td.json") || input_path.ends_with("tm.json") {
-            return Err("TD/TM to SDF conversion is not implemented yet!".into());
+        } else if input_path.ends_with("tm.json") {
+            return converter::wot_tm_to_sdf_from_and_to_path(input_path, output_path);
+        } else {
+            return Err("TD to SDF conversion is not implemented yet!".into());
         }
     }
 

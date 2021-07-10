@@ -10,6 +10,8 @@ fn write_to_path(path: &str, content: String) -> ConverterResult<()> {
 pub trait SerializableModel: serde::Serialize + serde::de::DeserializeOwned {
     fn path_is_valid(path: &str) -> bool;
 
+    fn new_empty_model() -> Self;
+
     fn print(&self) -> ConverterResult<()> {
         self.serialize_json().map(|j| println!("{}", j))
     }
