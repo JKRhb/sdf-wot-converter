@@ -5,7 +5,12 @@
 //! The converter is both usable as a library that can be built upon in other WoT
 //! and SDF related projects as well as a tool for the command line.
 
+use std::{error, result};
+
 pub mod converter;
 mod model;
 pub mod sdf;
 pub mod wot;
+
+type TResult<T> = result::Result<T, TError>;
+type TError = Box<dyn error::Error>;
