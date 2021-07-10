@@ -73,3 +73,35 @@ impl From<wot::ThingModel> for sdf::SDFModel {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn convert_namespaces_string_test() {
+        let string_context = wot::Context::String("foobar".to_string());
+        let string_array_context =
+            wot::Context::Array(vec![wot::ContextEntry::String("foobar".to_string())]);
+
+        assert!(convert_namespaces(&string_context).is_none());
+        assert!(convert_namespaces(&string_array_context).is_none());
+    }
+
+    #[test]
+    fn convert_namespaces_map_test() {
+        let context_map: HashMap<String, String> = vec![("foo".to_string(), "bar".to_string())]
+            .into_iter()
+            .collect();
+        let map_array_context = wot::Context::Array(vec![wot::ContextEntry::Map(context_map)]);
+        let expected_namespace: Option<HashMap<String, String>> = Some(
+            vec![("foo".to_string(), "bar".to_string())]
+                .into_iter()
+                .collect(),
+        );
+
+        let converted_namespace = convert_namespaces(&map_array_context);
+        assert!(converted_namespace.is_some());
+        assert_eq!(converted_namespace, expected_namespace);
+    }
+}
