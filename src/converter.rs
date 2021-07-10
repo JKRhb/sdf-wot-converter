@@ -88,7 +88,7 @@ pub fn sdf_to_wot_from_path(path: &str) -> ConverterResult<ThingModel> {
 /// # Examples
 ///
 /// ```rust
-/// use sdf_wot_converter::converter::sdf_to_wot_from_path;
+/// use sdf_wot_converter::converter::wot_tm_to_sdf_from_path;
 ///
 /// let result = wot_tm_to_sdf_from_path("examples/wot/example.tm.json");
 /// assert!(result.is_ok());
