@@ -2,7 +2,7 @@ use crate::model::SerializableModel;
 use crate::sdf::definitions::SDFModel;
 use crate::wot::definitions::ThingDescription;
 use crate::wot::definitions::ThingModel;
-use crate::TResult;
+use crate::ConverterResult;
 
 /// Deserializes an SDF model, converts it back into a JSON string
 /// and prints it to the command line.
@@ -14,8 +14,8 @@ use crate::TResult;
 ///
 /// print_sdf_definition_from_path("examples/sdf/example.sdf.json");
 /// ```
-pub fn print_sdf_definition_from_path(path: &str) {
-    SDFModel::print_definition_from_path(path);
+pub fn print_sdf_definition_from_path(path: &str) -> ConverterResult<()> {
+    SDFModel::print_definition_from_path(path)
 }
 
 /// Deserializes a WoT TD definition, converts it back into a
@@ -28,8 +28,8 @@ pub fn print_sdf_definition_from_path(path: &str) {
 ///
 /// print_wot_td_definition_from_path("examples/wot/example.td.json");
 /// ```
-pub fn print_wot_td_definition_from_path(path: &str) {
-    ThingDescription::print_definition_from_path(path);
+pub fn print_wot_td_definition_from_path(path: &str) -> ConverterResult<()> {
+    ThingDescription::print_definition_from_path(path)
 }
 
 /// Deserializes a WoT TM definition, converts it back into a
@@ -42,12 +42,12 @@ pub fn print_wot_td_definition_from_path(path: &str) {
 ///
 /// print_wot_tm_definition_from_path("examples/wot/example.tm.json");
 /// ```
-pub fn print_wot_tm_definition_from_path(path: &str) {
-    ThingModel::print_definition_from_path(path);
+pub fn print_wot_tm_definition_from_path(path: &str) -> ConverterResult<()> {
+    ThingModel::print_definition_from_path(path)
 }
 
 /// Converts an SDF model to a WoT Thing Model.
-fn sdf_to_wot(sdf_model: SDFModel) -> TResult<ThingModel> {
+fn sdf_to_wot(sdf_model: SDFModel) -> ConverterResult<ThingModel> {
     Ok(ThingModel::from(sdf_model))
 }
 
@@ -61,11 +61,11 @@ fn sdf_to_wot(sdf_model: SDFModel) -> TResult<ThingModel> {
 ///
 /// print_wot_tm_definition_from_path("examples/wot/example.tm.json");
 /// ```
-pub fn sdf_to_wot_from_path(path: &str) -> TResult<ThingModel> {
+pub fn sdf_to_wot_from_path(path: &str) -> ConverterResult<ThingModel> {
     SDFModel::deserialize_json_from_path(path).and_then(sdf_to_wot)
 }
 
-pub fn sdf_to_wot_from_and_to_path(input_path: &str, output_path: &str) -> TResult<()> {
+pub fn sdf_to_wot_from_and_to_path(input_path: &str, output_path: &str) -> ConverterResult<()> {
     if !output_path.ends_with("tm.json") {
         return Err("The output filename has to end with tm.json!".into());
     }
