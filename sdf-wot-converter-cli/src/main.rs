@@ -1,4 +1,4 @@
-use sdf_wot_converter::{converter, TResult};
+use sdf_wot_converter::{converter, ConverterResult};
 
 use clap::{crate_authors, crate_version, App, Arg};
 use std::env;
@@ -16,7 +16,7 @@ fn is_valid_input(input: String) -> Result<(), String> {
     }
 }
 
-fn print_model_from_file(path: &str) -> TResult<()> {
+fn print_model_from_file(path: &str) -> ConverterResult<()> {
     if path.ends_with("sdf.json") {
         converter::print_sdf_definition_from_path(path)
     } else if path.ends_with("td.json") {
@@ -28,7 +28,7 @@ fn print_model_from_file(path: &str) -> TResult<()> {
     }
 }
 
-fn main() -> TResult<()> {
+fn main() -> ConverterResult<()> {
     let input_help = "The input file path. Must either end with sdf.json \
                     (for SDF), td.json or tm.json (when \
                     converting to a WoT TD/TM)";

@@ -12,5 +12,5 @@ mod model;
 pub mod sdf;
 pub mod wot;
 
-pub type TResult<T> = result::Result<T, TError>;
+pub type ConverterResult<T> = result::Result<T, TError>;
 type TError = Box<dyn error::Error>;
