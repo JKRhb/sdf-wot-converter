@@ -16,6 +16,17 @@ fn is_valid_input(input: String) -> Result<(), String> {
     }
 }
 
+fn print_model_from_file(input: Option<&str>) {
+    let path = input.unwrap(); // TODO: This should be handled differently
+    if path.ends_with("sdf.json") {
+        converter::print_sdf_definition_from_path(path);
+    } else if path.ends_with("td.json") {
+        converter::print_wot_td_definition_from_path(path);
+    } else if path.ends_with("tm.json") {
+        converter::print_wot_tm_definition_from_path(path);
+    }
+}
+
 fn main() {
     let input_help = "The input file path. Must either end with sdf.json \
                     (for SDF), td.json or tm.json (when \
@@ -59,14 +70,7 @@ fn main() {
         .get_matches();
 
     if let Some(ref matches) = app.subcommand_matches("print") {
-        let path = matches.value_of("input").unwrap();
-        if path.ends_with("sdf.json") {
-            converter::print_sdf_definition(path);
-        } else if path.ends_with("td.json") {
-            converter::print_wot_td_definition(path);
-        } else if path.ends_with("tm.json") {
-            converter::print_wot_tm_definition(path);
-        }
+        print_model_from_file(matches.value_of("input"));
     } else if let Some(ref matches) = app.subcommand_matches("convert") {
         // TODO: Replace if-else with match
         let input_path = matches.value_of("input").unwrap();
@@ -96,4 +100,31 @@ fn main() {
     //     }
     //   }
     // }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn print_model_from_file_test() {
+        print_model_from_file(Some("examples/sdf/example.sdf.json"));
+        print_model_from_file(Some("examples/wot/example.td.json"));
+        print_model_from_file(Some("examples/wot/example.tm.json"));
+    }
+
+    #[test]
+    #[should_panic]
+    fn print_model_from_file_test_panic() {
+        print_model_from_file(None);
+    }
+
+    #[test]
+    fn is_valid_input_test() {
+        assert!(is_valid_input("examples/sdf/example.sdf.json".to_string()).is_ok());
+        assert!(is_valid_input("examples/wot/example.td.json".to_string()).is_ok());
+        assert!(is_valid_input("examples/wot/example.tm.json".to_string()).is_ok());
+
+        assert!(is_valid_input("blah.json".to_string()).is_err());
+    }
 }

@@ -1,8 +1,83 @@
-//! First attempt for a SDF to WoT converter.
-
+use super::definitions as wot;
 use crate::sdf::definitions as sdf;
-use crate::wot::definitions as wot;
 use std::collections::HashMap;
+
+impl From<sdf::SDFModel> for wot::ThingModel {
+    fn from(sdf_model: sdf::SDFModel) -> Self {
+        let mut context_entries: Vec<wot::ContextEntry> = vec![wot::ContextEntry::String(
+            "https://www.w3.org/2019/wot/td/v1".to_string(),
+        )];
+        let links;
+
+        let infoblock: &Option<sdf::InfoBlock> = &sdf_model.info;
+        let title: Option<String>;
+        let description: Option<String>;
+        let version: Option<wot::VersionInfo>;
+        match infoblock {
+            None => {
+                title = None;
+                version = None;
+                description = None;
+                links = None;
+            }
+            Some(infoblock) => {
+                title = Some(infoblock.title.clone());
+                let link_fields = wot::Link {
+                    rel: Some("license".to_string()),
+                    r#type: None,
+                    anchor: None,
+                    sizes: None,
+                };
+                version = Some(wot::VersionInfo {
+                    // TODO: Revisit use of "instance" and "model"
+                    instance: infoblock.version.clone(),
+                    model: None,
+                });
+                description = Some(infoblock.copyright.clone());
+                links = Some(vec![wot::TMLink {
+                    link_fields,
+                    href: Some(infoblock.license.clone()),
+                }]);
+            }
+        };
+
+        if let Some(x) = sdf_model.namespace.clone() {
+            context_entries.push(wot::ContextEntry::Map(x));
+        };
+
+        let base_thing = wot::BaseThing {
+            context: wot::Context::Array(context_entries),
+            description,
+            version,
+
+            // Not covered by SDF yet:
+            r#type: None,
+            titles: None,
+            descriptions: None,
+            id: None,
+            modified: None,
+            profile: None,
+            schema_definitions: None,
+            base: None,
+            created: None,
+            support: None,
+        };
+
+        wot::ThingModel {
+            base_thing,
+
+            title,
+            actions: convert_actions(&sdf_model),
+            properties: convert_properties(&sdf_model),
+            events: convert_events(&sdf_model),
+            links,
+
+            forms: None,
+            security: None,
+            security_definitions: None,
+        }
+    }
+}
 
 fn first_letter_to_uppper_case(s1: &str) -> String {
     let mut c = s1.chars();
@@ -393,80 +468,5 @@ fn convert_events(sdf_model: &sdf::SDFModel) -> Option<HashMap<String, wot::TMEv
         Some(events)
     } else {
         None
-    }
-}
-
-pub fn convert(sdf_model: sdf::SDFModel) -> wot::ThingModel {
-    let mut context_entries: Vec<wot::ContextEntry> = vec![wot::ContextEntry::String(
-        "https://www.w3.org/2019/wot/td/v1".to_string(),
-    )];
-    let links;
-
-    let infoblock: &Option<sdf::InfoBlock> = &sdf_model.info;
-    let title: Option<String>;
-    let description: Option<String>;
-    let version: Option<wot::VersionInfo>;
-    match infoblock {
-        None => {
-            title = None;
-            version = None;
-            description = None;
-            links = None;
-        }
-        Some(infoblock) => {
-            title = Some(infoblock.title.clone());
-            let link_fields = wot::Link {
-                rel: Some("license".to_string()),
-                r#type: None,
-                anchor: None,
-                sizes: None,
-            };
-            version = Some(wot::VersionInfo {
-                // TODO: Revisit use of "instance" and "model"
-                instance: infoblock.version.clone(),
-                model: None,
-            });
-            description = Some(infoblock.copyright.clone());
-            links = Some(vec![wot::TMLink {
-                link_fields,
-                href: Some(infoblock.license.clone()),
-            }]);
-        }
-    };
-
-    if let Some(x) = sdf_model.namespace.clone() {
-        context_entries.push(wot::ContextEntry::Map(x));
-    };
-
-    let base_thing = wot::BaseThing {
-        context: wot::Context::Array(context_entries),
-        description,
-        version,
-
-        // Not covered by SDF yet:
-        r#type: None,
-        titles: None,
-        descriptions: None,
-        id: None,
-        modified: None,
-        profile: None,
-        schema_definitions: None,
-        base: None,
-        created: None,
-        support: None,
-    };
-
-    wot::ThingModel {
-        base_thing,
-
-        title,
-        actions: convert_actions(&sdf_model),
-        properties: convert_properties(&sdf_model),
-        events: convert_events(&sdf_model),
-        links,
-
-        forms: None,
-        security: None,
-        security_definitions: None,
     }
 }
