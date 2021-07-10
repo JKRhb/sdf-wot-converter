@@ -1,7 +1,7 @@
+use crate::model::SerializableModel;
 use crate::sdf::definitions::SDFModel;
 use crate::wot::definitions::ThingDescription;
 use crate::wot::definitions::ThingModel;
-use crate::SerializableModel;
 
 /// Deserializes an SDF model, converts it back into a JSON string
 /// and prints it to the command line.
