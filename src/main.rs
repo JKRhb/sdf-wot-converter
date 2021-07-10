@@ -139,10 +139,14 @@ mod tests {
     }
 
     #[test]
-    fn print_model_from_file_test() {
+    fn print_model_from_legal_path_test() {
         assert!(get_legal_inputs()
             .iter()
             .all(|f| print_model_from_file(f).is_ok()));
+    }
+
+    #[test]
+    fn print_model_from_illegal_path_test() {
         assert!(get_illegal_inputs()
             .iter()
             .all(|f| print_model_from_file(f).is_err()));

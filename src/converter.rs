@@ -10,15 +10,17 @@ use crate::ConverterResult;
 /// # Examples
 ///
 /// ```rust
-/// use sdf_wot_converter::converter::print_sdf_definition_from_path;
+/// use sdf_wot_converter::converter::print_sdf_definition;
+/// use std::fs;
 ///
-/// print_sdf_definition_from_path("examples/sdf/example.sdf.json");
+/// let json_string = fs::read_to_string("examples/sdf/example.sdf.json").unwrap();
 ///
-/// assert!(print_sdf_definition_from_path("examples/sdf/example.sdf.json").is_ok());
-/// assert!(print_sdf_definition_from_path("foobar.json").is_err());
+/// let result = print_sdf_definition(json_string);
+///
+/// assert!(result.is_ok());
 /// ```
 pub fn print_sdf_definition(json_string: String) -> ConverterResult<()> {
-    ThingDescription::print_definition(json_string)
+    SDFModel::print_definition(json_string)
 }
 
 /// Deserializes a WoT TD definition, converts it back into a
@@ -27,12 +29,14 @@ pub fn print_sdf_definition(json_string: String) -> ConverterResult<()> {
 /// # Examples
 ///
 /// ```rust
-/// use sdf_wot_converter::converter::print_wot_td_definition_from_path;
+/// use sdf_wot_converter::converter::print_wot_td_definition;
+/// use std::fs;
 ///
-/// print_wot_td_definition_from_path("examples/wot/example.td.json");
+/// let json_string = fs::read_to_string("examples/wot/example.td.json").unwrap();
 ///
-/// assert!(print_wot_td_definition_from_path("examples/wot/example.td.json").is_ok());
-/// assert!(print_wot_td_definition_from_path("foobar.json").is_err());
+/// let result = print_wot_td_definition(json_string);
+///
+/// assert!(result.is_ok());
 /// ```
 pub fn print_wot_td_definition(json_string: String) -> ConverterResult<()> {
     ThingDescription::print_definition(json_string)
@@ -44,12 +48,14 @@ pub fn print_wot_td_definition(json_string: String) -> ConverterResult<()> {
 /// # Examples
 ///
 /// ```rust
-/// use sdf_wot_converter::converter::print_wot_tm_definition_from_path;
+/// use sdf_wot_converter::converter::print_wot_tm_definition;
+/// use std::fs;
 ///
-/// print_wot_tm_definition_from_path("examples/wot/example.tm.json");
+/// let json_string = fs::read_to_string("examples/wot/example.tm.json").unwrap();
 ///
-/// assert!(print_wot_tm_definition_from_path("examples/wot/example.tm.json").is_ok());
-/// assert!(print_wot_tm_definition_from_path("foobar.json").is_err());
+/// let result = print_wot_tm_definition(json_string);
+///
+/// assert!(result.is_ok());
 /// ```
 pub fn print_wot_tm_definition(json_string: String) -> ConverterResult<()> {
     ThingModel::print_definition(json_string)
@@ -110,7 +116,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_sdf_to_wot() {
+    fn test_sdf_to_wot_tm() {
         let output = sdf_to_wot_tm(SDFModel::new_empty_model());
         assert!(output.is_ok());
     }
