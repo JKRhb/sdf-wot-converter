@@ -12,9 +12,9 @@ use crate::ConverterResult;
 /// ```rust
 /// use sdf_wot_converter::converter::print_sdf_definition_from_path;
 ///
-/// print_sdf_definition_from_path("../examples/sdf/example.sdf.json");
+/// print_sdf_definition_from_path("examples/sdf/example.sdf.json");
 ///
-/// assert!(print_sdf_definition_from_path("../examples/sdf/example.sdf.json").is_ok());
+/// assert!(print_sdf_definition_from_path("examples/sdf/example.sdf.json").is_ok());
 /// assert!(print_sdf_definition_from_path("foobar.json").is_err());
 /// ```
 pub fn print_sdf_definition_from_path(path: &str) -> ConverterResult<()> {
@@ -29,9 +29,9 @@ pub fn print_sdf_definition_from_path(path: &str) -> ConverterResult<()> {
 /// ```rust
 /// use sdf_wot_converter::converter::print_wot_td_definition_from_path;
 ///
-/// print_wot_td_definition_from_path("../examples/wot/example.td.json");
+/// print_wot_td_definition_from_path("examples/wot/example.td.json");
 ///
-/// assert!(print_wot_td_definition_from_path("../examples/wot/example.td.json").is_ok());
+/// assert!(print_wot_td_definition_from_path("examples/wot/example.td.json").is_ok());
 /// assert!(print_wot_td_definition_from_path("foobar.json").is_err());
 /// ```
 pub fn print_wot_td_definition_from_path(path: &str) -> ConverterResult<()> {
@@ -46,9 +46,9 @@ pub fn print_wot_td_definition_from_path(path: &str) -> ConverterResult<()> {
 /// ```rust
 /// use sdf_wot_converter::converter::print_wot_tm_definition_from_path;
 ///
-/// print_wot_tm_definition_from_path("../examples/wot/example.tm.json");
+/// print_wot_tm_definition_from_path("examples/wot/example.tm.json");
 ///
-/// assert!(print_wot_tm_definition_from_path("../examples/wot/example.tm.json").is_ok());
+/// assert!(print_wot_tm_definition_from_path("examples/wot/example.tm.json").is_ok());
 /// assert!(print_wot_tm_definition_from_path("foobar.json").is_err());
 /// ```
 pub fn print_wot_tm_definition_from_path(path: &str) -> ConverterResult<()> {
@@ -68,7 +68,7 @@ fn sdf_to_wot(sdf_model: SDFModel) -> ConverterResult<ThingModel> {
 /// ```rust
 /// use sdf_wot_converter::converter::sdf_to_wot_from_path;
 ///
-/// let result = sdf_to_wot_from_path("../examples/sdf/example.sdf.json");
+/// let result = sdf_to_wot_from_path("examples/sdf/example.sdf.json");
 /// assert!(result.is_ok());
 ///
 /// assert!(sdf_to_wot_from_path("foobar.json").is_err());
