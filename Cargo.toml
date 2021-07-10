@@ -1,6 +1,20 @@
-[workspace]
+[package]
+name = "sdf-wot-converter"
+version = "0.1.0"
+authors = ["Jan Romann <jan.romann@uni-bremen.de>"]
+edition = "2018"
+license = "MIT"
+repository = "https://github.com/JKRhb/sdf-wot-converter"
 
-members = [
-    "sdf-wot-converter",
-    "sdf-wot-converter-cli",
-]
+[dependencies]
+serde_json = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+chrono = {version = "0.4.19", features = ["serde"]}
+assert-json-diff = "2.0.1"
+ciborium = "0.1.0"
+regex = "1.5.4"
+url = "2.2.2"
+clap = "2.33.3"
+
+[dependencies.serde_with]
+version = "1.9.4"
