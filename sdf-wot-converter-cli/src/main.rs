@@ -1,4 +1,4 @@
-use sdf_wot_converter::converter;
+use sdf_wot_converter::{converter, TResult};
 
 use clap::{crate_authors, crate_version, App, Arg};
 use std::env;
@@ -16,18 +16,19 @@ fn is_valid_input(input: String) -> Result<(), String> {
     }
 }
 
-fn print_model_from_file(input: Option<&str>) {
-    let path = input.unwrap(); // TODO: This should be handled differently
+fn print_model_from_file(path: &str) -> TResult<()> {
     if path.ends_with("sdf.json") {
-        converter::print_sdf_definition_from_path(path);
+        converter::print_sdf_definition_from_path(path)
     } else if path.ends_with("td.json") {
-        converter::print_wot_td_definition_from_path(path);
+        converter::print_wot_td_definition_from_path(path)
     } else if path.ends_with("tm.json") {
-        converter::print_wot_tm_definition_from_path(path);
+        converter::print_wot_tm_definition_from_path(path)
+    } else {
+        Err("Illegal path ending!".into())
     }
 }
 
-fn main() {
+fn main() -> TResult<()> {
     let input_help = "The input file path. Must either end with sdf.json \
                     (for SDF), td.json or tm.json (when \
                     converting to a WoT TD/TM)";
@@ -70,19 +71,21 @@ fn main() {
         .get_matches();
 
     if let Some(ref matches) = app.subcommand_matches("print") {
-        print_model_from_file(matches.value_of("input"));
+        if let Some(path) = matches.value_of("input") {
+            return print_model_from_file(path);
+        }
     } else if let Some(ref matches) = app.subcommand_matches("convert") {
         // TODO: Replace if-else with match
         let input_path = matches.value_of("input").unwrap();
         let output_path = matches.value_of("output").unwrap();
         if input_path.ends_with("sdf.json") {
-            if let Err(error) = converter::sdf_to_wot_from_and_to_path(input_path, output_path) {
-                println!("{}", error)
-            }
+            return converter::sdf_to_wot_from_and_to_path(input_path, output_path);
         } else if input_path.ends_with("td.json") || input_path.ends_with("tm.json") {
-            panic!("TD/TM to SDF conversion is not implemented yet!");
+            return Err("TD/TM to SDF conversion is not implemented yet!".into());
         }
     }
+
+    Ok(())
 
     // TODO: Implement possibility to use URLs as input
     //
@@ -106,25 +109,35 @@ fn main() {
 mod tests {
     use super::*;
 
-    #[test]
-    fn print_model_from_file_test() {
-        print_model_from_file(Some("examples/sdf/example.sdf.json"));
-        print_model_from_file(Some("examples/wot/example.td.json"));
-        print_model_from_file(Some("examples/wot/example.tm.json"));
+    fn get_legal_inputs() -> Vec<&'static str> {
+        vec![
+            "../examples/sdf/example.sdf.json",
+            "../examples/wot/example.td.json",
+            "../examples/wot/example.tm.json",
+        ]
+    }
+
+    fn get_illegal_inputs() -> Vec<&'static str> {
+        vec!["../examples/foobar", "../examples/foobar.json"]
     }
 
     #[test]
-    #[should_panic]
-    fn print_model_from_file_test_panic() {
-        print_model_from_file(None);
+    fn print_model_from_file_test() {
+        assert!(get_legal_inputs()
+            .iter()
+            .all(|f| print_model_from_file(f).is_ok()));
+        assert!(get_illegal_inputs()
+            .iter()
+            .all(|f| print_model_from_file(f).is_err()));
     }
 
     #[test]
     fn is_valid_input_test() {
-        assert!(is_valid_input("examples/sdf/example.sdf.json".to_string()).is_ok());
-        assert!(is_valid_input("examples/wot/example.td.json".to_string()).is_ok());
-        assert!(is_valid_input("examples/wot/example.tm.json".to_string()).is_ok());
-
-        assert!(is_valid_input("blah.json".to_string()).is_err());
+        assert!(get_legal_inputs()
+            .iter()
+            .all(|f| is_valid_input(f.to_string()).is_ok()));
+        assert!(get_illegal_inputs()
+            .iter()
+            .all(|f| is_valid_input(f.to_string()).is_err()));
     }
 }

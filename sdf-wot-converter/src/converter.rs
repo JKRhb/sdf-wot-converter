@@ -14,8 +14,8 @@ use crate::TResult;
 ///
 /// print_sdf_definition_from_path("examples/sdf/example.sdf.json");
 /// ```
-pub fn print_sdf_definition_from_path(path: &str) {
-    SDFModel::print_definition_from_path(path);
+pub fn print_sdf_definition_from_path(path: &str) -> TResult<()> {
+    SDFModel::print_definition_from_path(path)
 }
 
 /// Deserializes a WoT TD definition, converts it back into a
@@ -28,8 +28,8 @@ pub fn print_sdf_definition_from_path(path: &str) {
 ///
 /// print_wot_td_definition_from_path("examples/wot/example.td.json");
 /// ```
-pub fn print_wot_td_definition_from_path(path: &str) {
-    ThingDescription::print_definition_from_path(path);
+pub fn print_wot_td_definition_from_path(path: &str) -> TResult<()> {
+    ThingDescription::print_definition_from_path(path)
 }
 
 /// Deserializes a WoT TM definition, converts it back into a
@@ -42,8 +42,8 @@ pub fn print_wot_td_definition_from_path(path: &str) {
 ///
 /// print_wot_tm_definition_from_path("examples/wot/example.tm.json");
 /// ```
-pub fn print_wot_tm_definition_from_path(path: &str) {
-    ThingModel::print_definition_from_path(path);
+pub fn print_wot_tm_definition_from_path(path: &str) -> TResult<()> {
+    ThingModel::print_definition_from_path(path)
 }
 
 /// Converts an SDF model to a WoT Thing Model.

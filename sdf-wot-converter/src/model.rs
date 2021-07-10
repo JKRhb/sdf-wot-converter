@@ -10,20 +10,14 @@ fn write_to_path(path: &str, content: String) -> TResult<()> {
 pub trait SerializableModel: serde::Serialize + serde::de::DeserializeOwned {
     fn path_is_valid(path: &str) -> bool;
 
-    fn print(&self) {
-        match self.serialize_json() {
-            Ok(result) => println!("{}", result),
-            Err(error) => println!("{}", error),
-        }
+    fn print(&self) -> TResult<()> {
+        self.serialize_json().map(|j| println!("{}", j))
     }
 
     /// Deserializes a `SerializableModel`, converts it back into
     /// a JSON string and prints it to the command line.
-    fn print_definition_from_path(path: &str) {
-        match Self::deserialize_json_from_path(path) {
-            Ok(model) => model.print(),
-            Err(error) => println!("{}", error),
-        }
+    fn print_definition_from_path(path: &str) -> TResult<()> {
+        Self::deserialize_json_from_path(path).and_then(|m| m.print())
     }
 
     /// Reads a JSON file from a specified path, deserializes it to a supported data type,
@@ -45,10 +39,7 @@ pub trait SerializableModel: serde::Serialize + serde::de::DeserializeOwned {
     }
 
     fn deserialize_json_string(json_string: String) -> TResult<Self> {
-        match serde_json::from_str(json_string.as_str()) {
-            Ok(model) => Ok(model),
-            Err(_) => Err("Deserialization failed!".into()),
-        }
+        serde_json::from_str(json_string.as_str()).map_err(|e| e.into())
     }
 
     fn deserialize_json_from_path(path: &str) -> TResult<Self> {
