@@ -121,20 +121,13 @@ mod tests {
 
     #[test]
     fn test_sdf_to_wot() {
-        let sdf_model = SDFModel {
-            info: None,
-            namespace: None,
-            default_namespace: None,
-            sdf_data: None,
-            sdf_object: None,
-            sdf_thing: None,
-            sdf_product: None,
-            sdf_action: None,
-            sdf_property: None,
-            sdf_event: None,
-        };
+        let output = sdf_to_wot(SDFModel::new_empty_model());
+        assert!(output.is_ok());
+    }
 
-        let output = sdf_to_wot(sdf_model);
+    #[test]
+    fn test_wot_tm_to_sdf() {
+        let output = wot_tm_to_sdf(ThingModel::new_empty_model());
         assert!(output.is_ok());
     }
 }
