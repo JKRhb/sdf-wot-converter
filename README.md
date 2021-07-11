@@ -1,5 +1,5 @@
 [![Build Status](https://github.com/JKRhb/sdf-wot-converter/actions/workflows/test.yml/badge.svg)](https://github.com/JKRhb/sdf-wot-converter/actions/workflows/test.yml)
-[![codecov](https://codecov.io/gh/JKRhb/sdf-wot-converter/branch/master/graph/badge.svg?token=X7EEI07LXD)](https://codecov.io/gh/JKRhb/sdf-wot-converter)
+[![codecov](https://codecov.io/gh/JKRhb/sdf-wot-converter/branch/main/graph/badge.svg?token=X7EEI07LXD)](https://codecov.io/gh/JKRhb/sdf-wot-converter)
 
 # SDF-WoT-Converter
 
