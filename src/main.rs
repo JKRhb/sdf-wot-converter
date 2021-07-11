@@ -185,6 +185,10 @@ mod tests {
         vec!["examples/foobar", "examples/foobar.json"]
     }
 
+    fn create_test_dir() {
+        let _ = fs::create_dir_all("test_output");
+    }
+
     #[test]
     fn print_model_from_legal_path_test() {
         assert!(get_legal_inputs()
@@ -218,8 +222,8 @@ mod tests {
 
     #[test]
     fn convert_test() {
+        create_test_dir();
         let input_path = "examples/sdf/example.sdf.json";
-        let _ = fs::create_dir_all("test_output");
         let output_path = "test_output/foobar.tm.json";
         assert!(convert(input_path, output_path, &converter::convert_sdf_to_wot_tm).is_ok())
     }
