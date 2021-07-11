@@ -31,6 +31,11 @@ fn write_to_file(path: &str, content: String) -> ConverterResult<()> {
     fs::write(path, content).map_err(|e| e.into())
 }
 
+fn write_to_another_file(input_path: &str, output_path: &str) -> ConverterResult<()> {
+    let content = get_json_from_file(input_path)?;
+    write_to_file(output_path, content)
+}
+
 fn get_json_from_file(path: &str) -> ConverterResult<String> {
     fs::read_to_string(&path).map_err(|e| e.into())
 }
@@ -64,6 +69,8 @@ fn main() -> ConverterResult<()> {
                     converting to a WoT TD/TM)";
 
     let sdf_input_name = "SDF input file";
+    let sdf_output_name = "SDF output file";
+    let tm_input_name = "TM input file";
     let tm_output_name = "TM output file";
 
     let app = App::new(crate_name!())
@@ -91,19 +98,32 @@ fn main() -> ConverterResult<()> {
                         .takes_value(true),
                 )
                 .arg(
+                    Arg::with_name(tm_input_name)
+                        .long("from-tm")
+                        .help("Reads in a WoT Thing Model file. Must end with tm.json")
+                        .validator(|p| is_valid_path(p, "tm.json"))
+                        .takes_value(true),
+                )
+                .arg(
                     Arg::with_name(tm_output_name)
                         .long("to-tm")
                         .help("Converts to a WoT Thing Model and writes it to a file.")
                         .takes_value(true),
                 )
+                .arg(
+                    Arg::with_name(sdf_output_name)
+                        .long("to-sdf")
+                        .help("Converts to a WoT Thing Model and writes it to a file.")
+                        .takes_value(true),
+                )
                 .group(
                     ArgGroup::with_name("from")
-                        .args(&[sdf_input_name])
+                        .args(&[sdf_input_name, tm_input_name])
                         .required(true),
                 )
                 .group(
                     ArgGroup::with_name("to")
-                        .args(&[tm_output_name])
+                        .args(&[tm_output_name, sdf_output_name])
                         .required(true),
                 ),
         )
@@ -117,6 +137,14 @@ fn main() -> ConverterResult<()> {
         if let Some(input_path) = matches.value_of(sdf_input_name) {
             if let Some(output_path) = matches.value_of(tm_output_name) {
                 return convert(input_path, output_path, &converter::convert_sdf_to_wot_tm);
+            } else if let Some(output_path) = matches.value_of(sdf_output_name) {
+                return write_to_another_file(input_path, output_path);
+            }
+        } else if let Some(input_path) = matches.value_of(tm_input_name) {
+            if let Some(output_path) = matches.value_of(sdf_output_name) {
+                return convert(input_path, output_path, &converter::convert_wot_tm_to_sdf);
+            } else if let Some(output_path) = matches.value_of(tm_output_name) {
+                return write_to_another_file(input_path, output_path);
             }
         }
     }
