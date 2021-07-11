@@ -23,6 +23,7 @@ cargo install --git https://github.com/JKRhb/sdf-wot-converter.git
 in a terminal of your choice.
 The installation takes a while but once its compilation has been finished the converter should be usable right away.
 It can be called using `sdf-wot-converter` and one of the subcommands described below.
+More detailed information can be obtained using `sdf-wot-converter --help`.
 
 ## Using the Command Line Tool
 
@@ -30,15 +31,23 @@ So far, the converter provides two commands (`convert` and `print`) that can be 
 
 ### `convert`
 
-This command converts an SDF to a WoT Thing Model file (the other direction will be implemented in an upcoming version).
-It accepts a file path pointing to an SDF file as its first and the output path as its second argument.
+So far, this command can convert between an SDF model and a WoT Thing Model.
+The conversion from WoT TM to SDF, however, is not really implemented at the moment.
+
+The command accepts the arguments `--from-sdf` or `--from-tm` to specificy input files and `--to-tm` or `--to-sdf` to
+specify output files. 
+For the input arguments the file endings have to `sdf.json` or `tm.json`, respectively.
+
 Both SDF protocol bindings and Thing Descriptions are not covered yet but will be added soon.
 
 **Example:**
 
 ```
-sdf-wot-converter convert examples/sdf/example.sdf.json example.tm.json
+sdf-wot-converter convert --from-sdf examples/sdf/example.sdf.json --to-tm result.tm.json
+sdf-wot-converter convert --from-tm examples/wot/example.tm.json --to-sdf result.sdf.json
 ```
+
+Using the same file format as input and output will simply copy the content of the input file.
 
 ### `print`
 
