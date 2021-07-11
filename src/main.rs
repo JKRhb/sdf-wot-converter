@@ -221,6 +221,15 @@ mod tests {
     }
 
     #[test]
+    fn write_to_another_file_test() {
+        create_test_dir();
+        assert!(
+            write_to_another_file("examples/sdf/example.sdf.json", "test_output/barfoo.json")
+                .is_ok()
+        );
+    }
+
+    #[test]
     fn convert_test() {
         create_test_dir();
         let input_path = "examples/sdf/example.sdf.json";
