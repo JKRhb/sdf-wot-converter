@@ -27,6 +27,10 @@ fn is_valid_input(input: String) -> Result<(), String> {
     }
 }
 
+fn write_to_file(path: &str, content: String) -> ConverterResult<()> {
+    fs::write(path, content).map_err(|e| e.into())
+}
+
 fn get_json_from_file(path: &str) -> ConverterResult<String> {
     fs::read_to_string(&path).map_err(|e| e.into())
 }
@@ -44,10 +48,14 @@ fn print_model_from_file(path: &str) -> ConverterResult<()> {
     }
 }
 
-fn convert_sdf_to_wot_tm(input_path: &str, output_path: &str) -> ConverterResult<()> {
+fn convert(
+    input_path: &str,
+    output_path: &str,
+    conversion_function: &dyn Fn(String) -> ConverterResult<String>,
+) -> ConverterResult<()> {
     let input_string = get_json_from_file(input_path)?;
-    let output_string = converter::convert_sdf_to_wot_tm(input_string)?;
-    fs::write(output_path, output_string).map_err(|e| e.into())
+    let output_string = conversion_function(input_string)?;
+    write_to_file(output_path, output_string)
 }
 
 fn main() -> ConverterResult<()> {
@@ -108,7 +116,7 @@ fn main() -> ConverterResult<()> {
     } else if let Some(ref matches) = app.subcommand_matches("convert") {
         if let Some(input_path) = matches.value_of(sdf_input_name) {
             if let Some(output_path) = matches.value_of(tm_output_name) {
-                return convert_sdf_to_wot_tm(input_path, output_path);
+                return convert(input_path, output_path, &converter::convert_sdf_to_wot_tm);
             }
         }
     }
@@ -171,5 +179,20 @@ mod tests {
         assert!(get_illegal_inputs()
             .iter()
             .all(|f| is_valid_input(f.to_string()).is_err()));
+    }
+
+    #[test]
+    fn is_valid_path_test() {
+        let ending = "sdf.json";
+        assert!(is_valid_path("examples/sdf/example.sdf.json".to_string(), ending).is_ok());
+        assert!(is_valid_path("foobar.json".to_string(), ending).is_err());
+    }
+
+    #[test]
+    fn convert_test() {
+        let input_path = "examples/sdf/example.sdf.json";
+        let _ = fs::create_dir_all("test_output");
+        let output_path = "test_output/foobar.tm.json";
+        assert!(convert(input_path, output_path, &converter::convert_sdf_to_wot_tm).is_ok())
     }
 }
