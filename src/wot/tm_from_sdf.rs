@@ -245,24 +245,24 @@ fn map_data_type(jsonschema: &Option<sdf::Types>) -> Option<wot::JSONSchemaTypes
     }
 }
 
+/// Maps SDF's `readable` and `writable` to WoT TD's `writeOnly` and `readOnly`.
+///
+/// # Return value
+///
+/// A boolean tuple. The first value represents `writeOnly`, the second one `readOnly`.
+fn map_readable_writable(
+    readable: Option<bool>,
+    writable: Option<bool>,
+) -> (Option<bool>, Option<bool>) {
+    let write_only = readable.map(|x| !x);
+    let read_only = writable.map(|x| !x);
+    (write_only, read_only)
+}
+
 fn convert_to_data_schema(sdf_property: &sdf::DataQualities) -> wot::DataSchema {
     // TODO: How should nullable be mapped?
-
-    let write_only;
-    let read_only;
-    let writable = sdf_property.writable.unwrap_or(true);
-    let readable = sdf_property.readable.unwrap_or(true);
-    if !readable && writable {
-        write_only = Some(true);
-        read_only = None;
-    } else if !writable && readable {
-        write_only = None;
-        read_only = Some(true);
-    } else {
-        // TODO: How do you map a property that is neither writable nor readable?
-        write_only = None;
-        read_only = None;
-    }
+    let (write_only, read_only) =
+        map_readable_writable(sdf_property.readable, sdf_property.writable);
 
     wot::DataSchema {
         write_only,
@@ -509,5 +509,22 @@ mod tests {
 
         assert_eq!(get_prefixed_key(None, key.clone()), key);
         assert_eq!(get_prefixed_key(Some(prefix), key.clone()), prefixed_key);
+    }
+
+    #[test]
+    fn map_readable_writable_test() {
+        let read_only_1 = map_readable_writable(None, Some(false));
+        let expected_read_only_result_1 = (None, Some(true));
+        assert_eq!(read_only_1, expected_read_only_result_1);
+        let read_only_2 = map_readable_writable(Some(true), Some(false));
+        let expected_read_only_result_2 = (Some(false), Some(true));
+        assert_eq!(read_only_2, expected_read_only_result_2);
+
+        let write_only_1 = map_readable_writable(Some(false), None);
+        let expected_write_only_result_1 = (Some(true), None);
+        assert_eq!(write_only_1, expected_write_only_result_1);
+        let write_only_2 = map_readable_writable(Some(false), Some(true));
+        let expected_write_only_result_2 = (Some(true), Some(false));
+        assert_eq!(write_only_2, expected_write_only_result_2);
     }
 }
