@@ -510,4 +510,21 @@ mod tests {
         assert_eq!(get_prefixed_key(None, key.clone()), key);
         assert_eq!(get_prefixed_key(Some(prefix), key.clone()), prefixed_key);
     }
+
+    #[test]
+    fn map_readable_writable_test() {
+        let read_only_1 = map_readable_writable(None, Some(false));
+        let expected_read_only_result_1 = (None, Some(true));
+        assert_eq!(read_only_1, expected_read_only_result_1);
+        let read_only_2 = map_readable_writable(Some(true), Some(false));
+        let expected_read_only_result_2 = (Some(false), Some(true));
+        assert_eq!(read_only_2, expected_read_only_result_2);
+
+        let write_only_1 = map_readable_writable(Some(false), None);
+        let expected_write_only_result_1 = (Some(true), None);
+        assert_eq!(write_only_1, expected_write_only_result_1);
+        let write_only_2 = map_readable_writable(Some(false), Some(true));
+        let expected_write_only_result_2 = (Some(true), Some(false));
+        assert_eq!(write_only_2, expected_write_only_result_2);
+    }
 }
