@@ -2,7 +2,7 @@ use sdf_wot_converter::{converter, ConverterResult};
 
 use clap::{crate_authors, crate_name, crate_version, App, Arg, ArgGroup};
 use std::{env, fs};
-// use url::Url;
+use url::Url;
 
 fn is_valid_path(path: String, ending: &str) -> Result<(), String> {
     if path.ends_with(ending) {
@@ -27,6 +27,29 @@ fn is_valid_input(input: String) -> Result<(), String> {
     }
 }
 
+#[derive(Debug, PartialEq)]
+enum InputPathType {
+    File,
+    ValidUrl,
+    InvalidUrl,
+}
+
+fn determine_path_type(path: &str) -> InputPathType {
+    match Url::from_file_path(path) {
+        Ok(_) => InputPathType::File,
+        Err(_) => match Url::parse(path) {
+            Ok(url) => {
+                if url.scheme() == "http" || url.scheme() == "https" {
+                    InputPathType::ValidUrl
+                } else {
+                    InputPathType::InvalidUrl
+                }
+            }
+            Err(_) => InputPathType::File,
+        },
+    }
+}
+
 fn write_to_file(path: &str, content: String) -> ConverterResult<()> {
     fs::write(path, content).map_err(|e| e.into())
 }
@@ -40,8 +63,21 @@ fn get_json_from_file(path: &str) -> ConverterResult<String> {
     fs::read_to_string(&path).map_err(|e| e.into())
 }
 
+fn get_json_from_url(url: &str) -> ConverterResult<String> {
+    Ok(reqwest::blocking::get(url)?.text()?)
+}
+
+fn get_json(path: &str) -> ConverterResult<String> {
+    let path_type = determine_path_type(path);
+    match path_type {
+        InputPathType::File => get_json_from_file(path),
+        InputPathType::ValidUrl => get_json_from_url(path),
+        InputPathType::InvalidUrl => Err("Invalid URL or file path!".into()),
+    }
+}
+
 fn print_model_from_file(path: &str) -> ConverterResult<()> {
-    let json_string = get_json_from_file(path)?;
+    let json_string = get_json(path)?;
     if path.ends_with("sdf.json") {
         converter::print_sdf_definition(json_string)
     } else if path.ends_with("td.json") {
@@ -58,7 +94,7 @@ fn convert(
     output_path: &str,
     conversion_function: &dyn Fn(String) -> ConverterResult<String>,
 ) -> ConverterResult<()> {
-    let input_string = get_json_from_file(input_path)?;
+    let input_string = get_json(input_path)?;
     let output_string = conversion_function(input_string)?;
     write_to_file(output_path, output_string)
 }
@@ -150,23 +186,6 @@ fn main() -> ConverterResult<()> {
     }
 
     Ok(())
-
-    // TODO: Implement possibility to use URLs as input
-    //
-    //   _ => {
-    //     // FIXME: Parsing of URLs has to be implemented
-    //     let data_url = Url::parse(path.as_str());
-    //     match data_url {
-    //       Ok(url) => {
-    //         if url.scheme() == "http" || url.scheme() == "https" {
-    //           println!("The use of URLs as an input is not implemented yet.");
-    //         }
-    //         Ok(())
-    //       }
-    //       Err(error) => Err(error),
-    //     }
-    //   }
-    // }
 }
 
 #[cfg(test)]
@@ -235,5 +254,23 @@ mod tests {
         let input_path = "examples/sdf/example.sdf.json";
         let output_path = "test_output/foobar.tm.json";
         assert!(convert(input_path, output_path, &converter::convert_sdf_to_wot_tm).is_ok())
+    }
+
+    #[test]
+    fn determine_path_type_test() {
+        assert_eq!(
+            InputPathType::ValidUrl,
+            determine_path_type("https://example.org")
+        );
+        assert_eq!(
+            InputPathType::InvalidUrl,
+            determine_path_type("coap://example.org")
+        );
+        assert_eq!(InputPathType::File, determine_path_type("foobar"));
+        assert_eq!(InputPathType::File, determine_path_type("./foobar"));
+        assert_eq!(InputPathType::File, determine_path_type("~/foobar"));
+        if cfg!(windows) {
+            assert_eq!(InputPathType::File, determine_path_type("C:\\foobar"));
+        }
     }
 }
