@@ -207,9 +207,24 @@ fn map_regular_type(sdf_type: &sdf::RegularTypes) -> Option<wot::JSONSchemaTypes
             Some(mapping)
         }
         sdf::RegularTypes::Object(sdf_schema) => {
+            let properties;
+            let mut wot_properties: HashMap<String, wot::DataSchema> = HashMap::new();
+            if let Some(sdf_properties) = &sdf_schema.properties {
+                for (key, data_quality) in sdf_properties {
+                    let data_schema = convert_to_data_schema(&data_quality);
+                    wot_properties.insert(key.clone(), data_schema);
+                }
+            }
+
+            if !wot_properties.is_empty() {
+                properties = Some(wot_properties);
+            } else {
+                properties = None;
+            }
+
             let mapping = wot::JSONSchemaTypes::Object(wot::ObjectSchema {
                 required: sdf_schema.required.clone(),
-                properties: None, // TODO: Mapping has to implemented
+                properties,
             });
             Some(mapping)
         }
