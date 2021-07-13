@@ -28,6 +28,7 @@ More detailed information can be obtained using `sdf-wot-converter --help`.
 ## Using the Command Line Tool
 
 So far, the converter provides two commands (`convert` and `print`) that can be invoked from the command line.
+The input path can either be an absolute or relative file path, or a URL with a `http` or `https` schema.
 
 ### `convert`
 
