@@ -41,11 +41,16 @@ For the input arguments the file endings have to `sdf.json` or `tm.json`, respec
 
 Both SDF protocol bindings and Thing Descriptions are not covered yet but will be added soon.
 
-**Example:**
+**Examples:**
 
-```
+```bash
+# Retrieval from file system
 sdf-wot-converter convert --from-sdf examples/sdf/example.sdf.json --to-tm result.tm.json
 sdf-wot-converter convert --from-tm examples/wot/example.tm.json --to-sdf result.sdf.json
+
+# Retrieval from URLs
+sdf-wot-converter convert --from-sdf https://example.org/example.sdf.json --to-tm result.tm.json
+sdf-wot-converter convert --from-tm https://example.org/example.tm.json --to-sdf result.sdf.json
 ```
 
 Using the same file format as input and output will simply copy the content of the input file.
@@ -60,9 +65,15 @@ The result is then printed in the terminal.
 **Examples:**
 
 ```
+# Retrieval from file system
 sdf-wot-converter print examples/sdf/example.sdf.json
 sdf-wot-converter print examples/wot/example.tm.json
 sdf-wot-converter print examples/wot/example.td.json
+
+# Retrieval from URLs
+sdf-wot-converter print https://example.org/example.sdf.json
+sdf-wot-converter print https://example.org/example.tm.json
+sdf-wot-converter print https://example.org/example.td.json
 ```
 
 ## License
