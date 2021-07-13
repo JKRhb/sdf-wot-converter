@@ -197,12 +197,22 @@ fn map_regular_type(sdf_type: &sdf::RegularTypes) -> Option<wot::JSONSchemaTypes
             Some(mapping)
         }
         sdf::RegularTypes::Array(sdf_schema) => {
+            // TODO: Can SDF arrays only specify one data quality?
+            let items;
+            if let Some(array_items) = &sdf_schema.items {
+                let data_schema = convert_to_data_schema(&array_items);
+                items = Some(Box::new(wot::TypeOrTypeArray::Type::<wot::DataSchema>(
+                    data_schema,
+                )));
+            } else {
+                items = None;
+            }
+
             let mapping = wot::JSONSchemaTypes::Array(wot::ArraySchema {
                 // TODO: Can unique_items be mapped?
-                // TODO: items is still to be mapped
                 min_items: sdf_schema.min_items,
                 max_items: sdf_schema.max_items,
-                items: None,
+                items,
             });
             Some(mapping)
         }

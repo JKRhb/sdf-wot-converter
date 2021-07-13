@@ -133,7 +133,7 @@ pub struct ArrayTypeQualities {
     pub min_items: Option<u32>,
     pub max_items: Option<u32>,
     pub unique_items: Option<bool>,
-    items: Option<Box<DataQualities>>, // TODO: Should this be an array/map?
+    pub items: Option<Box<DataQualities>>, // TODO: Should this be an array/map?
 }
 
 #[derive(Debug, Deserialize, Serialize)]
