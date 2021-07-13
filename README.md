@@ -64,7 +64,7 @@ The result is then printed in the terminal.
 
 **Examples:**
 
-```
+```bash
 # Retrieval from file system
 sdf-wot-converter print examples/sdf/example.sdf.json
 sdf-wot-converter print examples/wot/example.tm.json
