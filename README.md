@@ -17,7 +17,7 @@ You can, however, install it from the Git repository using Rust's package manage
 If you have [Rust installed](https://www.rust-lang.org/tools/install) run
 
 ```
-cargo install --git https://github.com/JKRhb/sdf-wot-converter.git
+cargo install --git https://github.com/JKRhb/sdf-wot-converter.git --branch main
 ```
 
 in a terminal of your choice.
