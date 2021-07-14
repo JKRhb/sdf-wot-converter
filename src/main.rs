@@ -41,6 +41,8 @@ fn determine_path_type(path: &str) -> InputPathType {
             Ok(url) => {
                 if url.scheme() == "http" || url.scheme() == "https" {
                     InputPathType::ValidUrl
+                } else if url.scheme() == "file" {
+                    InputPathType::File
                 } else {
                     InputPathType::InvalidUrl
                 }
@@ -266,6 +268,7 @@ mod tests {
             InputPathType::InvalidUrl,
             determine_path_type("coap://example.org")
         );
+        assert_eq!(InputPathType::File, determine_path_type("file://foobar"));
         assert_eq!(InputPathType::File, determine_path_type("foobar"));
         assert_eq!(InputPathType::File, determine_path_type("./foobar"));
         assert_eq!(InputPathType::File, determine_path_type("~/foobar"));
