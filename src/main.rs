@@ -55,7 +55,7 @@ fn write_to_file(path: &str, content: String) -> ConverterResult<()> {
 }
 
 fn write_to_another_file(input_path: &str, output_path: &str) -> ConverterResult<()> {
-    let content = get_json_from_file(input_path)?;
+    let content = get_json(input_path)?;
     write_to_file(output_path, content)
 }
 
