@@ -131,15 +131,13 @@ fn main() -> ConverterResult<()> {
                 .arg(
                     Arg::with_name(sdf_input_name)
                         .long("from-sdf")
-                        .help("Reads in an SDF file. Must end with sdf.json")
-                        .validator(|p| is_valid_path(p, "sdf.json"))
+                        .help("Reads in an SDF file.")
                         .takes_value(true),
                 )
                 .arg(
                     Arg::with_name(tm_input_name)
                         .long("from-tm")
-                        .help("Reads in a WoT Thing Model file. Must end with tm.json")
-                        .validator(|p| is_valid_path(p, "tm.json"))
+                        .help("Reads in a WoT Thing Model file.")
                         .takes_value(true),
                 )
                 .arg(
