@@ -58,7 +58,8 @@ Using the same file format as input and output will simply copy the content of t
 ### `print`
 
 This command serves primarily for debug purposes and will probably be removed in a later version.
-It accepts a file path that must point to a WoT TD (whose filename must end with `td.json`), a WoT TM (ending with `tm.json`), or an SDF model (ending with `sdf.json`).
+It accepts a file path or URL that must point to a WoT TD, a WoT TM, or an SDF model.
+The file type is specified by using `--sdf`,  `--td`, or `--tm` as an argument (see the examples below).
 It reads in the model, and performs first a deserialization into Rust data structures followed by a serialization back into JSON.
 The result is then printed in the terminal.
 
@@ -66,14 +67,14 @@ The result is then printed in the terminal.
 
 ```bash
 # Retrieval from file system
-sdf-wot-converter print examples/sdf/example.sdf.json
-sdf-wot-converter print examples/wot/example.tm.json
-sdf-wot-converter print examples/wot/example.td.json
+sdf-wot-converter print --sdf examples/sdf/example.sdf.json
+sdf-wot-converter print --tm examples/wot/example.tm.json
+sdf-wot-converter print --td examples/wot/example.td.json
 
 # Retrieval from URLs
-sdf-wot-converter print https://example.org/example.sdf.json
-sdf-wot-converter print https://example.org/example.tm.json
-sdf-wot-converter print https://example.org/example.td.json
+sdf-wot-converter print --sdf https://example.org/example.sdf.json
+sdf-wot-converter print --tm https://example.org/example.tm.json
+sdf-wot-converter print --td https://example.org/example.td.json
 ```
 
 ## License
