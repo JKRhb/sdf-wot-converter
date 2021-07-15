@@ -4,29 +4,6 @@ use clap::{crate_authors, crate_name, crate_version, App, Arg, ArgGroup};
 use std::{env, fs};
 use url::Url;
 
-fn is_valid_path(path: String, ending: &str) -> Result<(), String> {
-    if path.ends_with(ending) {
-        Ok(())
-    } else {
-        Err(format!(
-            "Illegal file ending of {}! Must end with {}",
-            path, ending
-        ))
-    }
-}
-
-fn is_valid_input(input: String) -> Result<(), String> {
-    let legal_file_endings = vec!["sdf.json", "td.json", "tm.json"];
-
-    if legal_file_endings.iter().any(|x| input.ends_with(x)) {
-        Ok(())
-    } else {
-        Err(String::from(
-            "Illegal file ending! Must be either .sdf.json, td.json, or tm.json!",
-        ))
-    }
-}
-
 #[derive(Debug, PartialEq)]
 enum InputPathType {
     File,
@@ -78,17 +55,12 @@ fn get_json(path: &str) -> ConverterResult<String> {
     }
 }
 
-fn print_model_from_file(path: &str) -> ConverterResult<()> {
+fn print_model_from_file(
+    path: &str,
+    print_function: &dyn Fn(String) -> ConverterResult<()>,
+) -> ConverterResult<()> {
     let json_string = get_json(path)?;
-    if path.ends_with("sdf.json") {
-        converter::print_sdf_definition(json_string)
-    } else if path.ends_with("td.json") {
-        converter::print_wot_td_definition(json_string)
-    } else if path.ends_with("tm.json") {
-        converter::print_wot_tm_definition(json_string)
-    } else {
-        Err("Illegal path ending!".into())
-    }
+    print_function(json_string)
 }
 
 fn convert(
@@ -102,14 +74,11 @@ fn convert(
 }
 
 fn main() -> ConverterResult<()> {
-    let input_help = "The input file path. Must either end with sdf.json \
-                    (for SDF), td.json or tm.json (when \
-                    converting to a WoT TD/TM)";
-
     let sdf_input_name = "SDF input file";
     let sdf_output_name = "SDF output file";
     let tm_input_name = "TM input file";
     let tm_output_name = "TM output file";
+    let td_input_name = "TD input file";
 
     let app = App::new(crate_name!())
         .version(crate_version!())
@@ -118,11 +87,27 @@ fn main() -> ConverterResult<()> {
             App::new("print")
                 .about("Reads in an SDF or WoT file and prints it in the terminal.")
                 .arg(
-                    Arg::with_name("input")
-                        .help(input_help)
-                        .index(1)
-                        .required(true)
-                        .validator(is_valid_input),
+                    Arg::with_name(sdf_input_name)
+                        .long("sdf")
+                        .help("Reads in an SDF file.")
+                        .takes_value(true),
+                )
+                .arg(
+                    Arg::with_name(tm_input_name)
+                        .long("tm")
+                        .help("Reads in a WoT Thing Model file.")
+                        .takes_value(true),
+                )
+                .arg(
+                    Arg::with_name(td_input_name)
+                        .long("td")
+                        .help("Reads in a WoT Thing Description file.")
+                        .takes_value(true),
+                )
+                .group(
+                    ArgGroup::with_name("input")
+                        .args(&[sdf_input_name, tm_input_name, td_input_name])
+                        .required(true),
                 ),
         )
         .subcommand(
@@ -131,15 +116,13 @@ fn main() -> ConverterResult<()> {
                 .arg(
                     Arg::with_name(sdf_input_name)
                         .long("from-sdf")
-                        .help("Reads in an SDF file. Must end with sdf.json")
-                        .validator(|p| is_valid_path(p, "sdf.json"))
+                        .help("Reads in an SDF file.")
                         .takes_value(true),
                 )
                 .arg(
                     Arg::with_name(tm_input_name)
                         .long("from-tm")
-                        .help("Reads in a WoT Thing Model file. Must end with tm.json")
-                        .validator(|p| is_valid_path(p, "tm.json"))
+                        .help("Reads in a WoT Thing Model file.")
                         .takes_value(true),
                 )
                 .arg(
@@ -168,8 +151,12 @@ fn main() -> ConverterResult<()> {
         .get_matches();
 
     if let Some(ref matches) = app.subcommand_matches("print") {
-        if let Some(path) = matches.value_of("input") {
-            print_model_from_file(path)?
+        if let Some(input_path) = matches.value_of(sdf_input_name) {
+            return print_model_from_file(input_path, &converter::print_sdf_definition);
+        } else if let Some(input_path) = matches.value_of(td_input_name) {
+            return print_model_from_file(input_path, &converter::print_wot_td_definition);
+        } else if let Some(input_path) = matches.value_of(tm_input_name) {
+            return print_model_from_file(input_path, &converter::print_wot_tm_definition);
         }
     } else if let Some(ref matches) = app.subcommand_matches("convert") {
         if let Some(input_path) = matches.value_of(sdf_input_name) {
@@ -194,51 +181,24 @@ fn main() -> ConverterResult<()> {
 mod tests {
     use super::*;
 
-    fn get_legal_inputs() -> Vec<&'static str> {
-        vec![
-            "examples/sdf/example.sdf.json",
-            "examples/wot/example.td.json",
-            "examples/wot/example.tm.json",
-        ]
-    }
-
-    fn get_illegal_inputs() -> Vec<&'static str> {
-        vec!["examples/foobar", "examples/foobar.json"]
-    }
-
     fn create_test_dir() {
         let _ = fs::create_dir_all("test_output");
     }
 
-    #[test]
-    fn print_model_from_legal_path_test() {
-        assert!(get_legal_inputs()
-            .iter()
-            .all(|f| print_model_from_file(f).is_ok()));
+    fn successful_print_function(_input: String) -> ConverterResult<()> {
+        Ok(())
     }
 
-    #[test]
-    fn print_model_from_illegal_path_test() {
-        assert!(get_illegal_inputs()
-            .iter()
-            .all(|f| print_model_from_file(f).is_err()));
+    fn failing_print_function(_input: String) -> ConverterResult<()> {
+        Err("This is an error".into())
     }
 
-    #[test]
-    fn is_valid_input_test() {
-        assert!(get_legal_inputs()
-            .iter()
-            .all(|f| is_valid_input(f.to_string()).is_ok()));
-        assert!(get_illegal_inputs()
-            .iter()
-            .all(|f| is_valid_input(f.to_string()).is_err()));
+    fn successful_converter_function(_input: String) -> ConverterResult<String> {
+        Ok(String::new())
     }
 
-    #[test]
-    fn is_valid_path_test() {
-        let ending = "sdf.json";
-        assert!(is_valid_path("examples/sdf/example.sdf.json".to_string(), ending).is_ok());
-        assert!(is_valid_path("foobar.json".to_string(), ending).is_err());
+    fn failing_converter_function(_input: String) -> ConverterResult<String> {
+        Err("This is an error".into())
     }
 
     #[test]
@@ -251,11 +211,37 @@ mod tests {
     }
 
     #[test]
+    fn print_model_from_path_test() {
+        assert!(
+            print_model_from_file("examples/sdf/example.sdf.json", &successful_print_function)
+                .is_ok()
+        );
+        assert!(
+            print_model_from_file("examples/sdf/example.sdf.json", &failing_print_function)
+                .is_err()
+        );
+        assert!(print_model_from_file("foobar.json", &successful_print_function).is_err());
+    }
+
+    #[test]
     fn convert_test() {
         create_test_dir();
-        let input_path = "examples/sdf/example.sdf.json";
+        let working_input_path = "examples/sdf/example.sdf.json";
+        let failing_input_path = "foobar.json";
         let output_path = "test_output/foobar.tm.json";
-        assert!(convert(input_path, output_path, &converter::convert_sdf_to_wot_tm).is_ok())
+        assert!(convert(
+            working_input_path,
+            output_path,
+            &successful_converter_function
+        )
+        .is_ok());
+        assert!(convert(working_input_path, output_path, &failing_converter_function).is_err());
+        assert!(convert(
+            failing_input_path,
+            output_path,
+            &successful_converter_function
+        )
+        .is_err());
     }
 
     #[test]
