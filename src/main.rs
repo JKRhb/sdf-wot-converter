@@ -4,29 +4,6 @@ use clap::{crate_authors, crate_name, crate_version, App, Arg, ArgGroup};
 use std::{env, fs};
 use url::Url;
 
-fn is_valid_path(path: String, ending: &str) -> Result<(), String> {
-    if path.ends_with(ending) {
-        Ok(())
-    } else {
-        Err(format!(
-            "Illegal file ending of {}! Must end with {}",
-            path, ending
-        ))
-    }
-}
-
-fn is_valid_input(input: String) -> Result<(), String> {
-    let legal_file_endings = vec!["sdf.json", "td.json", "tm.json"];
-
-    if legal_file_endings.iter().any(|x| input.ends_with(x)) {
-        Ok(())
-    } else {
-        Err(String::from(
-            "Illegal file ending! Must be either .sdf.json, td.json, or tm.json!",
-        ))
-    }
-}
-
 #[derive(Debug, PartialEq)]
 enum InputPathType {
     File,
@@ -204,37 +181,8 @@ fn main() -> ConverterResult<()> {
 mod tests {
     use super::*;
 
-    fn get_legal_inputs() -> Vec<&'static str> {
-        vec![
-            "examples/sdf/example.sdf.json",
-            "examples/wot/example.td.json",
-            "examples/wot/example.tm.json",
-        ]
-    }
-
-    fn get_illegal_inputs() -> Vec<&'static str> {
-        vec!["examples/foobar", "examples/foobar.json"]
-    }
-
     fn create_test_dir() {
         let _ = fs::create_dir_all("test_output");
-    }
-
-    #[test]
-    fn is_valid_input_test() {
-        assert!(get_legal_inputs()
-            .iter()
-            .all(|f| is_valid_input(f.to_string()).is_ok()));
-        assert!(get_illegal_inputs()
-            .iter()
-            .all(|f| is_valid_input(f.to_string()).is_err()));
-    }
-
-    #[test]
-    fn is_valid_path_test() {
-        let ending = "sdf.json";
-        assert!(is_valid_path("examples/sdf/example.sdf.json".to_string(), ending).is_ok());
-        assert!(is_valid_path("foobar.json".to_string(), ending).is_err());
     }
 
     #[test]
