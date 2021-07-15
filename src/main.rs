@@ -78,17 +78,12 @@ fn get_json(path: &str) -> ConverterResult<String> {
     }
 }
 
-fn print_model_from_file(path: &str) -> ConverterResult<()> {
+fn print_model_from_file(
+    path: &str,
+    print_function: &dyn Fn(String) -> ConverterResult<()>,
+) -> ConverterResult<()> {
     let json_string = get_json(path)?;
-    if path.ends_with("sdf.json") {
-        converter::print_sdf_definition(json_string)
-    } else if path.ends_with("td.json") {
-        converter::print_wot_td_definition(json_string)
-    } else if path.ends_with("tm.json") {
-        converter::print_wot_tm_definition(json_string)
-    } else {
-        Err("Illegal path ending!".into())
-    }
+    print_function(json_string)
 }
 
 fn convert(
@@ -102,14 +97,11 @@ fn convert(
 }
 
 fn main() -> ConverterResult<()> {
-    let input_help = "The input file path. Must either end with sdf.json \
-                    (for SDF), td.json or tm.json (when \
-                    converting to a WoT TD/TM)";
-
     let sdf_input_name = "SDF input file";
     let sdf_output_name = "SDF output file";
     let tm_input_name = "TM input file";
     let tm_output_name = "TM output file";
+    let td_input_name = "TD input file";
 
     let app = App::new(crate_name!())
         .version(crate_version!())
@@ -118,11 +110,27 @@ fn main() -> ConverterResult<()> {
             App::new("print")
                 .about("Reads in an SDF or WoT file and prints it in the terminal.")
                 .arg(
-                    Arg::with_name("input")
-                        .help(input_help)
-                        .index(1)
-                        .required(true)
-                        .validator(is_valid_input),
+                    Arg::with_name(sdf_input_name)
+                        .long("sdf")
+                        .help("Reads in an SDF file.")
+                        .takes_value(true),
+                )
+                .arg(
+                    Arg::with_name(tm_input_name)
+                        .long("tm")
+                        .help("Reads in a WoT Thing Model file.")
+                        .takes_value(true),
+                )
+                .arg(
+                    Arg::with_name(td_input_name)
+                        .long("td")
+                        .help("Reads in a WoT Thing Description file.")
+                        .takes_value(true),
+                )
+                .group(
+                    ArgGroup::with_name("input")
+                        .args(&[sdf_input_name, tm_input_name, td_input_name])
+                        .required(true),
                 ),
         )
         .subcommand(
@@ -166,8 +174,12 @@ fn main() -> ConverterResult<()> {
         .get_matches();
 
     if let Some(ref matches) = app.subcommand_matches("print") {
-        if let Some(path) = matches.value_of("input") {
-            print_model_from_file(path)?
+        if let Some(input_path) = matches.value_of(sdf_input_name) {
+            return print_model_from_file(input_path, &converter::print_sdf_definition);
+        } else if let Some(input_path) = matches.value_of(td_input_name) {
+            return print_model_from_file(input_path, &converter::print_wot_td_definition);
+        } else if let Some(input_path) = matches.value_of(tm_input_name) {
+            return print_model_from_file(input_path, &converter::print_wot_tm_definition);
         }
     } else if let Some(ref matches) = app.subcommand_matches("convert") {
         if let Some(input_path) = matches.value_of(sdf_input_name) {
@@ -206,20 +218,6 @@ mod tests {
 
     fn create_test_dir() {
         let _ = fs::create_dir_all("test_output");
-    }
-
-    #[test]
-    fn print_model_from_legal_path_test() {
-        assert!(get_legal_inputs()
-            .iter()
-            .all(|f| print_model_from_file(f).is_ok()));
-    }
-
-    #[test]
-    fn print_model_from_illegal_path_test() {
-        assert!(get_illegal_inputs()
-            .iter()
-            .all(|f| print_model_from_file(f).is_err()));
     }
 
     #[test]
