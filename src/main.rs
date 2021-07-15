@@ -185,6 +185,14 @@ mod tests {
         let _ = fs::create_dir_all("test_output");
     }
 
+    fn successful_print_function(_input: String) -> ConverterResult<()> {
+        Ok(())
+    }
+
+    fn failing_print_function(_input: String) -> ConverterResult<()> {
+        Err("This is an error".into())
+    }
+
     #[test]
     fn write_to_another_file_test() {
         create_test_dir();
@@ -192,6 +200,19 @@ mod tests {
             write_to_another_file("examples/sdf/example.sdf.json", "test_output/barfoo.json")
                 .is_ok()
         );
+    }
+
+    #[test]
+    fn print_model_from_path_test() {
+        assert!(
+            print_model_from_file("examples/sdf/example.sdf.json", &successful_print_function)
+                .is_ok()
+        );
+        assert!(
+            print_model_from_file("examples/sdf/example.sdf.json", &failing_print_function)
+                .is_err()
+        );
+        assert!(print_model_from_file("foobar.json", &successful_print_function).is_err());
     }
 
     #[test]
