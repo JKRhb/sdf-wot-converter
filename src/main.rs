@@ -193,6 +193,14 @@ mod tests {
         Err("This is an error".into())
     }
 
+    fn successful_converter_function(_input: String) -> ConverterResult<String> {
+        Ok(String::new())
+    }
+
+    fn failing_converter_function(_input: String) -> ConverterResult<String> {
+        Err("This is an error".into())
+    }
+
     #[test]
     fn write_to_another_file_test() {
         create_test_dir();
@@ -218,9 +226,22 @@ mod tests {
     #[test]
     fn convert_test() {
         create_test_dir();
-        let input_path = "examples/sdf/example.sdf.json";
+        let working_input_path = "examples/sdf/example.sdf.json";
+        let failing_input_path = "foobar.json";
         let output_path = "test_output/foobar.tm.json";
-        assert!(convert(input_path, output_path, &converter::convert_sdf_to_wot_tm).is_ok())
+        assert!(convert(
+            working_input_path,
+            output_path,
+            &successful_converter_function
+        )
+        .is_ok());
+        assert!(convert(working_input_path, output_path, &failing_converter_function).is_err());
+        assert!(convert(
+            failing_input_path,
+            output_path,
+            &successful_converter_function
+        )
+        .is_err());
     }
 
     #[test]
