@@ -8,9 +8,8 @@
 use std::{error, result};
 
 pub mod converter;
-mod model;
 pub mod sdf;
 pub mod wot;
 
-pub type ConverterResult<T> = result::Result<T, TError>;
-type TError = Box<dyn error::Error>;
+pub type Result<T> = result::Result<T, Error>;
+type Error = Box<dyn error::Error>;

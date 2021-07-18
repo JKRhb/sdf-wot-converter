@@ -3,8 +3,6 @@ use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 use std::collections::HashMap;
 
-use crate::model::SerializableModel;
-
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(untagged)]
 pub enum Context {
@@ -79,39 +77,43 @@ pub struct BaseThing {
     pub schema_definitions: Option<HashMap<String, DataSchema>>,
 }
 
-fn get_empty_base_thing() -> BaseThing {
-    BaseThing {
-        base: None,
-        context: Context::String("http://www.w3.org/ns/td".to_string()),
-        created: None,
-        description: None,
-        descriptions: None,
-        id: None,
-        modified: None,
-        profile: None,
-        schema_definitions: None,
-        support: None,
-        titles: None,
-        r#type: None,
-        version: None,
+impl Default for BaseThing {
+    fn default() -> Self {
+        BaseThing {
+            base: None,
+            context: Context::String("http://www.w3.org/ns/td".to_string()),
+            created: None,
+            description: None,
+            descriptions: None,
+            id: None,
+            modified: None,
+            profile: None,
+            schema_definitions: None,
+            support: None,
+            titles: None,
+            r#type: None,
+            version: None,
+        }
     }
 }
 
-fn get_empty_common_security() -> SecuritySchemeCommon {
-    SecuritySchemeCommon {
-        description: None,
-        descriptions: None,
-        r#type: None,
-        proxy: None,
+impl Default for SecuritySchemeCommon {
+    fn default() -> Self {
+        SecuritySchemeCommon {
+            description: None,
+            descriptions: None,
+            r#type: None,
+            proxy: None,
+        }
     }
 }
 
-impl SerializableModel for ThingDescription {
-    fn new_empty_model() -> ThingDescription {
-        let base_thing = get_empty_base_thing();
+impl Default for ThingDescription {
+    fn default() -> Self {
+        let base_thing = BaseThing::default();
         let security = TypeOrTypeArray::Type("nosec_sc".to_string());
         let nosec_sc = SecurityScheme::Nosec {
-            common: get_empty_common_security(),
+            common: SecuritySchemeCommon::default(),
         };
         let security_definitions: HashMap<String, SecurityScheme> =
             vec![("nosec_sc".to_string(), nosec_sc)]
@@ -132,9 +134,9 @@ impl SerializableModel for ThingDescription {
     }
 }
 
-impl SerializableModel for ThingModel {
-    fn new_empty_model() -> ThingModel {
-        let base_thing = get_empty_base_thing();
+impl Default for ThingModel {
+    fn default() -> Self {
+        let base_thing = BaseThing::default();
 
         ThingModel {
             base_thing,

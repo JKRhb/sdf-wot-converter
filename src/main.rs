@@ -1,4 +1,4 @@
-use sdf_wot_converter::{converter, ConverterResult};
+use sdf_wot_converter::{converter, Result};
 
 use clap::{
     app_from_crate, crate_authors, crate_description, crate_name, crate_version, App, Arg, ArgGroup,
@@ -12,10 +12,10 @@ const TM_INPUT_NAME: &str = "TM input file";
 const TM_OUTPUT_NAME: &str = "TM output file";
 const TD_INPUT_NAME: &str = "TD input file";
 
-type ConversionFunction<'a> = &'a dyn Fn(String) -> ConverterResult<String>;
-type PrintFunction<'a> = &'a dyn Fn(String) -> ConverterResult<()>;
+type ConversionFunction<'a> = &'a dyn Fn(String) -> Result<String>;
+type PrintFunction<'a> = &'a dyn Fn(String) -> Result<()>;
 
-type MatchSubcommandFunction<'a> = &'a dyn Fn(&&clap::ArgMatches) -> ConverterResult<()>;
+type MatchSubcommandFunction<'a> = &'a dyn Fn(&&clap::ArgMatches) -> Result<()>;
 
 #[derive(Debug, PartialEq)]
 enum InputPathType {
@@ -42,24 +42,24 @@ fn determine_path_type(path: &str) -> InputPathType {
     }
 }
 
-fn write_to_file(path: &str, content: String) -> ConverterResult<()> {
+fn write_to_file(path: &str, content: String) -> Result<()> {
     fs::write(path, content).map_err(|e| e.into())
 }
 
-fn write_to_another_file(input_path: &str, output_path: &str) -> ConverterResult<()> {
+fn write_to_another_file(input_path: &str, output_path: &str) -> Result<()> {
     let content = get_json(input_path)?;
     write_to_file(output_path, content)
 }
 
-fn get_json_from_file(path: &str) -> ConverterResult<String> {
+fn get_json_from_file(path: &str) -> Result<String> {
     fs::read_to_string(&path).map_err(|e| e.into())
 }
 
-fn get_json_from_url(url: &str) -> ConverterResult<String> {
+fn get_json_from_url(url: &str) -> Result<String> {
     Ok(reqwest::blocking::get(url)?.text()?)
 }
 
-fn get_json(path: &str) -> ConverterResult<String> {
+fn get_json(path: &str) -> Result<String> {
     let path_type = determine_path_type(path);
     match path_type {
         InputPathType::File => get_json_from_file(path),
@@ -68,7 +68,7 @@ fn get_json(path: &str) -> ConverterResult<String> {
     }
 }
 
-fn print_model_from_file(path: &str, print_function: PrintFunction) -> ConverterResult<()> {
+fn print_model_from_file(path: &str, print_function: PrintFunction) -> Result<()> {
     let json_string = get_json(path)?;
     print_function(json_string)
 }
@@ -77,13 +77,13 @@ fn convert(
     input_path: &str,
     output_path: &str,
     conversion_function: ConversionFunction,
-) -> ConverterResult<()> {
+) -> Result<()> {
     let input_string = get_json(input_path)?;
     let output_string = conversion_function(input_string)?;
     write_to_file(output_path, output_string)
 }
 
-fn match_print_arguments(print_command: &&clap::ArgMatches) -> ConverterResult<()> {
+fn match_print_arguments(print_command: &&clap::ArgMatches) -> Result<()> {
     if let Some(input_path) = print_command.value_of(SDF_INPUT_NAME) {
         print_model_from_file(input_path, &converter::print_sdf_definition)
     } else if let Some(input_path) = print_command.value_of(TD_INPUT_NAME) {
@@ -95,7 +95,7 @@ fn match_print_arguments(print_command: &&clap::ArgMatches) -> ConverterResult<(
     }
 }
 
-fn match_convert_arguments(convert_command: &&clap::ArgMatches) -> ConverterResult<()> {
+fn match_convert_arguments(convert_command: &&clap::ArgMatches) -> Result<()> {
     let output_error_message = "No legal output path argument given!";
     if let Some(input_path) = convert_command.value_of(SDF_INPUT_NAME) {
         if let Some(output_path) = convert_command.value_of(TM_OUTPUT_NAME) {
@@ -122,7 +122,7 @@ fn match_arguments(
     app: clap::ArgMatches,
     match_print_command_function: MatchSubcommandFunction,
     match_convert_command_function: MatchSubcommandFunction,
-) -> ConverterResult<()> {
+) -> Result<()> {
     if let Some(ref matches) = app.subcommand_matches("print") {
         match_print_command_function(matches)
     } else if let Some(ref matches) = app.subcommand_matches("convert") {
@@ -201,7 +201,7 @@ fn create_app() -> clap::App<'static, 'static> {
         )
 }
 
-fn main() -> ConverterResult<()> {
+fn main() -> Result<()> {
     let app = create_app().get_matches();
 
     match_arguments(app, &match_print_arguments, &match_convert_arguments)
@@ -215,19 +215,19 @@ mod tests {
         let _ = fs::create_dir_all("test_output");
     }
 
-    fn successful_print_function(_input: String) -> ConverterResult<()> {
+    fn successful_print_function(_input: String) -> Result<()> {
         Ok(())
     }
 
-    fn failing_print_function(_input: String) -> ConverterResult<()> {
+    fn failing_print_function(_input: String) -> Result<()> {
         Err("This is an error".into())
     }
 
-    fn successful_converter_function(_input: String) -> ConverterResult<String> {
+    fn successful_converter_function(_input: String) -> Result<String> {
         Ok(String::new())
     }
 
-    fn failing_converter_function(_input: String) -> ConverterResult<String> {
+    fn failing_converter_function(_input: String) -> Result<String> {
         Err("This is an error".into())
     }
 
@@ -293,11 +293,11 @@ mod tests {
         }
     }
 
-    fn successful_match_command_function(_matches: &&clap::ArgMatches) -> ConverterResult<()> {
+    fn successful_match_command_function(_matches: &&clap::ArgMatches) -> Result<()> {
         Ok(())
     }
 
-    fn failing_match_command_function(_matches: &&clap::ArgMatches) -> ConverterResult<()> {
+    fn failing_match_command_function(_matches: &&clap::ArgMatches) -> Result<()> {
         Err("This is an error".into())
     }
 
