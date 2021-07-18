@@ -1,5 +1,6 @@
 [package]
 name = "sdf-wot-converter"
+description = "Converter between WoT TD and SDF (including protocol bindings). Work in Progress."
 version = "0.1.0"
 authors = ["Jan Romann <jan.romann@uni-bremen.de>"]
 edition = "2018"

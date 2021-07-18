@@ -1,6 +1,8 @@
 use sdf_wot_converter::{converter, ConverterResult};
 
-use clap::{crate_authors, crate_name, crate_version, App, Arg, ArgGroup};
+use clap::{
+    app_from_crate, crate_authors, crate_description, crate_name, crate_version, App, Arg, ArgGroup,
+};
 use std::{env, fs};
 use url::Url;
 
@@ -12,6 +14,8 @@ const TD_INPUT_NAME: &str = "TD input file";
 
 type ConversionFunction<'a> = &'a dyn Fn(String) -> ConverterResult<String>;
 type PrintFunction<'a> = &'a dyn Fn(String) -> ConverterResult<()>;
+
+type MatchSubcommandFunction<'a> = &'a dyn Fn(&&clap::ArgMatches) -> ConverterResult<()>;
 
 #[derive(Debug, PartialEq)]
 enum InputPathType {
@@ -79,10 +83,57 @@ fn convert(
     write_to_file(output_path, output_string)
 }
 
-fn main() -> ConverterResult<()> {
-    let app = App::new(crate_name!())
-        .version(crate_version!())
-        .author(crate_authors!())
+fn match_print_arguments(print_command: &&clap::ArgMatches) -> ConverterResult<()> {
+    if let Some(input_path) = print_command.value_of(SDF_INPUT_NAME) {
+        print_model_from_file(input_path, &converter::print_sdf_definition)
+    } else if let Some(input_path) = print_command.value_of(TD_INPUT_NAME) {
+        print_model_from_file(input_path, &converter::print_wot_td_definition)
+    } else if let Some(input_path) = print_command.value_of(TM_INPUT_NAME) {
+        print_model_from_file(input_path, &converter::print_wot_tm_definition)
+    } else {
+        Err("No legal argument for print subcommand found!".into())
+    }
+}
+
+fn match_convert_arguments(convert_command: &&clap::ArgMatches) -> ConverterResult<()> {
+    let output_error_message = "No legal output path argument given!";
+    if let Some(input_path) = convert_command.value_of(SDF_INPUT_NAME) {
+        if let Some(output_path) = convert_command.value_of(TM_OUTPUT_NAME) {
+            convert(input_path, output_path, &converter::convert_sdf_to_wot_tm)
+        } else if let Some(output_path) = convert_command.value_of(SDF_OUTPUT_NAME) {
+            write_to_another_file(input_path, output_path)
+        } else {
+            Err(output_error_message.into())
+        }
+    } else if let Some(input_path) = convert_command.value_of(TM_INPUT_NAME) {
+        if let Some(output_path) = convert_command.value_of(SDF_OUTPUT_NAME) {
+            convert(input_path, output_path, &converter::convert_wot_tm_to_sdf)
+        } else if let Some(output_path) = convert_command.value_of(TM_OUTPUT_NAME) {
+            write_to_another_file(input_path, output_path)
+        } else {
+            Err(output_error_message.into())
+        }
+    } else {
+        Err("No legal input path argument given!".into())
+    }
+}
+
+fn match_arguments(
+    app: clap::ArgMatches,
+    match_print_command_function: MatchSubcommandFunction,
+    match_convert_command_function: MatchSubcommandFunction,
+) -> ConverterResult<()> {
+    if let Some(ref matches) = app.subcommand_matches("print") {
+        match_print_command_function(matches)
+    } else if let Some(ref matches) = app.subcommand_matches("convert") {
+        match_convert_command_function(matches)
+    } else {
+        Err("No known subcommand found!".into())
+    }
+}
+
+fn create_app() -> clap::App<'static, 'static> {
+    app_from_crate!()
         .subcommand(
             App::new("print")
                 .about("Reads in an SDF or WoT file and prints it in the terminal.")
@@ -148,33 +199,12 @@ fn main() -> ConverterResult<()> {
                         .required(true),
                 ),
         )
-        .get_matches();
+}
 
-    if let Some(ref matches) = app.subcommand_matches("print") {
-        if let Some(input_path) = matches.value_of(SDF_INPUT_NAME) {
-            return print_model_from_file(input_path, &converter::print_sdf_definition);
-        } else if let Some(input_path) = matches.value_of(TD_INPUT_NAME) {
-            return print_model_from_file(input_path, &converter::print_wot_td_definition);
-        } else if let Some(input_path) = matches.value_of(TM_INPUT_NAME) {
-            return print_model_from_file(input_path, &converter::print_wot_tm_definition);
-        }
-    } else if let Some(ref matches) = app.subcommand_matches("convert") {
-        if let Some(input_path) = matches.value_of(SDF_INPUT_NAME) {
-            if let Some(output_path) = matches.value_of(TM_OUTPUT_NAME) {
-                return convert(input_path, output_path, &converter::convert_sdf_to_wot_tm);
-            } else if let Some(output_path) = matches.value_of(SDF_OUTPUT_NAME) {
-                return write_to_another_file(input_path, output_path);
-            }
-        } else if let Some(input_path) = matches.value_of(TM_INPUT_NAME) {
-            if let Some(output_path) = matches.value_of(SDF_OUTPUT_NAME) {
-                return convert(input_path, output_path, &converter::convert_wot_tm_to_sdf);
-            } else if let Some(output_path) = matches.value_of(TM_OUTPUT_NAME) {
-                return write_to_another_file(input_path, output_path);
-            }
-        }
-    }
+fn main() -> ConverterResult<()> {
+    let app = create_app().get_matches();
 
-    Ok(())
+    match_arguments(app, &match_print_arguments, &match_convert_arguments)
 }
 
 #[cfg(test)]
@@ -261,5 +291,215 @@ mod tests {
         if cfg!(windows) {
             assert_eq!(InputPathType::File, determine_path_type("C:\\foobar"));
         }
+    }
+
+    fn successful_match_command_function(_matches: &&clap::ArgMatches) -> ConverterResult<()> {
+        Ok(())
+    }
+
+    fn failing_match_command_function(_matches: &&clap::ArgMatches) -> ConverterResult<()> {
+        Err("This is an error".into())
+    }
+
+    #[test]
+    fn match_print_arguments_test() {
+        // TODO: This test should be revisited
+        let app = create_app().get_matches_from(vec![
+            "",
+            "print",
+            "--sdf",
+            "examples/sdf/example.sdf.json",
+        ]);
+        let matches = app.subcommand_matches("print").unwrap();
+        assert!(match_print_arguments(&matches).is_ok());
+
+        let app = create_app().get_matches_from(vec![
+            "",
+            "print",
+            "--td",
+            "examples/wot/example.td.json",
+        ]);
+        let matches = app.subcommand_matches("print").unwrap();
+        assert!(match_print_arguments(&matches).is_ok());
+
+        let app = create_app().get_matches_from(vec![
+            "",
+            "print",
+            "--tm",
+            "examples/wot/example.tm.json",
+        ]);
+        let matches = app.subcommand_matches("print").unwrap();
+        assert!(match_print_arguments(&matches).is_ok());
+    }
+
+    #[test]
+    fn match_convert_arguments_test() {
+        // TODO: This test should be revisited
+
+        create_test_dir();
+        let app = create_app().get_matches_from(vec![
+            "",
+            "convert",
+            "--from-sdf",
+            "examples/sdf/example.sdf.json",
+            "--to-tm",
+            "test_output/sdf-tm.tm.json",
+        ]);
+        let matches = app.subcommand_matches("convert").unwrap();
+        assert!(match_convert_arguments(&matches).is_ok());
+
+        create_test_dir();
+        let app = create_app().get_matches_from(vec![
+            "",
+            "convert",
+            "--from-sdf",
+            "examples/sdf/example.sdf.json",
+            "--to-sdf",
+            "test_output/sdf-sdf.sdf.json",
+        ]);
+        let matches = app.subcommand_matches("convert").unwrap();
+        assert!(match_convert_arguments(&matches).is_ok());
+
+        let app = create_app().get_matches_from(vec![
+            "",
+            "convert",
+            "--from-tm",
+            "examples/wot/example.tm.json",
+            "--to-sdf",
+            "test_output/sdf-sdf.sdf.json",
+        ]);
+        let matches = app.subcommand_matches("convert").unwrap();
+        assert!(match_convert_arguments(&matches).is_ok());
+
+        let app = create_app().get_matches_from(vec![
+            "",
+            "convert",
+            "--from-tm",
+            "examples/wot/example.tm.json",
+            "--to-tm",
+            "test_output/tm-tm.tm.json",
+        ]);
+        let matches = app.subcommand_matches("convert").unwrap();
+        assert!(match_convert_arguments(&matches).is_ok());
+    }
+
+    #[test]
+    fn match_arguments_test() {
+        let app = app_from_crate!()
+            .subcommand(App::new("print"))
+            .get_matches_from(vec!["", "print"]);
+        assert!(match_arguments(
+            app,
+            &successful_match_command_function,
+            &failing_match_command_function
+        )
+        .is_ok());
+
+        let app = app_from_crate!()
+            .subcommand(App::new("convert"))
+            .get_matches_from(vec!["", "convert"]);
+        assert!(match_arguments(
+            app,
+            &failing_match_command_function,
+            &successful_match_command_function
+        )
+        .is_ok());
+
+        let app = app_from_crate!()
+            .subcommand(App::new("foobar"))
+            .get_matches_from(vec!["", "foobar"]);
+        assert_eq!(
+            "No known subcommand found!".to_string(),
+            match_arguments(
+                app,
+                &failing_match_command_function,
+                &failing_match_command_function
+            )
+            .unwrap_err()
+            .to_string()
+        );
+    }
+
+    #[test]
+    fn create_app_print_test() {
+        let app = create_app();
+        assert!(app
+            .get_matches_from_safe(vec!["", "print", "--sdf", "examples/sdf/example.sdf.json"])
+            .is_ok());
+        let app = create_app();
+        assert!(app
+            .get_matches_from_safe(vec!["", "print", "--td", "examples/wot/example.td.json"])
+            .is_ok());
+        let app = create_app();
+        assert!(app
+            .get_matches_from_safe(vec!["", "print", "--tm", "examples/wot/example.tm.json"])
+            .is_ok());
+        let app = create_app();
+        assert!(app
+            .get_matches_from_safe(vec![
+                "",
+                "print",
+                "--foobar",
+                "examples/wot/example.tm.json"
+            ])
+            .is_err());
+    }
+
+    #[test]
+    fn create_app_convert_test() {
+        create_test_dir();
+        let app = create_app();
+        assert!(app
+            .get_matches_from_safe(vec![
+                "",
+                "convert",
+                "--from-sdf",
+                "examples/sdf/example.sdf.json",
+                "--to-tm",
+                "test_output/sdf-tm-output.tm.json"
+            ])
+            .is_ok());
+
+        let app = create_app();
+        assert!(app
+            .get_matches_from_safe(vec![
+                "",
+                "convert",
+                "--from-sdf",
+                "examples/sdf/example.sdf.json",
+                "--to-sdf",
+                "test_output/sdf-sdf-output.sdf.json"
+            ])
+            .is_ok());
+
+        let app = create_app();
+        assert!(app
+            .get_matches_from_safe(vec![
+                "",
+                "convert",
+                "--from-tm",
+                "examples/wot/example.tm.json",
+                "--to-sdf",
+                "test_output/tm-sdf-output.sdf.json"
+            ])
+            .is_ok());
+
+        let app = create_app();
+        assert!(app
+            .get_matches_from_safe(vec![
+                "",
+                "convert",
+                "--from-tm",
+                "examples/wot/example.tm.json",
+                "--to-tm",
+                "test_output/tm-tm-output.tm.json"
+            ])
+            .is_ok());
+    }
+
+    #[test]
+    fn create_app_illegal_subcommand_test() {
+        let app = create_app();
+        assert!(app.get_matches_from_safe(vec!["", "printf"]).is_err());
     }
 }
