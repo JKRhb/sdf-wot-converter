@@ -148,4 +148,9 @@ mod tests {
         let output = wot_tm_to_sdf(ThingModel::default());
         assert!(output.is_ok());
     }
+
+    #[test]
+    fn print_td_test() {
+        assert!(print(ThingDescription::default()).is_ok());
+    }
 }
