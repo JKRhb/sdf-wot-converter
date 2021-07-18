@@ -132,8 +132,8 @@ fn match_arguments(
     }
 }
 
-fn main() -> ConverterResult<()> {
-    let app = app_from_crate!()
+fn create_app() -> clap::App<'static, 'static> {
+    app_from_crate!()
         .subcommand(
             App::new("print")
                 .about("Reads in an SDF or WoT file and prints it in the terminal.")
@@ -199,7 +199,10 @@ fn main() -> ConverterResult<()> {
                         .required(true),
                 ),
         )
-        .get_matches();
+}
+
+fn main() -> ConverterResult<()> {
+    let app = create_app().get_matches();
 
     match_arguments(app, &match_print_arguments, &match_convert_arguments)
 }
