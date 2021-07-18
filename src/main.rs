@@ -79,6 +79,48 @@ fn convert(
     write_to_file(output_path, output_string)
 }
 
+fn match_print_arguments(print_command: &&clap::ArgMatches) -> ConverterResult<()> {
+    if let Some(input_path) = print_command.value_of(SDF_INPUT_NAME) {
+        print_model_from_file(input_path, &converter::print_sdf_definition)
+    } else if let Some(input_path) = print_command.value_of(TD_INPUT_NAME) {
+        print_model_from_file(input_path, &converter::print_wot_td_definition)
+    } else if let Some(input_path) = print_command.value_of(TM_INPUT_NAME) {
+        print_model_from_file(input_path, &converter::print_wot_tm_definition)
+    } else {
+        Err("No legal argument for print subcommand found!".into())
+    }
+}
+
+fn match_convert_arguments(convert_command: &&clap::ArgMatches) -> ConverterResult<()> {
+    if let Some(input_path) = convert_command.value_of(SDF_INPUT_NAME) {
+        if let Some(output_path) = convert_command.value_of(TM_OUTPUT_NAME) {
+            return convert(input_path, output_path, &converter::convert_sdf_to_wot_tm);
+        } else if let Some(output_path) = convert_command.value_of(SDF_OUTPUT_NAME) {
+            return write_to_another_file(input_path, output_path);
+        }
+    } else if let Some(input_path) = convert_command.value_of(TM_INPUT_NAME) {
+        if let Some(output_path) = convert_command.value_of(SDF_OUTPUT_NAME) {
+            return convert(input_path, output_path, &converter::convert_wot_tm_to_sdf);
+        } else if let Some(output_path) = convert_command.value_of(TM_OUTPUT_NAME) {
+            return write_to_another_file(input_path, output_path);
+        }
+    } else {
+        Err("No legal argument for convert subcommand found!".into())
+    }
+
+    Ok(())
+}
+
+fn match_arguments(app: clap::ArgMatches) -> ConverterResult<()> {
+    if let Some(ref matches) = app.subcommand_matches("print") {
+        match_print_arguments(matches)
+    } else if let Some(ref matches) = app.subcommand_matches("convert") {
+       match_convert_arguments(matches)
+    } else {
+        Err("No known subcommand found!".into())
+    }
+}
+
 fn main() -> ConverterResult<()> {
     let app = App::new(crate_name!())
         .version(crate_version!())
@@ -150,31 +192,7 @@ fn main() -> ConverterResult<()> {
         )
         .get_matches();
 
-    if let Some(ref matches) = app.subcommand_matches("print") {
-        if let Some(input_path) = matches.value_of(SDF_INPUT_NAME) {
-            return print_model_from_file(input_path, &converter::print_sdf_definition);
-        } else if let Some(input_path) = matches.value_of(TD_INPUT_NAME) {
-            return print_model_from_file(input_path, &converter::print_wot_td_definition);
-        } else if let Some(input_path) = matches.value_of(TM_INPUT_NAME) {
-            return print_model_from_file(input_path, &converter::print_wot_tm_definition);
-        }
-    } else if let Some(ref matches) = app.subcommand_matches("convert") {
-        if let Some(input_path) = matches.value_of(SDF_INPUT_NAME) {
-            if let Some(output_path) = matches.value_of(TM_OUTPUT_NAME) {
-                return convert(input_path, output_path, &converter::convert_sdf_to_wot_tm);
-            } else if let Some(output_path) = matches.value_of(SDF_OUTPUT_NAME) {
-                return write_to_another_file(input_path, output_path);
-            }
-        } else if let Some(input_path) = matches.value_of(TM_INPUT_NAME) {
-            if let Some(output_path) = matches.value_of(SDF_OUTPUT_NAME) {
-                return convert(input_path, output_path, &converter::convert_wot_tm_to_sdf);
-            } else if let Some(output_path) = matches.value_of(TM_OUTPUT_NAME) {
-                return write_to_another_file(input_path, output_path);
-            }
-        }
-    }
-
-    Ok(())
+    match_arguments(app)
 }
 
 #[cfg(test)]
