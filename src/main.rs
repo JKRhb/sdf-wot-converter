@@ -13,6 +13,8 @@ const TD_INPUT_NAME: &str = "TD input file";
 type ConversionFunction<'a> = &'a dyn Fn(String) -> ConverterResult<String>;
 type PrintFunction<'a> = &'a dyn Fn(String) -> ConverterResult<()>;
 
+type MatchSubcommandFunction<'a> = &'a dyn Fn(&&clap::ArgMatches) -> ConverterResult<()>;
+
 #[derive(Debug, PartialEq)]
 enum InputPathType {
     File,
@@ -92,30 +94,37 @@ fn match_print_arguments(print_command: &&clap::ArgMatches) -> ConverterResult<(
 }
 
 fn match_convert_arguments(convert_command: &&clap::ArgMatches) -> ConverterResult<()> {
+    let output_error_message = "No legal output path argument given!";
     if let Some(input_path) = convert_command.value_of(SDF_INPUT_NAME) {
         if let Some(output_path) = convert_command.value_of(TM_OUTPUT_NAME) {
-            return convert(input_path, output_path, &converter::convert_sdf_to_wot_tm);
+            convert(input_path, output_path, &converter::convert_sdf_to_wot_tm)
         } else if let Some(output_path) = convert_command.value_of(SDF_OUTPUT_NAME) {
-            return write_to_another_file(input_path, output_path);
+            write_to_another_file(input_path, output_path)
+        } else {
+            Err(output_error_message.into())
         }
     } else if let Some(input_path) = convert_command.value_of(TM_INPUT_NAME) {
         if let Some(output_path) = convert_command.value_of(SDF_OUTPUT_NAME) {
-            return convert(input_path, output_path, &converter::convert_wot_tm_to_sdf);
+            convert(input_path, output_path, &converter::convert_wot_tm_to_sdf)
         } else if let Some(output_path) = convert_command.value_of(TM_OUTPUT_NAME) {
-            return write_to_another_file(input_path, output_path);
+            write_to_another_file(input_path, output_path)
+        } else {
+            Err(output_error_message.into())
         }
     } else {
-        Err("No legal argument for convert subcommand found!".into())
+        Err("No legal input path argument given!".into())
     }
-
-    Ok(())
 }
 
-fn match_arguments(app: clap::ArgMatches) -> ConverterResult<()> {
+fn match_arguments(
+    app: clap::ArgMatches,
+    match_print_command_function: MatchSubcommandFunction,
+    match_convert_command_function: MatchSubcommandFunction,
+) -> ConverterResult<()> {
     if let Some(ref matches) = app.subcommand_matches("print") {
-        match_print_arguments(matches)
+        match_print_command_function(matches)
     } else if let Some(ref matches) = app.subcommand_matches("convert") {
-       match_convert_arguments(matches)
+        match_convert_command_function(matches)
     } else {
         Err("No known subcommand found!".into())
     }
@@ -192,7 +201,7 @@ fn main() -> ConverterResult<()> {
         )
         .get_matches();
 
-    match_arguments(app)
+    match_arguments(app, &match_print_arguments, &match_convert_arguments)
 }
 
 #[cfg(test)]
