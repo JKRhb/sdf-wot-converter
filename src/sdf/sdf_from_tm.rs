@@ -54,9 +54,13 @@ impl From<wot::ThingModel> for sdf::SDFModel {
         let sdf_thing = None;
         let sdf_product = None;
         let sdf_object = None;
-        let sdf_property = None;
-        let sdf_action = None;
-        let sdf_event = None;
+        let sdf_property = create_qualities::<wot::TMPropertyAffordance, sdf::PropertyQualities>(
+            thing_model.properties,
+        );
+        let sdf_action =
+            create_qualities::<wot::TMActionAffordance, sdf::ActionQualities>(thing_model.actions);
+        let sdf_event =
+            create_qualities::<wot::TMEventAffordance, sdf::EventQualities>(thing_model.events);
         let sdf_data = None;
 
         sdf::SDFModel {
@@ -70,6 +74,138 @@ impl From<wot::ThingModel> for sdf::SDFModel {
             sdf_action,
             sdf_event,
             sdf_data,
+        }
+    }
+}
+
+fn create_qualities<T, U: From<T>>(
+    wot_definitions: Option<HashMap<String, T>>,
+) -> Option<HashMap<String, U>> {
+    let mut sdf_definitions: HashMap<String, U> = HashMap::new();
+
+    if let Some(wot_affordances) = wot_definitions {
+        for (key, wot_affordance) in wot_affordances {
+            sdf_definitions.insert(key.clone(), U::from(wot_affordance));
+        }
+    }
+
+    if !sdf_definitions.is_empty() {
+        Some(sdf_definitions)
+    } else {
+        None
+    }
+}
+
+impl From<wot::TMInteractionAffordance> for sdf::CommonQualities {
+    fn from(interaction_affordance: wot::TMInteractionAffordance) -> Self {
+        // TODO: Map missing fields
+        let interaction_affordance_fields = interaction_affordance.interaction_affordance_fields;
+        let description = interaction_affordance_fields.description.clone();
+        let label = interaction_affordance_fields.title;
+
+        sdf::CommonQualities {
+            comment: None,
+            description,
+            label,
+            sdf_ref: None,
+            sdf_required: None,
+        }
+    }
+}
+
+impl From<&wot::DataSchema> for sdf::CommonQualities {
+    fn from(data_schema: &wot::DataSchema) -> Self {
+        // TODO: Map missing fields
+        let description = data_schema.description.clone();
+        let label = data_schema.title.clone();
+
+        sdf::CommonQualities {
+            comment: None,
+            description,
+            label,
+            sdf_ref: None,
+            sdf_required: None,
+        }
+    }
+}
+
+impl From<wot::DataSchema> for sdf::DataQualities {
+    fn from(data_schema: wot::DataSchema) -> Self {
+        let unit = data_schema.unit.clone();
+        let writable = data_schema.read_only.map(|x| !x);
+        let readable = data_schema.write_only.map(|x| !x);
+
+        // TODO: Unmapped fields:
+        // pub r#type: Option<TypeOrTypeArray<String>>,
+        // pub titles: Option<HashMap<String, String>>, // TODO: Consider using a MultiLanguage struct instead
+        // pub descriptions: Option<HashMap<String, String>>,
+        // #[serde(flatten)]
+        // pub data_type: Option<JSONSchemaTypes>,
+        // pub r#const: Option<serde_json::Value>,
+        // pub one_of: Option<Vec<DataSchema>>,
+        // pub r#enum: Option<Vec<serde_json::Value>>,
+        // pub format: Option<String>,
+
+        sdf::DataQualities {
+            common_qualities: sdf::CommonQualities::from(data_schema),
+            jsonschema: None,
+            unit,
+            observable: None,
+            readable,
+            writable,
+            nullable: None,
+            sdf_type: None,
+            content_format: None,
+        }
+    }
+}
+
+impl From<wot::TMActionAffordance> for sdf::ActionQualities {
+    fn from(action_affordance: wot::TMActionAffordance) -> Self {
+        let common_qualities = sdf::CommonQualities::from(action_affordance.interaction_affordance);
+        let action_affordance_fields = action_affordance.action_affordance_fields;
+        let sdf_input_data = action_affordance_fields
+            .input
+            .as_ref()
+            .map(sdf::DataQualities::from);
+        let sdf_output_data = action_affordance_fields
+            .output
+            .as_ref()
+            .map(sdf::DataQualities::from);
+
+        sdf::ActionQualities {
+            common_qualities,
+            sdf_input_data,
+            sdf_output_data,
+            sdf_data: None,
+        }
+    }
+}
+
+impl From<wot::TMPropertyAffordance> for sdf::PropertyQualities {
+    fn from(property_affordance: wot::TMPropertyAffordance) -> Self {
+        let property_affordance_fields = property_affordance.property_affordance_fields;
+        let mut property_qualities =
+            sdf::DataQualities::from(&property_affordance_fields.data_schema);
+        property_qualities.observable = property_affordance_fields.observable;
+        property_qualities
+    }
+}
+
+impl From<wot::TMEventAffordance> for sdf::EventQualities {
+    fn from(event_affordance: wot::TMEventAffordance) -> Self {
+        // TODO: What to do with subscription and cancellation?
+        let common_qualities = sdf::CommonQualities::from(event_affordance.interaction_affordance);
+        let event_affordance_fields = event_affordance.event_affordance_fields;
+        let sdf_output_data = event_affordance_fields
+            .data
+            .as_ref()
+            .map(sdf::DataQualities::from);
+
+        sdf::EventQualities {
+            common_qualities,
+            sdf_output_data,
+            sdf_data: None, // TODO: How should this be mapped?
         }
     }
 }
