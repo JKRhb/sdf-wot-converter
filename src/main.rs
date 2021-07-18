@@ -292,4 +292,214 @@ mod tests {
             assert_eq!(InputPathType::File, determine_path_type("C:\\foobar"));
         }
     }
+
+    fn successful_match_command_function(_matches: &&clap::ArgMatches) -> ConverterResult<()> {
+        Ok(())
+    }
+
+    fn failing_match_command_function(_matches: &&clap::ArgMatches) -> ConverterResult<()> {
+        Err("This is an error".into())
+    }
+
+    #[test]
+    fn match_print_arguments_test() {
+        // TODO: This test should be revisited
+        let app = create_app().get_matches_from(vec![
+            "",
+            "print",
+            "--sdf",
+            "examples/sdf/example.sdf.json",
+        ]);
+        let matches = app.subcommand_matches("print").unwrap();
+        assert!(match_print_arguments(&matches).is_ok());
+
+        let app = create_app().get_matches_from(vec![
+            "",
+            "print",
+            "--td",
+            "examples/wot/example.td.json",
+        ]);
+        let matches = app.subcommand_matches("print").unwrap();
+        assert!(match_print_arguments(&matches).is_ok());
+
+        let app = create_app().get_matches_from(vec![
+            "",
+            "print",
+            "--tm",
+            "examples/wot/example.tm.json",
+        ]);
+        let matches = app.subcommand_matches("print").unwrap();
+        assert!(match_print_arguments(&matches).is_ok());
+    }
+
+    #[test]
+    fn match_convert_arguments_test() {
+        // TODO: This test should be revisited
+
+        create_test_dir();
+        let app = create_app().get_matches_from(vec![
+            "",
+            "convert",
+            "--from-sdf",
+            "examples/sdf/example.sdf.json",
+            "--to-tm",
+            "test_output/sdf-tm.tm.json",
+        ]);
+        let matches = app.subcommand_matches("convert").unwrap();
+        assert!(match_convert_arguments(&matches).is_ok());
+
+        create_test_dir();
+        let app = create_app().get_matches_from(vec![
+            "",
+            "convert",
+            "--from-sdf",
+            "examples/sdf/example.sdf.json",
+            "--to-sdf",
+            "test_output/sdf-sdf.sdf.json",
+        ]);
+        let matches = app.subcommand_matches("convert").unwrap();
+        assert!(match_convert_arguments(&matches).is_ok());
+
+        let app = create_app().get_matches_from(vec![
+            "",
+            "convert",
+            "--from-tm",
+            "examples/wot/example.tm.json",
+            "--to-sdf",
+            "test_output/sdf-sdf.sdf.json",
+        ]);
+        let matches = app.subcommand_matches("convert").unwrap();
+        assert!(match_convert_arguments(&matches).is_ok());
+
+        let app = create_app().get_matches_from(vec![
+            "",
+            "convert",
+            "--from-tm",
+            "examples/wot/example.tm.json",
+            "--to-tm",
+            "test_output/tm-tm.tm.json",
+        ]);
+        let matches = app.subcommand_matches("convert").unwrap();
+        assert!(match_convert_arguments(&matches).is_ok());
+    }
+
+    #[test]
+    fn match_arguments_test() {
+        let app = app_from_crate!()
+            .subcommand(App::new("print"))
+            .get_matches_from(vec!["", "print"]);
+        assert!(match_arguments(
+            app,
+            &successful_match_command_function,
+            &failing_match_command_function
+        )
+        .is_ok());
+
+        let app = app_from_crate!()
+            .subcommand(App::new("convert"))
+            .get_matches_from(vec!["", "convert"]);
+        assert!(match_arguments(
+            app,
+            &failing_match_command_function,
+            &successful_match_command_function
+        )
+        .is_ok());
+
+        let app = app_from_crate!()
+            .subcommand(App::new("foobar"))
+            .get_matches_from(vec!["", "foobar"]);
+        assert_eq!(
+            "No known subcommand found!".to_string(),
+            match_arguments(
+                app,
+                &failing_match_command_function,
+                &failing_match_command_function
+            )
+            .unwrap_err()
+            .to_string()
+        );
+    }
+
+    #[test]
+    fn create_app_print_test() {
+        let app = create_app();
+        assert!(app
+            .get_matches_from_safe(vec!["", "print", "--sdf", "examples/sdf/example.sdf.json"])
+            .is_ok());
+        let app = create_app();
+        assert!(app
+            .get_matches_from_safe(vec!["", "print", "--td", "examples/wot/example.td.json"])
+            .is_ok());
+        let app = create_app();
+        assert!(app
+            .get_matches_from_safe(vec!["", "print", "--tm", "examples/wot/example.tm.json"])
+            .is_ok());
+        let app = create_app();
+        assert!(app
+            .get_matches_from_safe(vec![
+                "",
+                "print",
+                "--foobar",
+                "examples/wot/example.tm.json"
+            ])
+            .is_err());
+    }
+
+    #[test]
+    fn create_app_convert_test() {
+        create_test_dir();
+        let app = create_app();
+        assert!(app
+            .get_matches_from_safe(vec![
+                "",
+                "convert",
+                "--from-sdf",
+                "examples/sdf/example.sdf.json",
+                "--to-tm",
+                "test_output/sdf-tm-output.tm.json"
+            ])
+            .is_ok());
+
+        let app = create_app();
+        assert!(app
+            .get_matches_from_safe(vec![
+                "",
+                "convert",
+                "--from-sdf",
+                "examples/sdf/example.sdf.json",
+                "--to-sdf",
+                "test_output/sdf-sdf-output.sdf.json"
+            ])
+            .is_ok());
+
+        let app = create_app();
+        assert!(app
+            .get_matches_from_safe(vec![
+                "",
+                "convert",
+                "--from-tm",
+                "examples/wot/example.tm.json",
+                "--to-sdf",
+                "test_output/tm-sdf-output.sdf.json"
+            ])
+            .is_ok());
+
+        let app = create_app();
+        assert!(app
+            .get_matches_from_safe(vec![
+                "",
+                "convert",
+                "--from-tm",
+                "examples/wot/example.tm.json",
+                "--to-tm",
+                "test_output/tm-tm-output.tm.json"
+            ])
+            .is_ok());
+    }
+
+    #[test]
+    fn create_app_illegal_subcommand_test() {
+        let app = create_app();
+        assert!(app.get_matches_from_safe(vec!["", "printf"]).is_err());
+    }
 }
