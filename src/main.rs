@@ -5,6 +5,8 @@ use std::{env, fs};
 use url::Url;
 
 type ConversionFunction<'a> = &'a dyn Fn(String) -> ConverterResult<String>;
+type PrintFunction<'a> = &'a dyn Fn(String) -> ConverterResult<()>;
+
 #[derive(Debug, PartialEq)]
 enum InputPathType {
     File,
@@ -56,10 +58,7 @@ fn get_json(path: &str) -> ConverterResult<String> {
     }
 }
 
-fn print_model_from_file(
-    path: &str,
-    print_function: &dyn Fn(String) -> ConverterResult<()>,
-) -> ConverterResult<()> {
+fn print_model_from_file(path: &str, print_function: PrintFunction) -> ConverterResult<()> {
     let json_string = get_json(path)?;
     print_function(json_string)
 }
