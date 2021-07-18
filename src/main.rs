@@ -4,6 +4,7 @@ use clap::{crate_authors, crate_name, crate_version, App, Arg, ArgGroup};
 use std::{env, fs};
 use url::Url;
 
+type ConversionFunction<'a> = &'a dyn Fn(String) -> ConverterResult<String>;
 #[derive(Debug, PartialEq)]
 enum InputPathType {
     File,
@@ -66,7 +67,7 @@ fn print_model_from_file(
 fn convert(
     input_path: &str,
     output_path: &str,
-    conversion_function: &dyn Fn(String) -> ConverterResult<String>,
+    conversion_function: ConversionFunction,
 ) -> ConverterResult<()> {
     let input_string = get_json(input_path)?;
     let output_string = conversion_function(input_string)?;
