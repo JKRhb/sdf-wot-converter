@@ -4,6 +4,12 @@ use clap::{crate_authors, crate_name, crate_version, App, Arg, ArgGroup};
 use std::{env, fs};
 use url::Url;
 
+const SDF_INPUT_NAME: &str = "SDF input file";
+const SDF_OUTPUT_NAME: &str = "SDF output file";
+const TM_INPUT_NAME: &str = "TM input file";
+const TM_OUTPUT_NAME: &str = "TM output file";
+const TD_INPUT_NAME: &str = "TD input file";
+
 type ConversionFunction<'a> = &'a dyn Fn(String) -> ConverterResult<String>;
 type PrintFunction<'a> = &'a dyn Fn(String) -> ConverterResult<()>;
 
@@ -74,12 +80,6 @@ fn convert(
 }
 
 fn main() -> ConverterResult<()> {
-    let sdf_input_name = "SDF input file";
-    let sdf_output_name = "SDF output file";
-    let tm_input_name = "TM input file";
-    let tm_output_name = "TM output file";
-    let td_input_name = "TD input file";
-
     let app = App::new(crate_name!())
         .version(crate_version!())
         .author(crate_authors!())
@@ -87,26 +87,26 @@ fn main() -> ConverterResult<()> {
             App::new("print")
                 .about("Reads in an SDF or WoT file and prints it in the terminal.")
                 .arg(
-                    Arg::with_name(sdf_input_name)
+                    Arg::with_name(SDF_INPUT_NAME)
                         .long("sdf")
                         .help("Reads in an SDF file.")
                         .takes_value(true),
                 )
                 .arg(
-                    Arg::with_name(tm_input_name)
+                    Arg::with_name(TM_INPUT_NAME)
                         .long("tm")
                         .help("Reads in a WoT Thing Model file.")
                         .takes_value(true),
                 )
                 .arg(
-                    Arg::with_name(td_input_name)
+                    Arg::with_name(TD_INPUT_NAME)
                         .long("td")
                         .help("Reads in a WoT Thing Description file.")
                         .takes_value(true),
                 )
                 .group(
                     ArgGroup::with_name("input")
-                        .args(&[sdf_input_name, tm_input_name, td_input_name])
+                        .args(&[SDF_INPUT_NAME, TM_INPUT_NAME, TD_INPUT_NAME])
                         .required(true),
                 ),
         )
@@ -114,61 +114,61 @@ fn main() -> ConverterResult<()> {
             App::new("convert")
                 .about("Reads in an SDF or WoT file and converts it into another format.")
                 .arg(
-                    Arg::with_name(sdf_input_name)
+                    Arg::with_name(SDF_INPUT_NAME)
                         .long("from-sdf")
                         .help("Reads in an SDF file.")
                         .takes_value(true),
                 )
                 .arg(
-                    Arg::with_name(tm_input_name)
+                    Arg::with_name(TM_INPUT_NAME)
                         .long("from-tm")
                         .help("Reads in a WoT Thing Model file.")
                         .takes_value(true),
                 )
                 .arg(
-                    Arg::with_name(tm_output_name)
+                    Arg::with_name(TM_OUTPUT_NAME)
                         .long("to-tm")
                         .help("Converts to a WoT Thing Model and writes it to a file.")
                         .takes_value(true),
                 )
                 .arg(
-                    Arg::with_name(sdf_output_name)
+                    Arg::with_name(SDF_OUTPUT_NAME)
                         .long("to-sdf")
                         .help("Converts to a WoT Thing Model and writes it to a file.")
                         .takes_value(true),
                 )
                 .group(
                     ArgGroup::with_name("from")
-                        .args(&[sdf_input_name, tm_input_name])
+                        .args(&[SDF_INPUT_NAME, TM_INPUT_NAME])
                         .required(true),
                 )
                 .group(
                     ArgGroup::with_name("to")
-                        .args(&[tm_output_name, sdf_output_name])
+                        .args(&[TM_OUTPUT_NAME, SDF_OUTPUT_NAME])
                         .required(true),
                 ),
         )
         .get_matches();
 
     if let Some(ref matches) = app.subcommand_matches("print") {
-        if let Some(input_path) = matches.value_of(sdf_input_name) {
+        if let Some(input_path) = matches.value_of(SDF_INPUT_NAME) {
             return print_model_from_file(input_path, &converter::print_sdf_definition);
-        } else if let Some(input_path) = matches.value_of(td_input_name) {
+        } else if let Some(input_path) = matches.value_of(TD_INPUT_NAME) {
             return print_model_from_file(input_path, &converter::print_wot_td_definition);
-        } else if let Some(input_path) = matches.value_of(tm_input_name) {
+        } else if let Some(input_path) = matches.value_of(TM_INPUT_NAME) {
             return print_model_from_file(input_path, &converter::print_wot_tm_definition);
         }
     } else if let Some(ref matches) = app.subcommand_matches("convert") {
-        if let Some(input_path) = matches.value_of(sdf_input_name) {
-            if let Some(output_path) = matches.value_of(tm_output_name) {
+        if let Some(input_path) = matches.value_of(SDF_INPUT_NAME) {
+            if let Some(output_path) = matches.value_of(TM_OUTPUT_NAME) {
                 return convert(input_path, output_path, &converter::convert_sdf_to_wot_tm);
-            } else if let Some(output_path) = matches.value_of(sdf_output_name) {
+            } else if let Some(output_path) = matches.value_of(SDF_OUTPUT_NAME) {
                 return write_to_another_file(input_path, output_path);
             }
-        } else if let Some(input_path) = matches.value_of(tm_input_name) {
-            if let Some(output_path) = matches.value_of(sdf_output_name) {
+        } else if let Some(input_path) = matches.value_of(TM_INPUT_NAME) {
+            if let Some(output_path) = matches.value_of(SDF_OUTPUT_NAME) {
                 return convert(input_path, output_path, &converter::convert_wot_tm_to_sdf);
-            } else if let Some(output_path) = matches.value_of(tm_output_name) {
+            } else if let Some(output_path) = matches.value_of(TM_OUTPUT_NAME) {
                 return write_to_another_file(input_path, output_path);
             }
         }
