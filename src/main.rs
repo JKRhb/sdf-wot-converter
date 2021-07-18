@@ -1,6 +1,8 @@
 use sdf_wot_converter::{converter, ConverterResult};
 
-use clap::{crate_authors, crate_name, crate_version, App, Arg, ArgGroup};
+use clap::{
+    app_from_crate, crate_authors, crate_description, crate_name, crate_version, App, Arg, ArgGroup,
+};
 use std::{env, fs};
 use url::Url;
 
@@ -131,9 +133,7 @@ fn match_arguments(
 }
 
 fn main() -> ConverterResult<()> {
-    let app = App::new(crate_name!())
-        .version(crate_version!())
-        .author(crate_authors!())
+    let app = app_from_crate!()
         .subcommand(
             App::new("print")
                 .about("Reads in an SDF or WoT file and prints it in the terminal.")
