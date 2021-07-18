@@ -2,8 +2,6 @@ use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 use std::collections::HashMap;
 
-use crate::model::SerializableModel;
-
 #[skip_serializing_none]
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -20,8 +18,8 @@ pub struct SDFModel {
     pub sdf_data: Option<HashMap<String, DataQualities>>,
 }
 
-impl SerializableModel for SDFModel {
-    fn new_empty_model() -> SDFModel {
+impl Default for SDFModel {
+    fn default() -> Self {
         SDFModel {
             info: None,
             namespace: None,

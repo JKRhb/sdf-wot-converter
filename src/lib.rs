@@ -8,7 +8,6 @@
 use std::{error, result};
 
 pub mod converter;
-mod model;
 pub mod sdf;
 pub mod wot;
 
