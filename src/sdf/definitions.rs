@@ -138,10 +138,10 @@ pub struct ArrayTypeQualities {
 #[serde(rename_all = "camelCase")]
 #[serde(tag = "type")]
 pub enum RegularTypes {
-    Number(NumberTypeQualities<f32>),
+    Number(NumberTypeQualities<f64>),
     String(StringTypeQualities),
     Boolean(TypedQualities<bool>), // TODO: Does "enum" make sense here?
-    Integer(NumberTypeQualities<i32>),
+    Integer(NumberTypeQualities<i64>),
     Array(ArrayTypeQualities),
     Object(ObjectTypeQualities),
 }

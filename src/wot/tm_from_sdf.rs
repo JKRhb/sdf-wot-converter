@@ -166,7 +166,7 @@ fn convert_actions(sdf_model: &sdf::SDFModel) -> Option<HashMap<String, wot::TMA
 fn map_regular_type(sdf_type: &sdf::RegularTypes) -> Option<wot::JSONSchemaTypes> {
     match sdf_type {
         sdf::RegularTypes::Number(sdf_schema) => {
-            let mapping = wot::JSONSchemaTypes::Number(wot::NumberSchema::<f32> {
+            let mapping = wot::JSONSchemaTypes::Number(wot::NumberSchema::<f64> {
                 minimum: sdf_schema.minimum,
                 exclusive_minimum: sdf_schema.exclusive_minimum,
                 maximum: sdf_schema.maximum,
@@ -176,7 +176,7 @@ fn map_regular_type(sdf_type: &sdf::RegularTypes) -> Option<wot::JSONSchemaTypes
             Some(mapping)
         }
         sdf::RegularTypes::Integer(sdf_schema) => {
-            let mapping = wot::JSONSchemaTypes::Integer(wot::NumberSchema::<i32> {
+            let mapping = wot::JSONSchemaTypes::Integer(wot::NumberSchema::<i64> {
                 minimum: sdf_schema.minimum,
                 exclusive_minimum: sdf_schema.exclusive_minimum,
                 maximum: sdf_schema.maximum,

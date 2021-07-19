@@ -292,8 +292,8 @@ pub struct ObjectSchema {
 pub enum JSONSchemaTypes {
     Null,
     Boolean,
-    Number(NumberSchema<f32>),
-    Integer(NumberSchema<i32>),
+    Number(NumberSchema<f64>),
+    Integer(NumberSchema<i64>),
     String(StringSchema),
     Array(ArraySchema),
     Object(ObjectSchema),
