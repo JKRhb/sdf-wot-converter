@@ -37,6 +37,7 @@ impl Default for SDFModel {
 
 #[skip_serializing_none]
 #[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct CommonQualities {
     pub description: Option<String>,
     pub label: Option<String>,
