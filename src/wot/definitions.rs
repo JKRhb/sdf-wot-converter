@@ -292,8 +292,8 @@ pub struct ObjectSchema {
 pub enum JSONSchemaTypes {
     Null,
     Boolean,
-    Number(NumberSchema<f32>),
-    Integer(NumberSchema<i32>),
+    Number(NumberSchema<f64>),
+    Integer(NumberSchema<i64>),
     String(StringSchema),
     Array(ArraySchema),
     Object(ObjectSchema),
@@ -312,6 +312,7 @@ pub struct DataSchema {
     #[serde(flatten)]
     pub data_type: Option<JSONSchemaTypes>,
     pub r#const: Option<serde_json::Value>,
+    pub default: Option<serde_json::Value>,
     pub unit: Option<String>,
     pub one_of: Option<Vec<DataSchema>>,
     pub r#enum: Option<Vec<serde_json::Value>>,

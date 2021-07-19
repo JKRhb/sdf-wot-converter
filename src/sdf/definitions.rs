@@ -74,6 +74,8 @@ pub struct ObjectQualities {
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct NumberTypeQualities<T> {
+    #[serde(flatten)]
+    pub common_qualities: TypedQualities<T>,
     pub minimum: Option<T>,
     pub maximum: Option<T>,
     pub exclusive_minimum: Option<T>,
@@ -119,7 +121,7 @@ pub struct StringTypeQualities {
 #[serde(rename_all = "camelCase")]
 pub struct ObjectTypeQualities {
     #[serde(flatten)]
-    pub common_qualities: TypedQualities<serde_json::Map<String, serde_json::Value>>,
+    pub common_qualities: TypedQualities<HashMap<String, serde_json::Value>>,
     pub required: Option<Vec<String>>,
     pub properties: Option<HashMap<String, DataQualities>>,
 }
@@ -131,17 +133,17 @@ pub struct ArrayTypeQualities {
     pub min_items: Option<u32>,
     pub max_items: Option<u32>,
     pub unique_items: Option<bool>,
-    pub items: Option<Box<DataQualities>>, // TODO: Should this be an array/map?
+    pub items: Option<Vec<DataQualities>>, // TODO: Should this be an array/map?
 }
 
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 #[serde(tag = "type")]
 pub enum RegularTypes {
-    Number(NumberTypeQualities<f32>),
+    Number(NumberTypeQualities<f64>),
     String(StringTypeQualities),
     Boolean(TypedQualities<bool>), // TODO: Does "enum" make sense here?
-    Integer(NumberTypeQualities<i32>),
+    Integer(NumberTypeQualities<i64>),
     Array(ArrayTypeQualities),
     Object(ObjectTypeQualities),
 }

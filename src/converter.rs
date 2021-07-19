@@ -107,12 +107,12 @@ pub fn convert_sdf_to_wot_tm(json_string: String) -> Result<String> {
 /// # Examples
 ///
 /// ```rust
-/// use sdf_wot_converter::converter::convert_sdf_to_wot_tm;
+/// use sdf_wot_converter::converter::convert_wot_tm_to_sdf;
 /// use std::fs;
 ///
-/// let json_string = fs::read_to_string("examples/sdf/example.sdf.json").unwrap();
+/// let json_string = fs::read_to_string("examples/wot/example.tm.json").unwrap();
 ///
-/// let result = convert_sdf_to_wot_tm(json_string);
+/// let result = convert_wot_tm_to_sdf(json_string);
 /// assert!(result.is_ok());
 /// ```
 pub fn convert_wot_tm_to_sdf(json_string: String) -> Result<String> {
