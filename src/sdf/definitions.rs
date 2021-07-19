@@ -121,7 +121,7 @@ pub struct StringTypeQualities {
 #[serde(rename_all = "camelCase")]
 pub struct ObjectTypeQualities {
     #[serde(flatten)]
-    pub common_qualities: TypedQualities<serde_json::Map<String, serde_json::Value>>,
+    pub common_qualities: TypedQualities<HashMap<String, serde_json::Value>>,
     pub required: Option<Vec<String>>,
     pub properties: Option<HashMap<String, DataQualities>>,
 }
