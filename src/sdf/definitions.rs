@@ -2,6 +2,19 @@ use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 use std::collections::HashMap;
 
+pub trait NestedQuality {
+    fn get_sdf_object(&self) -> Option<&HashMap<String, ObjectQualities>>;
+    fn get_sdf_thing(&self) -> Option<&HashMap<String, ThingQualities>>;
+}
+
+/// TODO: Maybe find a better name for this
+pub trait AffordanceQuality {
+    fn get_sdf_property(&self) -> Option<&HashMap<String, PropertyQualities>>;
+    fn get_sdf_action(&self) -> Option<&HashMap<String, ActionQualities>>;
+    fn get_sdf_event(&self) -> Option<&HashMap<String, EventQualities>>;
+    fn get_sdf_data(&self) -> Option<&HashMap<String, DataQualities>>;
+}
+
 #[skip_serializing_none]
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -16,6 +29,31 @@ pub struct SDFModel {
     pub sdf_action: Option<HashMap<String, ActionQualities>>,
     pub sdf_event: Option<HashMap<String, EventQualities>>,
     pub sdf_data: Option<HashMap<String, DataQualities>>,
+}
+
+impl NestedQuality for SDFModel {
+    fn get_sdf_object(&self) -> Option<&HashMap<String, ObjectQualities>> {
+        self.sdf_object.as_ref()
+    }
+
+    fn get_sdf_thing(&self) -> Option<&HashMap<String, ThingQualities>> {
+        self.sdf_thing.as_ref()
+    }
+}
+
+impl AffordanceQuality for SDFModel {
+    fn get_sdf_property(&self) -> Option<&HashMap<String, PropertyQualities>> {
+        self.sdf_property.as_ref()
+    }
+    fn get_sdf_action(&self) -> Option<&HashMap<String, ActionQualities>> {
+        self.sdf_action.as_ref()
+    }
+    fn get_sdf_event(&self) -> Option<&HashMap<String, EventQualities>> {
+        self.sdf_event.as_ref()
+    }
+    fn get_sdf_data(&self) -> Option<&HashMap<String, DataQualities>> {
+        self.sdf_data.as_ref()
+    }
 }
 
 impl Default for SDFModel {
@@ -57,6 +95,16 @@ pub struct ThingQualities {
     pub sdf_thing: Option<HashMap<String, ThingQualities>>,
 }
 
+impl NestedQuality for ThingQualities {
+    fn get_sdf_object(&self) -> Option<&HashMap<String, ObjectQualities>> {
+        self.sdf_object.as_ref()
+    }
+
+    fn get_sdf_thing(&self) -> Option<&HashMap<String, ThingQualities>> {
+        self.sdf_thing.as_ref()
+    }
+}
+
 use ThingQualities as ProductQualities;
 
 #[skip_serializing_none]
@@ -69,6 +117,21 @@ pub struct ObjectQualities {
     pub sdf_action: Option<HashMap<String, ActionQualities>>,
     pub sdf_event: Option<HashMap<String, EventQualities>>,
     pub sdf_data: Option<HashMap<String, DataQualities>>,
+}
+
+impl AffordanceQuality for ObjectQualities {
+    fn get_sdf_property(&self) -> Option<&HashMap<String, PropertyQualities>> {
+        self.sdf_property.as_ref()
+    }
+    fn get_sdf_action(&self) -> Option<&HashMap<String, ActionQualities>> {
+        self.sdf_action.as_ref()
+    }
+    fn get_sdf_event(&self) -> Option<&HashMap<String, EventQualities>> {
+        self.sdf_event.as_ref()
+    }
+    fn get_sdf_data(&self) -> Option<&HashMap<String, DataQualities>> {
+        self.sdf_data.as_ref()
+    }
 }
 
 #[skip_serializing_none]

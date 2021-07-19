@@ -1,5 +1,6 @@
 use super::definitions as wot;
 use crate::sdf::definitions as sdf;
+use sdf::AffordanceQuality;
 use serde_variant::to_variant_name;
 use std::collections::HashMap;
 
@@ -81,6 +82,32 @@ impl From<sdf::SDFModel> for wot::ThingModel {
     }
 }
 
+fn resolve_action_sdf_ref(
+    sdf_model: &'_ sdf::SDFModel,
+    sdf_ref: String,
+) -> Option<&'_ sdf::ActionQualities> {
+    let ref_elements: Vec<&str> = sdf_ref.split('/').collect();
+    let action_key: &str = ref_elements.last()?;
+    let resolved_quality = resolve_sdf_ref_for_model(&sdf_model, ref_elements, "sdfAction")?;
+    let sdf_action = resolved_quality.get_sdf_action()?;
+    sdf_action.get(&action_key.to_string())
+}
+
+fn resolve_sdf_ref_for_model<'a>(
+    sdf_model: &'a sdf::SDFModel,
+    ref_elements: Vec<&str>,
+    affordance_key: &str,
+) -> Option<&'a (impl sdf::AffordanceQuality + 'a)> {
+    let _uri = ref_elements.get(0)?; // TODO: Handle case if first element is a namespace pointer
+
+    let first_level_key = ref_elements.get(1)?;
+    if first_level_key == &affordance_key {
+        Some(sdf_model)
+    } else {
+        None
+    }
+}
+
 fn first_letter_to_uppper_case(s1: &str) -> String {
     let mut c = s1.chars();
     match c.next() {
@@ -121,7 +148,17 @@ fn create_interaction_affordance(
     }
 }
 
-fn convert_action(sdf_action: &sdf::ActionQualities) -> wot::TMActionAffordance {
+fn convert_action(
+    sdf_model: &'_ sdf::SDFModel,
+    sdf_action: &sdf::ActionQualities,
+) -> wot::TMActionAffordance {
+    let common_qualities = &sdf_action.common_qualities;
+    if let Some(sdf_ref) = &common_qualities.sdf_ref {
+        if let Some(action_qualities) = resolve_action_sdf_ref(&sdf_model, sdf_ref.clone()) {
+            println!("{:?}", action_qualities);
+        }
+    }
+
     let input;
     match &sdf_action.sdf_input_data {
         None => input = None,
@@ -151,7 +188,9 @@ fn convert_action(sdf_action: &sdf::ActionQualities) -> wot::TMActionAffordance 
     }
 }
 
-fn convert_actions(sdf_model: &sdf::SDFModel) -> Option<HashMap<String, wot::TMActionAffordance>> {
+fn convert_actions(
+    sdf_model: &'_ sdf::SDFModel,
+) -> Option<HashMap<String, wot::TMActionAffordance>> {
     let mut actions_map: HashMap<String, wot::TMActionAffordance> = HashMap::new();
 
     convert_sdf_actions(&sdf_model, &mut actions_map, &sdf_model.sdf_action, None);
@@ -312,7 +351,10 @@ fn convert_to_data_schema(sdf_property: &sdf::DataQualities) -> wot::DataSchema 
     }
 }
 
-fn convert_property(sdf_property: &sdf::PropertyQualities) -> wot::TMPropertyAffordance {
+fn convert_property(
+    _sdf_model: &sdf::SDFModel,
+    sdf_property: &sdf::PropertyQualities,
+) -> wot::TMPropertyAffordance {
     // TODO: How should contentFormat be mapped?
 
     // TODO: Refactor as sdfProperty is an alias for sdfData
@@ -329,7 +371,7 @@ fn convert_property(sdf_property: &sdf::PropertyQualities) -> wot::TMPropertyAff
 }
 
 fn convert_properties(
-    sdf_model: &sdf::SDFModel,
+    sdf_model: &'_ sdf::SDFModel,
 ) -> Option<HashMap<String, wot::TMPropertyAffordance>> {
     let mut properties: HashMap<String, wot::TMPropertyAffordance> = HashMap::new();
 
@@ -346,8 +388,8 @@ fn convert_properties(
 
 macro_rules! create_object_conversion_function {
     ($wot_type:ty, $sdf_type:ty, $function_name:ident, $function_call:ident, $field_name:ident) => {
-        fn $function_name(
-            _sdf_model: &sdf::SDFModel, // Might be used later for resolving references
+        fn $function_name<'a>(
+            _sdf_model: &'a sdf::SDFModel, // Might be used later for resolving references
             wot_definitions: &mut HashMap<String, $wot_type>,
             sdf_definitions: &Option<HashMap<String, $sdf_type>>,
             prefix: Option<String>,
@@ -373,8 +415,8 @@ macro_rules! create_object_conversion_function {
 
 macro_rules! create_affordance_conversion_function {
     ($wot_type:ty, $sdf_type:ty, $function_name:ident, $function_call:ident) => {
-        fn $function_name(
-            _sdf_model: &sdf::SDFModel, // Might be used later for resolving references
+        fn $function_name<'a>(
+            sdf_model: &'a sdf::SDFModel, // Might be used later for resolving references
             wot_definitions: &mut HashMap<String, $wot_type>,
             sdf_definitions: &Option<HashMap<String, $sdf_type>>,
             prefix: Option<String>,
@@ -383,7 +425,7 @@ macro_rules! create_affordance_conversion_function {
                 Some(sdf_definitions) => {
                     for (key, value) in sdf_definitions {
                         let prefixed_key = get_prefixed_key(prefix.clone(), key.to_string());
-                        wot_definitions.insert(prefixed_key, $function_call(&value));
+                        wot_definitions.insert(prefixed_key, $function_call(&sdf_model, &value));
                     }
                 }
                 None => (),
@@ -434,8 +476,8 @@ create_object_conversion_function!(
 
 macro_rules! create_thing_conversion_function {
     ($wot_type:ty, $function_name:ident, $object_function:ident) => {
-        fn $function_name(
-            _sdf_model: &sdf::SDFModel, // Might be used later for resolving references
+        fn $function_name<'a>(
+            _sdf_model: &'a sdf::SDFModel, // Might be used later for resolving references
             wot_definitions: &mut HashMap<String, $wot_type>,
             sdf_definitions: &Option<HashMap<String, sdf::ThingQualities>>,
             prefix: Option<String>,
@@ -481,7 +523,10 @@ create_thing_conversion_function!(
     convert_sdf_object_events
 );
 
-fn convert_event(sdf_event: &sdf::EventQualities) -> wot::TMEventAffordance {
+fn convert_event(
+    _sdf_model: &sdf::SDFModel,
+    sdf_event: &sdf::EventQualities,
+) -> wot::TMEventAffordance {
     // TODO: How should sdf_data be mapped?
     let data = sdf_event
         .sdf_output_data
@@ -500,7 +545,7 @@ fn convert_event(sdf_event: &sdf::EventQualities) -> wot::TMEventAffordance {
     }
 }
 
-fn convert_events(sdf_model: &sdf::SDFModel) -> Option<HashMap<String, wot::TMEventAffordance>> {
+fn convert_events(sdf_model: &'_ sdf::SDFModel) -> Option<HashMap<String, wot::TMEventAffordance>> {
     let mut events: HashMap<String, wot::TMEventAffordance> = HashMap::new();
 
     convert_sdf_events(&sdf_model, &mut events, &sdf_model.sdf_event, None);
