@@ -74,6 +74,8 @@ pub struct ObjectQualities {
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct NumberTypeQualities<T> {
+    #[serde(flatten)]
+    pub common_qualities: TypedQualities<T>,
     pub minimum: Option<T>,
     pub maximum: Option<T>,
     pub exclusive_minimum: Option<T>,
