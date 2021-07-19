@@ -312,6 +312,7 @@ pub struct DataSchema {
     #[serde(flatten)]
     pub data_type: Option<JSONSchemaTypes>,
     pub r#const: Option<serde_json::Value>,
+    pub default: Option<serde_json::Value>,
     pub unit: Option<String>,
     pub one_of: Option<Vec<DataSchema>>,
     pub r#enum: Option<Vec<serde_json::Value>>,
