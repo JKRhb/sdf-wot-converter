@@ -129,26 +129,195 @@ impl From<&wot::DataSchema> for sdf::CommonQualities {
     }
 }
 
-impl From<wot::DataSchema> for sdf::DataQualities {
-    fn from(data_schema: wot::DataSchema) -> Self {
+fn map_data_type(data_schema: &wot::DataSchema) -> Option<sdf::Types> {
+    if let Some(json_schema_type) = &data_schema.data_type {
+        match json_schema_type {
+            wot::JSONSchemaTypes::Null => None,
+            wot::JSONSchemaTypes::Boolean => {
+                let typed_qualities = sdf::TypedQualities::<bool> {
+                    r#enum: data_schema
+                        .r#enum
+                        .as_ref()
+                        .and_then(|x| x.iter().map(serde_json::value::Value::as_bool).collect()),
+                    r#const: data_schema
+                        .r#const
+                        .as_ref()
+                        .and_then(|x| serde_json::value::Value::as_bool(&x)),
+                    default: data_schema
+                        .default
+                        .as_ref()
+                        .and_then(|x| serde_json::value::Value::as_bool(&x)),
+                };
+
+                let boolean_type = sdf::RegularTypes::Boolean(typed_qualities);
+                Some(sdf::Types::Type(boolean_type))
+            }
+            wot::JSONSchemaTypes::Integer(integer_schema) => {
+                let common_qualities = sdf::TypedQualities::<i64> {
+                    r#enum: data_schema
+                        .r#enum
+                        .as_ref()
+                        .and_then(|x| x.iter().map(serde_json::value::Value::as_i64).collect()),
+                    r#const: data_schema
+                        .r#const
+                        .as_ref()
+                        .and_then(|x| serde_json::value::Value::as_i64(&x)),
+                    default: data_schema
+                        .default
+                        .as_ref()
+                        .and_then(|x| serde_json::value::Value::as_i64(&x)),
+                };
+
+                let typed_qualities = sdf::NumberTypeQualities::<i64> {
+                    minimum: integer_schema.minimum,
+                    maximum: integer_schema.maximum,
+                    exclusive_maximum: integer_schema.exclusive_maximum,
+                    exclusive_minimum: integer_schema.exclusive_minimum,
+                    multiple_of: integer_schema.multiple_of,
+                    common_qualities,
+                };
+
+                let integer_type = sdf::RegularTypes::Integer(typed_qualities);
+                Some(sdf::Types::Type(integer_type))
+            }
+            wot::JSONSchemaTypes::Number(number_schema) => {
+                let common_qualities = sdf::TypedQualities::<f64> {
+                    r#enum: data_schema
+                        .r#enum
+                        .as_ref()
+                        .and_then(|x| x.iter().map(serde_json::value::Value::as_f64).collect()),
+                    r#const: data_schema
+                        .r#const
+                        .as_ref()
+                        .and_then(|x| serde_json::value::Value::as_f64(&x)),
+                    default: data_schema
+                        .default
+                        .as_ref()
+                        .and_then(|x| serde_json::value::Value::as_f64(&x)),
+                };
+
+                let typed_qualities = sdf::NumberTypeQualities::<f64> {
+                    minimum: number_schema.minimum,
+                    maximum: number_schema.maximum,
+                    exclusive_maximum: number_schema.exclusive_maximum,
+                    exclusive_minimum: number_schema.exclusive_minimum,
+                    multiple_of: number_schema.multiple_of,
+                    common_qualities,
+                };
+
+                let number_type = sdf::RegularTypes::Number(typed_qualities);
+                Some(sdf::Types::Type(number_type))
+            }
+            wot::JSONSchemaTypes::String(string_schema) => {
+                let common_qualities = sdf::TypedQualities::<String> {
+                    r#enum: data_schema
+                        .r#enum
+                        .as_ref()
+                        .and_then(|x| x.iter().map(|y| y.as_str().map(String::from)).collect()),
+                    r#const: data_schema
+                        .r#const
+                        .as_ref()
+                        .and_then(|x| serde_json::value::Value::as_str(&x).map(String::from)),
+                    default: data_schema
+                        .default
+                        .as_ref()
+                        .and_then(|x| serde_json::value::Value::as_str(&x).map(String::from)),
+                };
+
+                let typed_qualities = sdf::StringTypeQualities {
+                    common_qualities,
+                    min_length: string_schema.min_length,
+                    max_length: string_schema.max_length,
+                    pattern: string_schema.pattern.clone(),
+                    format: None, // TODO: How to map to FormatQualities?,
+                };
+
+                let string_type = sdf::RegularTypes::String(typed_qualities);
+                Some(sdf::Types::Type(string_type))
+            }
+            wot::JSONSchemaTypes::Array(array_schema) => {
+                let items;
+                let mut array_items: Vec<sdf::DataQualities> = Vec::new();
+
+                if let Some(wot_items) = &array_schema.items {
+                    match &**wot_items {
+                        wot::TypeOrTypeArray::Type::<wot::DataSchema>(array_type) => {
+                            array_items.push(sdf::DataQualities::from(array_type));
+                        }
+                        wot::TypeOrTypeArray::Array::<wot::DataSchema>(array) => {
+                            for item in array {
+                                array_items.push(sdf::DataQualities::from(item));
+                            }
+                        }
+                    }
+                };
+
+                if array_items.is_empty() {
+                    items = None;
+                } else {
+                    items = Some(array_items);
+                }
+
+                let typed_qualities = sdf::ArrayTypeQualities {
+                    min_items: array_schema.max_items,
+                    max_items: array_schema.max_items,
+                    unique_items: None, // TODO: Is there an equivalent in WoT?
+                    items,              // TODO: Should this be an array or a map?
+                };
+
+                let array_type = sdf::RegularTypes::Array(typed_qualities);
+                Some(sdf::Types::Type(array_type))
+            }
+            wot::JSONSchemaTypes::Object(object_schema) => {
+                let common_qualities = sdf::TypedQualities::<HashMap<String, serde_json::Value>> {
+                    // TODO: How do you map this?
+                    r#const: None,
+                    default: None,
+                    r#enum: None,
+                };
+                let properties;
+                let mut properties_map: HashMap<String, sdf::DataQualities> = HashMap::new();
+
+                if let Some(wot_properties) = &object_schema.properties {
+                    for (key, data_schema) in wot_properties {
+                        properties_map.insert(key.clone(), sdf::DataQualities::from(data_schema));
+                    }
+                }
+
+                if !properties_map.is_empty() {
+                    properties = Some(properties_map);
+                } else {
+                    properties = None;
+                }
+
+                let typed_qualities = sdf::ObjectTypeQualities {
+                    common_qualities,
+                    required: object_schema.required.clone(),
+                    properties,
+                };
+
+                let object_type = sdf::RegularTypes::Object(typed_qualities);
+                Some(sdf::Types::Type(object_type))
+            }
+        }
+    } else {
+        None
+    }
+}
+
+impl From<&wot::DataSchema> for sdf::DataQualities {
+    fn from(data_schema: &wot::DataSchema) -> Self {
         let unit = data_schema.unit.clone();
         let writable = data_schema.read_only.map(|x| !x);
         let readable = data_schema.write_only.map(|x| !x);
+        let jsonschema = map_data_type(&data_schema);
 
-        // TODO: Unmapped fields:
-        // pub r#type: Option<TypeOrTypeArray<String>>,
-        // pub titles: Option<HashMap<String, String>>, // TODO: Consider using a MultiLanguage struct instead
-        // pub descriptions: Option<HashMap<String, String>>,
-        // #[serde(flatten)]
-        // pub data_type: Option<JSONSchemaTypes>,
-        // pub r#const: Option<serde_json::Value>,
-        // pub one_of: Option<Vec<DataSchema>>,
-        // pub r#enum: Option<Vec<serde_json::Value>>,
-        // pub format: Option<String>,
+        // TODO: Unmapped fields: @type, titles, descriptions, one_of, format
+        // TODO: Check how type of enum, const, and default should be handled
 
         sdf::DataQualities {
             common_qualities: sdf::CommonQualities::from(data_schema),
-            jsonschema: None,
+            jsonschema,
             unit,
             observable: None,
             readable,
