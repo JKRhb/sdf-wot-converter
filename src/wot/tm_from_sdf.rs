@@ -197,11 +197,14 @@ fn map_regular_type(sdf_type: &sdf::RegularTypes) -> Option<wot::JSONSchemaTypes
             Some(mapping)
         }
         sdf::RegularTypes::Array(sdf_schema) => {
-            // TODO: Can SDF arrays only specify one data quality?
+            // TODO: Should SDF arrays only specify one data quality?
             let items;
             if let Some(array_items) = &sdf_schema.items {
-                let data_schema = convert_to_data_schema(&array_items);
-                items = Some(Box::new(wot::TypeOrTypeArray::Type::<wot::DataSchema>(
+                let data_schema = array_items
+                    .iter()
+                    .map(|x| convert_to_data_schema(&x))
+                    .collect();
+                items = Some(Box::new(wot::TypeOrTypeArray::Array::<wot::DataSchema>(
                     data_schema,
                 )));
             } else {
@@ -280,6 +283,7 @@ fn convert_to_data_schema(sdf_property: &sdf::DataQualities) -> wot::DataSchema 
 
         r#enum: None,  // Still TODO
         r#const: None, // Still TODO
+        default: None, // Still TODO
         data_type: map_data_type(&sdf_property.jsonschema),
         one_of: None, // TODO: Can this be mapped using sdfChoice?
 
