@@ -193,3 +193,103 @@ fn test_empty_tm_sdf_conversion() {
 
     test_wot_tm_sdf_conversion(wot_tm_input, expected_sdf_result);
 }
+
+#[test]
+fn test_tm_sdf_property_conversion() {
+    let wot_tm_input = r#"
+        {
+            "@context": [
+              "https://www.w3.org/2019/wot/td/v1"
+            ],
+            "@type": "Thing",
+            "properties": {
+                "boo": {
+                    "type": "boolean",
+                    "const": true,
+                    "default": true
+                },
+                "foo": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9001,
+                    "exclusiveMaximum": 9002,
+                    "exclusiveMinimum": 1,
+                    "multipleOf": 1,
+                    "const": 5,
+                    "default": 5
+                },
+                "bar": {
+                    "type": "number",
+                    "minimum": 0.0,
+                    "maximum": 9001.0,
+                    "exclusiveMaximum": 9002.0,
+                    "exclusiveMinimum": 1.0,
+                    "multipleOf": 1.0,
+                    "const": 5.0,
+                    "default": 5.0
+                },
+                "baz": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 5,
+                    "pattern": "email"
+                },
+                "foobar": {
+                    "type": "array",
+                    "minItems": 2,
+                    "maxItems": 5
+                },
+                "barfoo": {
+                    "type": "object",
+                    "required": ["foo"]
+                }
+            }
+        }
+    "#;
+    let expected_sdf_result = json!({
+        "sdfProperty": {
+            "boo": {
+                "type": "boolean",
+                "const": true,
+                "default": true
+            },
+            "foo": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9001,
+                "exclusiveMaximum": 9002,
+                "exclusiveMinimum": 1,
+                "multipleOf": 1,
+                "const": 5,
+                "default": 5
+            },
+            "bar": {
+                "type": "number",
+                "minimum": 0.0,
+                "maximum": 9001.0,
+                "exclusiveMaximum": 9002.0,
+                "exclusiveMinimum": 1.0,
+                "multipleOf": 1.0,
+                "const": 5.0,
+                "default": 5.0
+            },
+            "baz": {
+                "type": "string",
+                "minLength": 3,
+                "maxLength": 5,
+                "pattern": "email"
+            },
+            "foobar": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 5
+            },
+            "barfoo": {
+                "type": "object",
+                "required": ["foo"]
+            }
+        }
+    });
+
+    test_wot_tm_sdf_conversion(wot_tm_input, expected_sdf_result);
+}
