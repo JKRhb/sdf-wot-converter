@@ -259,7 +259,7 @@ fn map_data_type(data_schema: &wot::DataSchema) -> Option<sdf::Types> {
                 }
 
                 let typed_qualities = sdf::ArrayTypeQualities {
-                    min_items: array_schema.max_items,
+                    min_items: array_schema.min_items,
                     max_items: array_schema.max_items,
                     unique_items: None, // TODO: Is there an equivalent in WoT?
                     items,              // TODO: Should this be an array or a map?
