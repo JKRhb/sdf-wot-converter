@@ -148,19 +148,77 @@ fn create_interaction_affordance(
     }
 }
 
+fn merge_common_qualities(
+    base_qualities: &sdf::CommonQualities,
+    overriding_qualities: &sdf::CommonQualities,
+) -> sdf::CommonQualities {
+    let sdf_ref = overriding_qualities
+        .sdf_ref
+        .clone()
+        .or_else(|| base_qualities.sdf_ref.clone());
+    let sdf_required = overriding_qualities
+        .sdf_required
+        .clone()
+        .or_else(|| base_qualities.sdf_required.clone());
+    let label = overriding_qualities
+        .label
+        .clone()
+        .or_else(|| base_qualities.label.clone());
+    let description = overriding_qualities
+        .description
+        .clone()
+        .or_else(|| base_qualities.description.clone());
+    let comment = overriding_qualities
+        .comment
+        .clone()
+        .or_else(|| base_qualities.comment.clone());
+
+    sdf::CommonQualities {
+        description,
+        label,
+        comment,
+        sdf_ref,
+        sdf_required,
+    }
+}
+
+fn merge_sdf_action(
+    base_sdf_action: &sdf::ActionQualities,
+    overriding_sdf_action: &sdf::ActionQualities,
+) -> sdf::ActionQualities {
+    let common_qualities = merge_common_qualities(
+        &base_sdf_action.common_qualities,
+        &overriding_sdf_action.common_qualities,
+    );
+    // TODO: DataQualities are not yet overwritten
+    let sdf_data = None;
+    let sdf_input_data = None;
+    let sdf_output_data = None;
+
+    sdf::ActionQualities {
+        common_qualities,
+        sdf_input_data,
+        sdf_output_data,
+        sdf_data,
+    }
+}
+
 fn convert_action(
     sdf_model: &'_ sdf::SDFModel,
     sdf_action: &sdf::ActionQualities,
 ) -> wot::TMActionAffordance {
     let common_qualities = &sdf_action.common_qualities;
+    let merged_action;
+    let mut resolved_action = sdf_action;
     if let Some(sdf_ref) = &common_qualities.sdf_ref {
         if let Some(action_qualities) = resolve_action_sdf_ref(&sdf_model, sdf_ref.clone()) {
-            println!("{:?}", action_qualities);
+            merged_action = merge_sdf_action(&action_qualities, &sdf_action);
+            resolved_action = &merged_action;
         }
     }
 
     let input;
-    match &sdf_action.sdf_input_data {
+    match &resolved_action.sdf_input_data {
         None => input = None,
         Some(input_data) => {
             input = Some(convert_to_data_schema(&input_data));
@@ -168,7 +226,7 @@ fn convert_action(
     };
 
     let output;
-    match &sdf_action.sdf_output_data {
+    match &resolved_action.sdf_output_data {
         None => output = None,
         Some(output_data) => {
             output = Some(convert_to_data_schema(&output_data));
@@ -184,7 +242,7 @@ fn convert_action(
 
     wot::TMActionAffordance {
         action_affordance_fields,
-        interaction_affordance: create_interaction_affordance(&sdf_action.common_qualities),
+        interaction_affordance: create_interaction_affordance(&resolved_action.common_qualities),
     }
 }
 
