@@ -328,3 +328,32 @@ fn test_tm_sdf_action_conversion() {
     test_wot_tm_sdf_conversion(wot_tm_input, expected_sdf_result);
 }
 
+#[test]
+fn test_tm_sdf_event_conversion() {
+    let wot_tm_input = r#"
+        {
+            "@context": [
+              "https://www.w3.org/2019/wot/td/v1"
+            ],
+            "@type": "Thing",
+            "events": {
+                "foo": {
+                    "data": {
+                        "type": "integer"
+                    }
+                }
+            }
+        }
+    "#;
+    let expected_sdf_result = json!({
+        "sdfEvent": {
+            "foo": {
+                "sdfOutputData": {
+                    "type": "integer"
+                }
+            }
+        }
+    });
+
+    test_wot_tm_sdf_conversion(wot_tm_input, expected_sdf_result);
+}
