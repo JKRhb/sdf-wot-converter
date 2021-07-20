@@ -7,6 +7,7 @@ impl From<sdf::SDFModel> for wot::ThingModel {
         let mut context_entries: Vec<wot::ContextEntry> = vec![wot::ContextEntry::String(
             "https://www.w3.org/2019/wot/td/v1".to_string(),
         )];
+        let r#type = Some(wot::TypeOrTypeArray::<String>::Type("Thing".to_string()));
         let links;
 
         let infoblock: &Option<sdf::InfoBlock> = &sdf_model.info;
@@ -51,7 +52,7 @@ impl From<sdf::SDFModel> for wot::ThingModel {
             version,
 
             // Not covered by SDF yet:
-            r#type: None,
+            r#type,
             titles: None,
             descriptions: None,
             id: None,
