@@ -106,6 +106,42 @@ fn test_sdf_tm_type_conversion() {
     test_sdf_wot_conversion(sdf_input, expected_tm_result);
 }
 
+#[test]
+fn test_sdf_tm_action_conversion() {
+    let sdf_input = r#"{
+        "sdfAction": {
+            "foobar": {
+                "sdfInputData": {
+                    "type": "string"
+                },
+                "sdfOutputData": {
+                    "type": "string"
+                }
+            }
+        }
+    }"#;
+    let expected_tm_result = json!(
+        {
+            "@context": [
+              "https://www.w3.org/2019/wot/td/v1"
+            ],
+            "@type": "Thing",
+            "actions": {
+                "foobar": {
+                    "input": {
+                        "type": "string"
+                    },
+                    "output": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    );
+
+    test_sdf_wot_conversion(sdf_input, expected_tm_result);
+}
+
 fn test_wot_tm_sdf_conversion(wot_tm_input: &str, expected_result: serde_json::Value) {
     let result = converter::convert_wot_tm_to_sdf(wot_tm_input.to_string()).unwrap();
     let result_json: serde_json::Value = serde_json::from_str(result.as_str()).unwrap();
