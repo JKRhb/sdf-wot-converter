@@ -1,5 +1,6 @@
 use super::definitions as wot;
 use crate::sdf::definitions as sdf;
+use serde_variant::to_variant_name;
 use std::collections::HashMap;
 
 impl From<sdf::SDFModel> for wot::ThingModel {
@@ -273,14 +274,27 @@ fn map_readable_writable(
     (write_only, read_only)
 }
 
+fn map_format(sdf_property: &sdf::DataQualities) -> Option<String> {
+    let json_schema = sdf_property.jsonschema.as_ref()?;
+    if let sdf::Types::Type(sdf::RegularTypes::String(string_type)) = json_schema {
+        let format = string_type.format.as_ref()?;
+        return to_variant_name(format).map(String::from).ok();
+    }
+
+    None
+}
+
 fn convert_to_data_schema(sdf_property: &sdf::DataQualities) -> wot::DataSchema {
     // TODO: How should nullable be mapped?
     let (write_only, read_only) =
         map_readable_writable(sdf_property.readable, sdf_property.writable);
 
+    let format = map_format(sdf_property);
+
     wot::DataSchema {
         write_only,
         read_only,
+        format,
 
         r#enum: None,  // Still TODO
         r#const: None, // Still TODO
@@ -294,7 +308,6 @@ fn convert_to_data_schema(sdf_property: &sdf::DataQualities) -> wot::DataSchema 
         description: None, // Set to None to avoid duplication
         titles: None,
         descriptions: None,
-        format: None, // TODO: Can this be mapped?
         r#type: None,
     }
 }
