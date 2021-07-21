@@ -48,7 +48,8 @@ fn test_sdf_tm_type_conversion() {
                 "type": "string",
                 "minLength": 3,
                 "maxLength": 5,
-                "pattern": "email"
+                "pattern": "email",
+                "format": "uri-reference"
             },
             "foobar": {
                 "type": "array",
@@ -88,7 +89,8 @@ fn test_sdf_tm_type_conversion() {
                     "type": "string",
                     "minLength": 3,
                     "maxLength": 5,
-                    "pattern": "email"
+                    "pattern": "email",
+                    "format": "uri-reference"
                 },
                 "foobar": {
                     "type": "array",
