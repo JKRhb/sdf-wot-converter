@@ -184,6 +184,22 @@ fn test_sdf_tm_sdf_ref_conversion() {
             "foobaz": {
                 "sdfRef": "#/sdfAction/foobar"
             }
+        },
+        "sdfEvent": {
+            "foobar": {
+                "label": "hi"
+            },
+            "foobaz": {
+                "sdfRef": "#/sdfEvent/foobar"
+            }
+        },
+        "sdfProperty": {
+            "foobar": {
+                "label": "hi"
+            },
+            "foobaz": {
+                "sdfRef": "#/sdfProperty/foobar"
+            }
         }
     }"##;
     let expected_tm_result = json!(
@@ -193,6 +209,22 @@ fn test_sdf_tm_sdf_ref_conversion() {
             ],
             "@type": "Thing",
             "actions": {
+                "foobar": {
+                    "title": "hi"
+                },
+                "foobaz": {
+                    "title": "hi"
+                }
+            },
+            "properties": {
+                "foobar": {
+                    "title": "hi"
+                },
+                "foobaz": {
+                    "title": "hi"
+                }
+            },
+            "events": {
                 "foobar": {
                     "title": "hi"
                 },
