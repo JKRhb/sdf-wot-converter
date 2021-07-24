@@ -87,10 +87,43 @@ fn resolve_action_sdf_ref(
     sdf_ref: String,
 ) -> Option<&'_ sdf::ActionQualities> {
     let ref_elements: Vec<&str> = sdf_ref.split('/').collect();
-    let action_key: &str = ref_elements.last()?;
+    let key: &str = ref_elements.last()?;
     let resolved_quality = resolve_sdf_ref_for_model(&sdf_model, ref_elements, "sdfAction")?;
     let sdf_action = resolved_quality.get_sdf_action()?;
-    sdf_action.get(&action_key.to_string())
+    sdf_action.get(&key.to_string())
+}
+
+fn resolve_property_sdf_ref(
+    sdf_model: &'_ sdf::SDFModel,
+    sdf_ref: String,
+) -> Option<&'_ sdf::PropertyQualities> {
+    let ref_elements: Vec<&str> = sdf_ref.split('/').collect();
+    let key: &str = ref_elements.last()?;
+    let resolved_quality = resolve_sdf_ref_for_model(&sdf_model, ref_elements, "sdfProperty")?;
+    let sdf_property = resolved_quality.get_sdf_property()?;
+    sdf_property.get(&key.to_string())
+}
+
+fn _resolve_data_sdf_ref(
+    sdf_model: &'_ sdf::SDFModel,
+    sdf_ref: String,
+) -> Option<&'_ sdf::DataQualities> {
+    let ref_elements: Vec<&str> = sdf_ref.split('/').collect();
+    let key: &str = ref_elements.last()?;
+    let resolved_quality = resolve_sdf_ref_for_model(&sdf_model, ref_elements, "sdfData")?;
+    let sdf_data = resolved_quality.get_sdf_data()?;
+    sdf_data.get(&key.to_string())
+}
+
+fn resolve_event_sdf_ref(
+    sdf_model: &'_ sdf::SDFModel,
+    sdf_ref: String,
+) -> Option<&'_ sdf::EventQualities> {
+    let ref_elements: Vec<&str> = sdf_ref.split('/').collect();
+    let key: &str = ref_elements.last()?;
+    let resolved_quality = resolve_sdf_ref_for_model(&sdf_model, ref_elements, "sdfEvent")?;
+    let sdf_event = resolved_quality.get_sdf_event()?;
+    sdf_event.get(&key.to_string())
 }
 
 fn resolve_sdf_ref_for_model<'a>(
@@ -409,22 +442,80 @@ fn convert_to_data_schema(sdf_property: &sdf::DataQualities) -> wot::DataSchema 
     }
 }
 
+fn merge_sdf_property(
+    base_sdf_action: &sdf::PropertyQualities,
+    overriding_sdf_action: &sdf::PropertyQualities,
+) -> sdf::PropertyQualities {
+    let common_qualities = merge_common_qualities(
+        &base_sdf_action.common_qualities,
+        &overriding_sdf_action.common_qualities,
+    );
+    // TODO: DataQualities are not yet overwritten
+    let unit = None;
+    let observable = None;
+    let readable = None;
+    let writable = None;
+    let nullable = None;
+    let sdf_type = None;
+    let content_format = None;
+    let jsonschema = None;
+
+    sdf::PropertyQualities {
+        common_qualities,
+
+        jsonschema,
+        unit,
+        observable,
+        readable,
+        writable,
+        nullable,
+        sdf_type,
+        content_format,
+    }
+}
+
+fn merge_sdf_event(
+    base_sdf_action: &sdf::EventQualities,
+    overriding_sdf_action: &sdf::EventQualities,
+) -> sdf::EventQualities {
+    let common_qualities = merge_common_qualities(
+        &base_sdf_action.common_qualities,
+        &overriding_sdf_action.common_qualities,
+    );
+
+    sdf::EventQualities {
+        common_qualities,
+        sdf_data: None,
+        sdf_output_data: None,
+    }
+}
+
 fn convert_property(
-    _sdf_model: &sdf::SDFModel,
+    sdf_model: &sdf::SDFModel,
     sdf_property: &sdf::PropertyQualities,
 ) -> wot::TMPropertyAffordance {
     // TODO: How should contentFormat be mapped?
-
     // TODO: Refactor as sdfProperty is an alias for sdfData
+
+    let common_qualities = &sdf_property.common_qualities;
+    let merged_property;
+    let mut resolved_property = sdf_property;
+    if let Some(sdf_ref) = &common_qualities.sdf_ref {
+        if let Some(property_qualities) = resolve_property_sdf_ref(&sdf_model, sdf_ref.clone()) {
+            merged_property = merge_sdf_property(&property_qualities, &sdf_property);
+            resolved_property = &merged_property;
+        }
+    }
+
     let property_affordance_fields = wot::PropertyAffordance {
         observable: sdf_property.observable,
 
-        data_schema: convert_to_data_schema(sdf_property),
+        data_schema: convert_to_data_schema(resolved_property),
     };
 
     wot::TMPropertyAffordance {
         property_affordance_fields,
-        interaction_affordance: create_interaction_affordance(&sdf_property.common_qualities),
+        interaction_affordance: create_interaction_affordance(&resolved_property.common_qualities),
     }
 }
 
@@ -447,7 +538,7 @@ fn convert_properties(
 macro_rules! create_object_conversion_function {
     ($wot_type:ty, $sdf_type:ty, $function_name:ident, $function_call:ident, $field_name:ident) => {
         fn $function_name<'a>(
-            _sdf_model: &'a sdf::SDFModel, // Might be used later for resolving references
+            sdf_model: &'a sdf::SDFModel,
             wot_definitions: &mut HashMap<String, $wot_type>,
             sdf_definitions: &Option<HashMap<String, $sdf_type>>,
             prefix: Option<String>,
@@ -458,7 +549,7 @@ macro_rules! create_object_conversion_function {
                         let prefixed_key = get_prefixed_key(prefix.clone(), key.to_string());
 
                         $function_call(
-                            _sdf_model,
+                            sdf_model,
                             wot_definitions,
                             &value.$field_name,
                             Some(prefixed_key),
@@ -582,11 +673,21 @@ create_thing_conversion_function!(
 );
 
 fn convert_event(
-    _sdf_model: &sdf::SDFModel,
+    sdf_model: &sdf::SDFModel,
     sdf_event: &sdf::EventQualities,
 ) -> wot::TMEventAffordance {
+    let common_qualities = &sdf_event.common_qualities;
+    let merged_event;
+    let mut resolved_event = sdf_event;
+    if let Some(sdf_ref) = &common_qualities.sdf_ref {
+        if let Some(property_qualities) = resolve_event_sdf_ref(&sdf_model, sdf_ref.clone()) {
+            merged_event = merge_sdf_event(&property_qualities, &sdf_event);
+            resolved_event = &merged_event;
+        }
+    }
+
     // TODO: How should sdf_data be mapped?
-    let data = sdf_event
+    let data = resolved_event
         .sdf_output_data
         .as_ref()
         .map(|output_data| convert_to_data_schema(&output_data)); // TODO: Refactor
