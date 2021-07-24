@@ -475,12 +475,12 @@ fn merge_sdf_property(
 }
 
 fn merge_sdf_event(
-    base_sdf_action: &sdf::EventQualities,
-    overriding_sdf_action: &sdf::EventQualities,
+    base_sdf_event: &sdf::EventQualities,
+    overriding_sdf_event: &sdf::EventQualities,
 ) -> sdf::EventQualities {
     let common_qualities = merge_common_qualities(
-        &base_sdf_action.common_qualities,
-        &overriding_sdf_action.common_qualities,
+        &base_sdf_event.common_qualities,
+        &overriding_sdf_event.common_qualities,
     );
 
     sdf::EventQualities {
@@ -680,8 +680,8 @@ fn convert_event(
     let merged_event;
     let mut resolved_event = sdf_event;
     if let Some(sdf_ref) = &common_qualities.sdf_ref {
-        if let Some(property_qualities) = resolve_event_sdf_ref(&sdf_model, sdf_ref.clone()) {
-            merged_event = merge_sdf_event(&property_qualities, &sdf_event);
+        if let Some(event_qualities) = resolve_event_sdf_ref(&sdf_model, sdf_ref.clone()) {
+            merged_event = merge_sdf_event(&event_qualities, &sdf_event);
             resolved_event = &merged_event;
         }
     }
@@ -700,7 +700,7 @@ fn convert_event(
 
     wot::TMEventAffordance {
         event_affordance_fields,
-        interaction_affordance: create_interaction_affordance(&sdf_event.common_qualities),
+        interaction_affordance: create_interaction_affordance(&resolved_event.common_qualities),
     }
 }
 
