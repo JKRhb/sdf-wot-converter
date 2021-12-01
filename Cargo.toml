@@ -12,7 +12,7 @@ serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
 chrono = {version = "0.4.19", features = ["serde"]}
 assert-json-diff = "2.0.1"
-ciborium = "0.1.0"
+ciborium = "0.2.0"
 regex = "1.5.4"
 url = "2.2.2"
 clap = "2.34.0"
