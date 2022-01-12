@@ -3,7 +3,7 @@ use serde_with::skip_serializing_none;
 use std::collections::HashMap;
 
 #[skip_serializing_none]
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Default, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SDFModel {
     pub info: Option<InfoBlock>,
@@ -16,23 +16,6 @@ pub struct SDFModel {
     pub sdf_action: Option<HashMap<String, ActionQualities>>,
     pub sdf_event: Option<HashMap<String, EventQualities>>,
     pub sdf_data: Option<HashMap<String, DataQualities>>,
-}
-
-impl Default for SDFModel {
-    fn default() -> Self {
-        SDFModel {
-            info: None,
-            namespace: None,
-            default_namespace: None,
-            sdf_data: None,
-            sdf_object: None,
-            sdf_thing: None,
-            sdf_product: None,
-            sdf_action: None,
-            sdf_property: None,
-            sdf_event: None,
-        }
-    }
 }
 
 #[skip_serializing_none]

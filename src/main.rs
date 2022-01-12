@@ -1,8 +1,6 @@
 use sdf_wot_converter::{converter, Result};
 
-use clap::{
-    app_from_crate, crate_authors, crate_description, crate_name, crate_version, App, Arg, ArgGroup,
-};
+use clap::{app_from_crate, App, Arg, ArgGroup};
 use std::{env, fs};
 use url::Url;
 
@@ -132,31 +130,31 @@ fn match_arguments(
     }
 }
 
-fn create_app() -> clap::App<'static, 'static> {
+fn create_app() -> clap::App<'static> {
     app_from_crate!()
         .subcommand(
             App::new("print")
                 .about("Reads in an SDF or WoT file and prints it in the terminal.")
                 .arg(
-                    Arg::with_name(SDF_INPUT_NAME)
+                    Arg::new(SDF_INPUT_NAME)
                         .long("sdf")
                         .help("Reads in an SDF file.")
                         .takes_value(true),
                 )
                 .arg(
-                    Arg::with_name(TM_INPUT_NAME)
+                    Arg::new(TM_INPUT_NAME)
                         .long("tm")
                         .help("Reads in a WoT Thing Model file.")
                         .takes_value(true),
                 )
                 .arg(
-                    Arg::with_name(TD_INPUT_NAME)
+                    Arg::new(TD_INPUT_NAME)
                         .long("td")
                         .help("Reads in a WoT Thing Description file.")
                         .takes_value(true),
                 )
                 .group(
-                    ArgGroup::with_name("input")
+                    ArgGroup::new("input")
                         .args(&[SDF_INPUT_NAME, TM_INPUT_NAME, TD_INPUT_NAME])
                         .required(true),
                 ),
@@ -165,36 +163,36 @@ fn create_app() -> clap::App<'static, 'static> {
             App::new("convert")
                 .about("Reads in an SDF or WoT file and converts it into another format.")
                 .arg(
-                    Arg::with_name(SDF_INPUT_NAME)
+                    Arg::new(SDF_INPUT_NAME)
                         .long("from-sdf")
                         .help("Reads in an SDF file.")
                         .takes_value(true),
                 )
                 .arg(
-                    Arg::with_name(TM_INPUT_NAME)
+                    Arg::new(TM_INPUT_NAME)
                         .long("from-tm")
                         .help("Reads in a WoT Thing Model file.")
                         .takes_value(true),
                 )
                 .arg(
-                    Arg::with_name(TM_OUTPUT_NAME)
+                    Arg::new(TM_OUTPUT_NAME)
                         .long("to-tm")
                         .help("Converts to a WoT Thing Model and writes it to a file.")
                         .takes_value(true),
                 )
                 .arg(
-                    Arg::with_name(SDF_OUTPUT_NAME)
+                    Arg::new(SDF_OUTPUT_NAME)
                         .long("to-sdf")
                         .help("Converts to a WoT Thing Model and writes it to a file.")
                         .takes_value(true),
                 )
                 .group(
-                    ArgGroup::with_name("from")
+                    ArgGroup::new("from")
                         .args(&[SDF_INPUT_NAME, TM_INPUT_NAME])
                         .required(true),
                 )
                 .group(
-                    ArgGroup::with_name("to")
+                    ArgGroup::new("to")
                         .args(&[TM_OUTPUT_NAME, SDF_OUTPUT_NAME])
                         .required(true),
                 ),
@@ -387,6 +385,7 @@ mod tests {
     fn match_arguments_test() {
         let app = app_from_crate!()
             .subcommand(App::new("print"))
+            .subcommand(App::new("convert"))
             .get_matches_from(vec!["", "print"]);
         assert!(match_arguments(
             app,
@@ -396,6 +395,7 @@ mod tests {
         .is_ok());
 
         let app = app_from_crate!()
+            .subcommand(App::new("print"))
             .subcommand(App::new("convert"))
             .get_matches_from(vec!["", "convert"]);
         assert!(match_arguments(
@@ -407,6 +407,8 @@ mod tests {
 
         let app = app_from_crate!()
             .subcommand(App::new("foobar"))
+            .subcommand(App::new("print"))
+            .subcommand(App::new("convert"))
             .get_matches_from(vec!["", "foobar"]);
         assert_eq!(
             "No known subcommand found!".to_string(),
@@ -424,19 +426,19 @@ mod tests {
     fn create_app_print_test() {
         let app = create_app();
         assert!(app
-            .get_matches_from_safe(vec!["", "print", "--sdf", "examples/sdf/example.sdf.json"])
+            .try_get_matches_from(vec!["", "print", "--sdf", "examples/sdf/example.sdf.json"])
             .is_ok());
         let app = create_app();
         assert!(app
-            .get_matches_from_safe(vec!["", "print", "--td", "examples/wot/example.td.json"])
+            .try_get_matches_from(vec!["", "print", "--td", "examples/wot/example.td.json"])
             .is_ok());
         let app = create_app();
         assert!(app
-            .get_matches_from_safe(vec!["", "print", "--tm", "examples/wot/example.tm.json"])
+            .try_get_matches_from(vec!["", "print", "--tm", "examples/wot/example.tm.json"])
             .is_ok());
         let app = create_app();
         assert!(app
-            .get_matches_from_safe(vec![
+            .try_get_matches_from(vec![
                 "",
                 "print",
                 "--foobar",
@@ -450,7 +452,7 @@ mod tests {
         create_test_dir();
         let app = create_app();
         assert!(app
-            .get_matches_from_safe(vec![
+            .try_get_matches_from(vec![
                 "",
                 "convert",
                 "--from-sdf",
@@ -462,7 +464,7 @@ mod tests {
 
         let app = create_app();
         assert!(app
-            .get_matches_from_safe(vec![
+            .try_get_matches_from(vec![
                 "",
                 "convert",
                 "--from-sdf",
@@ -474,7 +476,7 @@ mod tests {
 
         let app = create_app();
         assert!(app
-            .get_matches_from_safe(vec![
+            .try_get_matches_from(vec![
                 "",
                 "convert",
                 "--from-tm",
@@ -486,7 +488,7 @@ mod tests {
 
         let app = create_app();
         assert!(app
-            .get_matches_from_safe(vec![
+            .try_get_matches_from(vec![
                 "",
                 "convert",
                 "--from-tm",
@@ -500,6 +502,6 @@ mod tests {
     #[test]
     fn create_app_illegal_subcommand_test() {
         let app = create_app();
-        assert!(app.get_matches_from_safe(vec!["", "printf"]).is_err());
+        assert!(app.try_get_matches_from(vec!["", "printf"]).is_err());
     }
 }

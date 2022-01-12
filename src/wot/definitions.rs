@@ -97,17 +97,6 @@ impl Default for BaseThing {
     }
 }
 
-impl Default for SecuritySchemeCommon {
-    fn default() -> Self {
-        SecuritySchemeCommon {
-            description: None,
-            descriptions: None,
-            r#type: None,
-            proxy: None,
-        }
-    }
-}
-
 impl Default for ThingDescription {
     fn default() -> Self {
         let base_thing = BaseThing::default();
@@ -229,7 +218,7 @@ pub enum SecurityScheme {
 }
 
 #[skip_serializing_none]
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Default, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SecuritySchemeCommon {
     #[serde(rename = "@type")]

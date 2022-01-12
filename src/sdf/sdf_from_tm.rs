@@ -142,11 +142,11 @@ fn map_data_type(data_schema: &wot::DataSchema) -> Option<sdf::Types> {
                     r#const: data_schema
                         .r#const
                         .as_ref()
-                        .and_then(|x| serde_json::value::Value::as_bool(&x)),
+                        .and_then(serde_json::value::Value::as_bool),
                     default: data_schema
                         .default
                         .as_ref()
-                        .and_then(|x| serde_json::value::Value::as_bool(&x)),
+                        .and_then(serde_json::value::Value::as_bool),
                 };
 
                 let boolean_type = sdf::RegularTypes::Boolean(typed_qualities);
@@ -161,11 +161,11 @@ fn map_data_type(data_schema: &wot::DataSchema) -> Option<sdf::Types> {
                     r#const: data_schema
                         .r#const
                         .as_ref()
-                        .and_then(|x| serde_json::value::Value::as_i64(&x)),
+                        .and_then(serde_json::value::Value::as_i64),
                     default: data_schema
                         .default
                         .as_ref()
-                        .and_then(|x| serde_json::value::Value::as_i64(&x)),
+                        .and_then(serde_json::value::Value::as_i64),
                 };
 
                 let typed_qualities = sdf::NumberTypeQualities::<i64> {
@@ -189,11 +189,11 @@ fn map_data_type(data_schema: &wot::DataSchema) -> Option<sdf::Types> {
                     r#const: data_schema
                         .r#const
                         .as_ref()
-                        .and_then(|x| serde_json::value::Value::as_f64(&x)),
+                        .and_then(serde_json::value::Value::as_f64),
                     default: data_schema
                         .default
                         .as_ref()
-                        .and_then(|x| serde_json::value::Value::as_f64(&x)),
+                        .and_then(serde_json::value::Value::as_f64),
                 };
 
                 let typed_qualities = sdf::NumberTypeQualities::<f64> {
@@ -217,11 +217,11 @@ fn map_data_type(data_schema: &wot::DataSchema) -> Option<sdf::Types> {
                     r#const: data_schema
                         .r#const
                         .as_ref()
-                        .and_then(|x| serde_json::value::Value::as_str(&x).map(String::from)),
+                        .and_then(|x| serde_json::value::Value::as_str(x).map(String::from)),
                     default: data_schema
                         .default
                         .as_ref()
-                        .and_then(|x| serde_json::value::Value::as_str(&x).map(String::from)),
+                        .and_then(|x| serde_json::value::Value::as_str(x).map(String::from)),
                 };
 
                 let typed_qualities = sdf::StringTypeQualities {
@@ -310,7 +310,7 @@ impl From<&wot::DataSchema> for sdf::DataQualities {
         let unit = data_schema.unit.clone();
         let writable = data_schema.read_only.map(|x| !x);
         let readable = data_schema.write_only.map(|x| !x);
-        let jsonschema = map_data_type(&data_schema);
+        let jsonschema = map_data_type(data_schema);
 
         // TODO: Unmapped fields: @type, titles, descriptions, one_of, format
         // TODO: Check how type of enum, const, and default should be handled
