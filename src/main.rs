@@ -385,6 +385,7 @@ mod tests {
     fn match_arguments_test() {
         let app = app_from_crate!()
             .subcommand(App::new("print"))
+            .subcommand(App::new("convert"))
             .get_matches_from(vec!["", "print"]);
         assert!(match_arguments(
             app,
@@ -394,6 +395,7 @@ mod tests {
         .is_ok());
 
         let app = app_from_crate!()
+            .subcommand(App::new("print"))
             .subcommand(App::new("convert"))
             .get_matches_from(vec!["", "convert"]);
         assert!(match_arguments(
@@ -405,6 +407,8 @@ mod tests {
 
         let app = app_from_crate!()
             .subcommand(App::new("foobar"))
+            .subcommand(App::new("print"))
+            .subcommand(App::new("convert"))
             .get_matches_from(vec!["", "foobar"]);
         assert_eq!(
             "No known subcommand found!".to_string(),
