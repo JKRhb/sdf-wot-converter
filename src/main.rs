@@ -1,8 +1,6 @@
 use sdf_wot_converter::{converter, Result};
 
-use clap::{
-    app_from_crate, crate_authors, crate_description, crate_name, crate_version, App, Arg, ArgGroup,
-};
+use clap::{app_from_crate, App, Arg, ArgGroup};
 use std::{env, fs};
 use url::Url;
 
