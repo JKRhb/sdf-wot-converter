@@ -126,7 +126,7 @@ fn convert_action(sdf_action: &sdf::ActionQualities) -> wot::TMActionAffordance 
     match &sdf_action.sdf_input_data {
         None => input = None,
         Some(input_data) => {
-            input = Some(convert_to_data_schema(&input_data));
+            input = Some(convert_to_data_schema(input_data));
         }
     };
 
@@ -134,7 +134,7 @@ fn convert_action(sdf_action: &sdf::ActionQualities) -> wot::TMActionAffordance 
     match &sdf_action.sdf_output_data {
         None => output = None,
         Some(output_data) => {
-            output = Some(convert_to_data_schema(&output_data));
+            output = Some(convert_to_data_schema(output_data));
         }
     };
 
@@ -154,9 +154,9 @@ fn convert_action(sdf_action: &sdf::ActionQualities) -> wot::TMActionAffordance 
 fn convert_actions(sdf_model: &sdf::SDFModel) -> Option<HashMap<String, wot::TMActionAffordance>> {
     let mut actions_map: HashMap<String, wot::TMActionAffordance> = HashMap::new();
 
-    convert_sdf_actions(&sdf_model, &mut actions_map, &sdf_model.sdf_action, None);
-    convert_sdf_object_actions(&sdf_model, &mut actions_map, &sdf_model.sdf_object, None);
-    convert_sdf_thing_actions(&sdf_model, &mut actions_map, &sdf_model.sdf_thing, None);
+    convert_sdf_actions(sdf_model, &mut actions_map, &sdf_model.sdf_action, None);
+    convert_sdf_object_actions(sdf_model, &mut actions_map, &sdf_model.sdf_object, None);
+    convert_sdf_thing_actions(sdf_model, &mut actions_map, &sdf_model.sdf_thing, None);
 
     if !actions_map.is_empty() {
         Some(actions_map)
@@ -202,10 +202,7 @@ fn map_regular_type(sdf_type: &sdf::RegularTypes) -> Option<wot::JSONSchemaTypes
             // TODO: Should SDF arrays only specify one data quality?
             let items;
             if let Some(array_items) = &sdf_schema.items {
-                let data_schema = array_items
-                    .iter()
-                    .map(|x| convert_to_data_schema(&x))
-                    .collect();
+                let data_schema = array_items.iter().map(convert_to_data_schema).collect();
                 items = Some(Box::new(wot::TypeOrTypeArray::Array::<wot::DataSchema>(
                     data_schema,
                 )));
@@ -226,7 +223,7 @@ fn map_regular_type(sdf_type: &sdf::RegularTypes) -> Option<wot::JSONSchemaTypes
             let mut wot_properties: HashMap<String, wot::DataSchema> = HashMap::new();
             if let Some(sdf_properties) = &sdf_schema.properties {
                 for (key, data_quality) in sdf_properties {
-                    let data_schema = convert_to_data_schema(&data_quality);
+                    let data_schema = convert_to_data_schema(data_quality);
                     wot_properties.insert(key.clone(), data_schema);
                 }
             }
@@ -333,9 +330,9 @@ fn convert_properties(
 ) -> Option<HashMap<String, wot::TMPropertyAffordance>> {
     let mut properties: HashMap<String, wot::TMPropertyAffordance> = HashMap::new();
 
-    convert_sdf_properties(&sdf_model, &mut properties, &sdf_model.sdf_property, None);
-    convert_sdf_object_properties(&sdf_model, &mut properties, &sdf_model.sdf_object, None);
-    convert_sdf_thing_properties(&sdf_model, &mut properties, &sdf_model.sdf_thing, None);
+    convert_sdf_properties(sdf_model, &mut properties, &sdf_model.sdf_property, None);
+    convert_sdf_object_properties(sdf_model, &mut properties, &sdf_model.sdf_object, None);
+    convert_sdf_thing_properties(sdf_model, &mut properties, &sdf_model.sdf_thing, None);
 
     if !properties.is_empty() {
         Some(properties)
@@ -486,7 +483,7 @@ fn convert_event(sdf_event: &sdf::EventQualities) -> wot::TMEventAffordance {
     let data = sdf_event
         .sdf_output_data
         .as_ref()
-        .map(|output_data| convert_to_data_schema(&output_data)); // TODO: Refactor
+        .map(convert_to_data_schema);
 
     let event_affordance_fields = wot::EventAffordance {
         subscription: None, // Still TODO
@@ -503,9 +500,9 @@ fn convert_event(sdf_event: &sdf::EventQualities) -> wot::TMEventAffordance {
 fn convert_events(sdf_model: &sdf::SDFModel) -> Option<HashMap<String, wot::TMEventAffordance>> {
     let mut events: HashMap<String, wot::TMEventAffordance> = HashMap::new();
 
-    convert_sdf_events(&sdf_model, &mut events, &sdf_model.sdf_event, None);
-    convert_sdf_object_events(&sdf_model, &mut events, &sdf_model.sdf_object, None);
-    convert_sdf_thing_events(&sdf_model, &mut events, &sdf_model.sdf_thing, None);
+    convert_sdf_events(sdf_model, &mut events, &sdf_model.sdf_event, None);
+    convert_sdf_object_events(sdf_model, &mut events, &sdf_model.sdf_object, None);
+    convert_sdf_thing_events(sdf_model, &mut events, &sdf_model.sdf_thing, None);
 
     if !events.is_empty() {
         Some(events)
