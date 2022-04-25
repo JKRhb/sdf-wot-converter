@@ -20,4 +20,4 @@ reqwest = {version = "0.11.10", features = ["blocking"]}
 serde_variant = "0.1.1"
 
 [dependencies.serde_with]
-version = "1.12.1"
+version = "1.13.0"
