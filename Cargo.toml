@@ -13,7 +13,7 @@ serde = { version = "1.0", features = ["derive"] }
 chrono = {version = "0.4.19", features = ["serde"]}
 assert-json-diff = "2.0.1"
 ciborium = "0.2.0"
-regex = "1.5.6"
+regex = "1.6.0"
 url = "2.2.2"
 clap = {version = "3.2.1", features = ["cargo"]}
 reqwest = {version = "0.11.10", features = ["blocking"]}
