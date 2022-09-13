@@ -10,7 +10,7 @@ repository = "https://github.com/JKRhb/sdf-wot-converter"
 [dependencies]
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
-chrono = {version = "0.4.21", features = ["serde"]}
+chrono = {version = "0.4.22", features = ["serde"]}
 assert-json-diff = "2.0.2"
 ciborium = "0.2.0"
 regex = "1.6.0"
