@@ -15,7 +15,7 @@ assert-json-diff = "2.0.2"
 ciborium = "0.2.0"
 regex = "1.6.0"
 url = "2.3.1"
-clap = {version = "3.2.22", features = ["cargo"]}
+clap = {version = "4.0.18", features = ["cargo"]}
 reqwest = {version = "0.11.12", features = ["blocking"]}
 serde_variant = "0.1.1"
 
