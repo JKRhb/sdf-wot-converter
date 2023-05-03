@@ -10,6 +10,7 @@ use std::{error, result};
 pub mod converter;
 pub mod sdf;
 pub mod wot;
+pub mod converters;
 
 pub type Result<T> = result::Result<T, Error>;
 type Error = Box<dyn error::Error>;
